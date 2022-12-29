@@ -1,0 +1,153 @@
+﻿<!-- [ Header ] start -->
+<!-- datepicker js -->
+<script src="~/Content/assets/js/plugins/moment.min.js"></script>
+<script src="~/Content/assets/js/plugins/daterangepicker.js"></script>
+<header class="navbar pcoded-header navbar-expand-lg navbar-light header-blue">
+
+    <div class="collapse navbar-collapse">
+
+        <a href="/Announcement"><img style="margin-left: 20px" height="53px" src="~/Content/assets/images/logo1.PNG" /></a>
+        <input class="form-control companyList basicAutoComplete" placeholder="Search companies" type="text" style="width: 400px" autocomplete="off">
+        <label class="lblClearSearch" style="cursor: pointer; font-weight: 700;margin-top: 11px;color: #4680ff; display: none">x</label>
+        <b class="vl">|</b>
+        <label class="lblShowAll" style="color: #4680ff; font-weight: 600;">
+            <div class="switch switch-primary d-inline m-r-10">
+                <input type="checkbox" class="ShowAll" id="switch-p-2">
+                <label for="switch-p-2" class="cr"></label>
+            </div>
+            <b>Show All</b>
+        </label>
+        <b class="vl">|</b>
+        <label class="mt-3 lblSelectDate" style="color: #4680ff;"><b>Select Date</b></label>
+        <input style="width: 210px;display: inline-block;font-weight: 600;padding-top: 21px;" type="text" placeholder="Select date range" name="daterange" class="form-control dtCtrl" value="" />
+        <b class="vl">|</b>
+        <label class="lblShowFav" style="color: #4680ff; font-weight: 600;">
+            <div class="switch switch-primary d-inline m-r-10">
+                <input type="checkbox" class="showfav" id="switch-showfav">
+                <label for="switch-showfav" class="cr"></label>
+            </div>
+            <b>Show favourite</b>
+        </label>
+        <ul class="navbar-nav ml-auto">
+            <li>
+                <div class="dropdown drp-user" style="background: cornflowerblue">
+                    <a href="/Dashboard" class="dropdown-toggle">
+                        <i class="feather icon-home"></i>
+                    </a>
+
+                </div>
+            </li>
+            <li>
+                <div class="dropdown drp-user" style="background: cornflowerblue">
+                    <a href="/Login" class="dropdown-toggle">
+                        <i class="feather icon-log-in"></i>
+                    </a>
+
+                </div>
+            </li>
+        </ul>
+    </div>
+</header>
+
+<script src="~/Content/bootstrapautocomplete/dist/latest/bootstrap-autocomplete.js"></script>
+
+<script>
+    var startDate;
+    var endDate;
+
+    $(document).ready(function() {
+        $('input[name="daterange"]').daterangepicker({
+            opens: 'right'
+        }, function (start, end, label) {
+
+            startDate = new Date(start).toDateString();
+            endDate = new Date(end).toDateString();
+                //alert(sDt)
+
+        });
+
+  
+        $('input[name="daterange"]').on('apply.daterangepicker', function (ev, picker) {
+            $('.showfav').prop('checked', false);
+            $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+
+            var sDt = new Date(picker.startDate).toDateString();
+            var eDt = new Date(picker.endDate).toDateString();
+            startDate = sDt;
+            endDate = eDt;
+
+            $.ajax({
+                url: getAnnouncementView + "?CompanyName=" + $('.companyList').val() +
+                    "&ShowAll=" + $('.ShowAll').is(':checked') +
+                    "&DateRange=" + sDt + "|" + eDt + "&showFav=" + $('.showfav').is(':checked'),
+                type: 'GET',
+                beforeSend: function () {
+                    $.blockUI();
+                },
+                success: function (data) {
+
+                    $('.AnnouncementView').empty().html(data);
+                    //$('.AnnouncementView').html(res);
+                    //var cc = jQuery(".AnnouncementView").html();
+                    //jQuery(".AnnouncementView").empty().html(cc);
+                    //$('input[name="daterange"]').daterangepicker();
+                },
+                error: function () { },
+                complete: function () {
+                    $.unblockUI();
+                }
+            });
+        });
+
+
+    });
+
+    $('.basicAutoComplete').autoComplete({
+        resolver: 'custom',
+        events: {
+            search: function (qry, callback) {
+                debugger;
+                $('.lblClearSearch').show();
+                ///var xx = $('input[name="daterange"]').daterangepicker().val().split("-")
+                var dtFrm = (new Date($('.dtCtrl').data('daterangepicker').startDate._d)).toISOString();
+                var dtTo = (new Date($('.dtCtrl').data('daterangepicker').endDate._d)).toISOString();
+                startDate = dtFrm;
+                endDate = dtTo;
+
+                var dtRange = dtFrm + "|" + dtTo;
+
+                $.ajax(
+                    '@Url.Content("~/Announcement/GetCompanies?=")' + $('.ShowAll').is(':checked'),
+                    {
+                        data: { q: qry, ShowAll: $('.ShowAll').is(':checked'), Daterange: dtRange }
+                    }
+                ).done(function (res) {
+                    callback(res)
+                });
+            }
+        }
+    });
+
+    $('.basicAutoComplete').on('autocomplete.select', function (evt, item) {
+        debugger;
+
+        var dtFrm = (new Date($('.dtCtrl').data('daterangepicker').startDate._d)).toISOString();
+        var dtTo = (new Date($('.dtCtrl').data('daterangepicker').endDate._d)).toISOString();
+        startDate = dtFrm;
+        endDate = dtTo;
+        var dtRange = dtFrm + "|" + dtTo;
+
+        $.ajax({
+            url: getAnnouncementView + "?CompanyName=" + $(this).val() + "&ShowAll=" + $('.ShowAll').is(':checked') + "&DateRange=" + dtRange,
+            type: 'GET',
+            beforeSend: function () { $.blockUI(); },
+            success: function (res) {
+                $('.AnnouncementView').empty();
+                $('.AnnouncementView').html(res);
+            },
+            error: function () { },
+            complete: function () { $.unblockUI()}
+        });
+
+    });
+</script>

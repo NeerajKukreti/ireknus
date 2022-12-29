@@ -1,0 +1,108 @@
+﻿@model IEnumerable<string>
+@{ ViewBag.Title = "Home Page"; }
+
+<link rel="stylesheet" href="@Url.Content("~/Content/assets/css/plugins/dataTables.bootstrap4.min.css")">
+<link href="@Url.Content("~/Content/Custom.css")" rel="stylesheet" />
+<!-- [ Main Content ] start -->
+<!-- [ Main Content ] start -->
+<div class="row">
+    <!-- [ sample-page ] start -->
+    <div class="col-sm-12">
+        <div class="card">
+
+            <div class="card-header">
+                <h5>Upload Company List with PDF URL</h5>
+
+            </div>
+            <form id="frmUpload" method="post" action="@Url.Content("~/Home/UploadFile")" role="form" class="form-horizontal" novalidate="novalidate">
+                <div class="card-body">
+                    <div class="col-md-12">
+                        <div class="row" style="padding:5px; background-color:#fbf4bd;">
+
+                            <ol class="text-danger">
+                                <li>
+                                    Data Should be entered in given format<br />
+                                    <img src="~/Content/assets/images/reportformat.jpg" />
+                                </li>
+                                <li>To download excel format for entry please <a href="~/Content/companylistformat.xlsx">Click here</a></li>
+                                <li>Before upload excel sheet please enter report name (if you wish to create a fresh report then report name should not be repeated from previous reports)</li>
+                            </ol>
+                        </div>
+                    </div>
+                    <div style="display:none" class="uploadalert">
+                        <ol class="text-danger">
+                            <li></li>
+                        </ol>
+                        <hr />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group fill">
+
+                                <label for="FinanacialYear">Report Name</label>
+                                <input class="form-control" id="ddl_financialyear" name="ddl_financialyear" placeholder="Enter Report Name" required="required" type="text">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group fill">
+                                <label for="FinanacialYear">Choose Excel File</label>
+                                <input class="mt-1" type="file" id="uploadfile" />
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group fill">
+                                <div>
+                                    <label class="" for="FinanacialYear"></label>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-primary mt-2" data-formid="frmUpload" id="btnSubmit">Import Data</button>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group fill">
+                                <label>Select Report Name to View Company List</label>
+                                <select class="form-control" id="ddl_financialyear">
+                                    <option>Select Report Name to View Company List</option>
+                                    @foreach (var yr in Model)
+                                    {
+                        <option value="@yr">@yr</option>}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="dt-responsive table-responsive">
+                                <table id="CompanyTable" class="table table-bordered">
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- [ sample-page ] end -->
+</div>
+<!-- [ Main Content ] end -->
+<!-- [ Main Content ] end -->
+<!-- datatable Js -->
+
+<script src="@Url.Content("~/Content/assets/js/plugins/jquery.dataTables.min.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/plugins/dataTables.bootstrap4.min.js")"></script>
+
+<script src="@Url.Content("~/Content/assets/js/plugins/buttons.colVis.min.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/plugins/buttons.print.min.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/plugins/pdfmake.min.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/plugins/jszip.min.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/plugins/dataTables.buttons.min.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/plugins/buttons.html5.min.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/plugins/buttons.bootstrap4.min.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/pages/data-export-custom.js")"></script>
+
+<script src="@Url.Content("~/Content/assets/js/plugins/jquery.validate.min.js")"></script>
+<script src="@Url.Content("~/Scripts/Custom/Uploads/Upload.js")"></script>
+
+<script>
+    var uploadFileUrl = "@Url.Content("~/Home/UploadFile")"
+    var loadCompanyList = "@Url.Content("~/Home/LoadCompany")"
+</script>

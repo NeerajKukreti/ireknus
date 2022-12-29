@@ -1,0 +1,178 @@
+﻿@model IEnumerable<PDFReader.Model.KeywordResult>
+
+@{
+    Layout = "~/Views/Shared/_DeepSearchLayout.cshtml";
+    var list = Model.GroupBy(x => x.CompanyName).OrderByDescending(y => y.Count()).Select(z => new { list = z.ToList(), company = z.Key }).ToList();
+    var pdfUrl = Model.Select(x => x.Url).FirstOrDefault();
+}
+<style>
+    #pdfContainer {
+        justify-content: center;
+    }
+
+    .prl {
+        color: red
+    }
+</style>
+<script src="http://mozilla.github.io/pdf.js/build/pdf.js"></script>
+
+<link rel="stylesheet" href="https://mozilla.github.io/pdf.js/web/viewer.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+
+<div class="row">
+    <div class="" style="width: 300px;">
+        @foreach (var item in list)
+        {
+            <div class="col-md-12">
+                <div class="card-header bg-c-yellow">
+                    <div class="row align-items-center">
+                        <div class="col-12">
+                            <p class="text-white m-b-0">@item.company</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-12">
+                                @foreach (var ele in item.list.Select(x => x.FoundKeywords).Distinct().ToList())
+                                {
+                                    <div style="margin: 3px 0px 3px 0px; text-decoration: underline; color: cornflowerblue">
+                                        <a target="_blank" href="@pdfUrl">@ele</a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        }
+    </div>
+    @{
+        var keywordGrp = Model.GroupBy(x => x.FoundKeywords).OrderByDescending(y => y.Count()).Select(z => new { list = z.ToList(), keyword = z.Key }).ToList();
+    }
+    <div class="" style="width: 300px;">
+        @foreach (var item in keywordGrp)
+        {
+            <div class="col-md-12">
+                <div class="card-header bg-c-yellow">
+                    <div class="row align-items-center">
+                        <div class="col-12">
+                            <p style="font-weight: bold;" class="text-white m-b-0">@item.keyword</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-12">
+                                @foreach (var ele in item.list)
+                                {
+                                    <a href="#@ele.PDFPageNumber" style="margin: 3px 0px 3px 0px; border-radius: 23px; "
+                                       class="btn btn-sm btn-outline-info has-ripple">
+                                        Page @ele.PDFPageNumber
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        }
+    </div>
+    <div id="pdfContainer" class="col-7 navbar-content" style="height: 1000px; overflow: overlay ">
+
+    </div>
+</div>
+
+<script>
+    var searchText = "Listing Department";
+    var currPage = 1;
+    var thePDF;
+    var numPages;
+    function searchPage(doc, pageNumber) {
+        return doc.getPage(pageNumber).then(function (page) {
+            return page.getTextContent();
+        }).then(function (content) {
+
+            // Search combined text content using regular expression
+            var text = content.items.map(function (i) { return i.str; }).join('');
+            var re = new RegExp("(.{0,20})" + searchText + "(.{0,20})", "gi"), m;
+            var lines = [];
+            while (m = re.exec(text)) {
+                var line = (m[1] ? "..." : "") + m[0] + (m[2] ? "..." : "");
+                lines.push(line);
+            }
+            return { page: pageNumber, items: lines };
+        });
+    }
+
+    var pdfjsLib = window['pdfjs-dist/build/pdf'];
+
+    // The workerSrc property shall be specified.
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'http://mozilla.github.io/pdf.js/build/pdf.worker.js';
+
+    var loading = pdfjsLib.getDocument("@pdfUrl");
+    loading.promise.then(function (doc) {
+        thePDF = doc;
+        numPages = doc.numPages;
+        //Start with first page
+        doc.getPage(1).then(handlePages);
+
+        var results = [];
+
+        for (var i = 1; i <= doc.numPages; i++)
+            results.push(searchPage(doc, i));
+
+        return Promise.all(results);
+    }).then(function (searchResults) {
+
+        // Display results using divs
+        //searchResults.forEach(function (result) {
+        //    var div = document.createElement('div'); div.className = "pr"; document.body.appendChild(div);
+        //    div.textContent = 'Page ' + result.page + ':';
+        //    result.items.forEach(function (s) {
+        //        var div2 = document.createElement('div'); div2.className = "prl"; div.appendChild(div2);
+        //        div2.textContent = s;
+        //    });
+        //});
+
+
+    }).catch(console.error);
+
+    function handlePages(page) {
+
+        //We'll create a canvas for each page to draw it on
+        var canvas = document.createElement("canvas");
+        canvas.style.display = "block";
+        canvas.style.id = currPage;
+        //$(canvas).attr("width", "800");
+        //This gives us the page's dimensions at full scale
+        var viewport = page.getViewport({scale: 1.1});
+
+        //var unscaledViewport = page.getViewport(1);
+        //var scale = Math.min((canvas.height / unscaledViewport.height), (canvas.width / unscaledViewport.width));
+        //var viewport = page.getViewport(scale);
+
+        var context = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        //Draw it on the canvas
+        page.render({ canvasContext: context, viewport: viewport });
+
+        //Add it to the web page
+
+        $(canvas).attr("id", currPage);
+        $("#pdfContainer").append(canvas);
+        //document.body.appendChild( canvas );
+
+        //Move to next page
+        currPage++;
+        if (thePDF !== null && currPage <= numPages) {
+            thePDF.getPage(currPage).then(handlePages);
+        }
+    }
+</script>

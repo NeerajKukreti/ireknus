@@ -1,0 +1,34 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_AnnouncementLayout.cshtml";
+}
+<link rel="stylesheet" href="@Url.Content("~/Content/assets/css/plugins/dataTables.bootstrap4.min.css")">
+<link rel="stylesheet" href="@Url.Content("~/Content/assets/css/plugins/fixedColumns.bootstrap4.min.css")">
+
+<section class="pcoded-main-container" style="margin-left:0">
+    <section class="pcoded-main-container" style="margin-left:0">
+        <div class="pcoded-content" style="margin-top:0">
+            <!-- [ Main Content ] start -->
+            <div class="row">
+                <!-- [ Switches ] start -->
+                <div class="col-sm-12">
+                    <div class="card AnnouncementView">
+                        @Html.Action("GetAnnouncementView", new { DateRange = $"{DateTime.Now.Date}|{DateTime.Now.Date}" })
+                    </div>
+                </div>
+            </div>
+            <!-- [ Main Content ] end -->
+        </div>
+    </section>
+</section>
+<script>
+    var getAnnounementUrl = "@Url.Content("~/Announcement/GetAnnouncements")";
+    var getAnnouncementView = "@Url.Content("~/Announcement/GetAnnouncementView")";
+    var getRepeatedAnnouncements = "@Url.Content("~/Announcement/GetRepeatedAnnouncements")";
+    var getRepeatedAnnouncementView = "@Url.Content("~/Announcement/ShowrepeatedAnnouncement")";
+    var saveFavoriteUrl = "@Url.Content("~/Announcement/SaveFavorite")";
+    var saveCatFavoriteUrl = "@Url.Content("~/Announcement/SaveCatFavorite")";
+    
+</script>
+
+<script src="~/Scripts/Custom/announcement/announcement.js"></script>

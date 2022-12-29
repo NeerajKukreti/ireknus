@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corporate announcement</title>
+    @*@Styles.Render("~/Content/css")
+        @Scripts.Render("~/bundles/modernizr")*@
+
+    <!-- vendor css -->
+    <link rel="stylesheet" href="@Url.Content("~/Content/assets/css/plugins/daterangepicker.css")">
+    <link href="@Url.Content("~/Content/assets/css/style.css")" rel="stylesheet" type="text/css" />
+
+    <script src="@Url.Content("~/Content/assets/js/vendor-all.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/assets/js/plugins/bootstrap.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/assets/js/ripple.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/assets/js/pcoded.min.js")" type="text/javascript"></script>
+
+    @*<script src="@Url.Content("~/Content/assets/js/menu-setting.min.js")" type="text/javascript"></script>*@
+    <script src="@Url.Content("~/Content/assets/js/plugins/jquery.blockUI.js")"></script>
+
+    <script src="@Url.Content("~/Content/assets/js/plugins/bootstrap-notify.min.js")"></script>
+    <script src="@Url.Content("~/Content/assets/js/pages/ac-notification.js")"></script>
+</head>
+<body class="" style="background: white">
+    <!-- [ Pre-loader ] start -->
+    <div class="loader-bg">
+        <div class="loader-track">
+            <div class="loader-fill"></div>
+        </div>
+    </div>
+    <!-- [ Pre-loader ] End -->
+
+    @Html.Partial("_AnnouncementHeader")
+
+    <!-- [ Main Content ] start -->
+    @RenderBody()
+    <!-- [ Main Content ] end -->
+    <!-- Warning Section start -->
+    <!-- Older IE warning message -->
+    <!--[if lt IE 11]>
+        <div class="ie-warning">
+            <h1>Warning!!</h1>
+            <p>You are using an outdated version of Internet Explorer, please upgrade
+               <br />to any of the following web browsers to access this website.
+            </p>
+            <div class="iew-container">
+                <ul class="iew-download">
+                    <li>
+                        <a href="http://www.google.com/chrome/">
+                            <img src="assets/images/browser/chrome.png" alt="Chrome">
+                            <div>Chrome</div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.mozilla.org/en-US/firefox/new/">
+                            <img src="assets/images/browser/firefox.png" alt="Firefox">
+                            <div>Firefox</div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="http://www.opera.com">
+                            <img src="assets/images/browser/opera.png" alt="Opera">
+                            <div>Opera</div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.apple.com/safari/">
+                            <img src="assets/images/browser/safari.png" alt="Safari">
+                            <div>Safari</div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="http://windows.microsoft.com/en-us/internet-explorer/download-ie">
+                            <img src="assets/images/browser/ie.png" alt="">
+                            <div>IE (11 & above)</div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <p>Sorry for the inconvenience!</p>
+        </div>
+    <![endif]-->
+    <!-- Warning Section Ends -->
+    <!-- Required Js -->
+    @*@Scripts.Render("~/bundles/jquery")
+        @Scripts.Render("~/bundles/bootstrap")
+        @RenderSection("scripts", required: false)*@
+</body>
+</html>
+
+
+<style>
+
+</style>
+
+<button onclick="topFunction()" id="myBtn" title="Go to top"><i class="fas fa-arrow-up"></i></button>
+
+<button onclick="bottomFunction()" id="myBottomBtn" title="Go to bottom"><i class="fas fa-arrow-down"></i></button>
+<script>
+    
+</script>
+<script src="~/Scripts/Custom/gbl.js"></script>

@@ -1,0 +1,94 @@
+﻿@model PDFReader.Models.AnnouncementCategoryModel
+
+@{ ViewBag.Title = "Announcement Category"; }
+
+
+
+<!-- data tables css -->
+<link rel="stylesheet" href="@Url.Content("~/Content/assets/css/plugins/dataTables.bootstrap4.min.css")">
+<link href="@Url.Content("~/Content/Custom.css")" rel="stylesheet" />
+
+<!-- [ Main Content ] start -->
+<form id="frm_watchlist" method="post" action="#" role="form" novalidate="novalidate">
+    <div class="row">
+        <!-- [ sample-page ] start -->
+        <div class="col-sm-12">
+            <div class="card">
+
+                <div class="card-header">
+                    <h5>Add/Edit/Delete Announcement Category</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row" style="padding:5px; background-color:#fbf4bd;">
+                        <ol class="text-danger">
+                            <li>In Category Textbox you need to put text for display in category in announcement page</li>
+                            <li>You can add multiple categories in "Search Values" Textbox Separated by (|) Pipe Sign, which are going to be search in announcement</li>
+                        </ol>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group fill">
+
+                                @Html.TextBoxFor(Model => Model.CATEGORY, new { @class = "form-control", placeholder = "Enter Category Text", @required = "required" })
+                                @Html.TextBoxFor(Model => Model.ACTION, new { @class = "hide_column", value = "1" })
+                                @Html.TextBoxFor(Model => Model.CATEGORY_ID, new { @class = "hide_column" })
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group fill">
+
+                                @Html.TextBoxFor(Model => Model.SEARCH_VALUES, new { @class = "form-control", placeholder = "Search Values", @required = "required" })
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group fill">
+
+                                @Html.DropDownListFor(model => model.PARENT_ID, new List<SelectListItem>(Model.ParentCategory), "Select Parent Category", new { @class = "form-control", placeholder = "Parent Category" })
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-3">
+                            <div class="form-group fill">
+                                <div class="btn notifications btn-success has-ripple" data-type="success" data-from="top" data-align="right" id="btnsubmit">Submit</div>
+                                <div class="btn notifications btn-primary has-ripple" data-type="success" data-from="top" data-align="right" id="btnsetpriority">Set Priority</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="dt-responsive table-responsive">
+                                <table id="CategoryTable" class="table table-bordered">
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- [ sample-page ] end -->
+    </div>
+</form>
+<!-- [ Main Content ] end -->
+<!-- datatable Js -->
+
+<script src="@Url.Content("~/Content/assets/js/plugins/jquery.dataTables.min.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/plugins/dataTables.bootstrap4.min.js")"></script>
+
+<script src="@Url.Content("~/Content/assets/js/plugins/buttons.colVis.min.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/plugins/buttons.print.min.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/plugins/pdfmake.min.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/plugins/jszip.min.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/plugins/dataTables.buttons.min.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/plugins/buttons.html5.min.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/plugins/buttons.bootstrap4.min.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/pages/data-export-custom.js")"></script>
+
+<!--Custom-->
+<script src="@Url.Content("~/Scripts/Custom/Category/CategoryDatatable.js")"></script>
+
+<script>
+    var LoadCategory = "@Url.Content("~/Category/LoadCategory")"
+    var InsertCategory = "@Url.Content("~/Category/addEditCategory")"
+    var UpdatePriority= "@Url.Content("~/Category/setPriority")"
+</script>

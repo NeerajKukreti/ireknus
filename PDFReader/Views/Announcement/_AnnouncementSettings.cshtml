@@ -1,0 +1,115 @@
+﻿@model PDFReader.Models.AlertModel
+
+
+<!-- data tables css -->
+<link rel="stylesheet" href="@Url.Content("~/Content/assets/css/plugins/dataTables.bootstrap4.min.css")">
+<link href="@Url.Content("~/Content/Custom.css")" rel="stylesheet" />
+
+<!-- [ Main Content ] start -->
+<div class="row">
+    <!-- [ sample-page ] start -->
+    <div class="col-sm-12">
+        <div class="card">
+
+            <div class="card-header">
+                <h5>Add/Edit/Delete Settings</h5>
+            </div>
+            <div class="card-body">
+                @*<div class="row" style="padding:5px; background-color:#fbf4bd;">
+                        <ol class="text-danger">
+                           <li>In Category Textbox you need to put text for display in category in announcement page</li>
+                            <li>You can add multiple categories in "Search Values" Textbox Separated by (|) Pipe Sign, which are going to be search in announcement</li>
+
+                        </ol>
+                    </div>*@
+                <form id="frm_Settings" method="post" action="#" role="form" novalidate="novalidate">
+                    @Html.HiddenFor(x => x.ALERT_ID)
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+
+                                @Html.TextBoxFor(x => x.ALERT_NAME, new { @class = "form-control", @placeholder = "Alert name" })
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group fill">
+                                <label class="lblIncludeWatchList" style="color: #4680ff; font-weight: 600;">
+                                    <div class="switch switch-primary d-inline m-r-10">
+                                        <input type="checkbox" class="chkIncludeWatchList" id="chkIncludeWatchList">
+                                        <label for="chkIncludeWatchList" class="cr"></label>
+                                    </div>
+                                    <b>Inlcude Watchlist</b>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group fill">
+                                <label class="lblActive" style="color: #4680ff; font-weight: 600;">
+                                    <div class="switch switch-primary d-inline m-r-10">
+                                        <input type="checkbox" class="chkActive" id="chkActive">
+                                        <label for="chkActive" class="cr"></label>
+                                    </div>
+                                    <b>Active</b>
+                                </label>
+
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group fill">
+                                <div class="btn btn-sm notifications btn-primary has-ripple" data-type="success" data-from="top" data-align="right" id="btnSaveSettings">Save Settings</div>
+                                <img height="20" style="display:none;" id="spinnertReportCount" src="~/Content/Images/spinner.gif" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group fill">
+                                @Html.DropDownListFor(x => x.CATEGORY, Model.CategoryList, "Select Category", new { @multiple = "multiple" })
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group fill">
+                                @Html.DropDownListFor(x => x.KEYWORD_SET, Model.KeywordSetList, "Select Keyword set", new { @multiple = "multiple" })
+
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="dt-responsive table-responsive">
+                            <table width="100%" id="SettingsTable" class="table table-bordered">
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script src="@Url.Content("~/Content/assets/js/plugins/jquery.dataTables.min.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/plugins/dataTables.bootstrap4.min.js")"></script>
+
+<script src="@Url.Content("~/Content/assets/js/plugins/buttons.colVis.min.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/plugins/buttons.print.min.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/plugins/pdfmake.min.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/plugins/jszip.min.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/plugins/dataTables.buttons.min.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/plugins/buttons.html5.min.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/plugins/buttons.bootstrap4.min.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/pages/data-export-custom.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/plugins/select2.full.min.js")"></script>
+<!--Custom-->
+<script src="@Url.Content("~/Scripts/Custom/AnnouncementSettings/Settings.js")"></script>
+<script src="@Url.Content("~/Scripts/Custom/AnnouncementSettings/SettingsDatatable.js")"></script>
+
+<script>
+    var settingsList = "@Url.Content("~/Announcement/GetSettings")";
+    var saveSettings = "@Url.Content("~/Announcement/SaveSettings")";
+</script>

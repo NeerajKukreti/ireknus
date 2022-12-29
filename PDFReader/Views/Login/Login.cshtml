@@ -1,0 +1,78 @@
+﻿@model PDFReader.Models.LoginModel
+
+@{
+    Layout = null;
+
+    var msg = "";
+    if (Model.StatusCode != null && Model.StatusCode == -1)
+    {
+        msg = "Mobile number not registered";
+    }
+    else if (Model.StatusCode != null && Model.StatusCode == -2)
+    {
+        msg = "Password is wrong";
+    }
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Login</title>
+
+    <!-- Meta -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="">
+    <meta name="author" content="Rajkumar Neeraj" />
+    <!-- Favicon icon -->
+    <link rel="icon" href="@Url.Content("~/Content/assets/images/favicon.ico")" type="image/x-icon">
+
+    <!-- vendor css -->
+    <link href="@Url.Content("~/Content/assets/css/style.css")" rel="stylesheet" type="text/css" />
+</head>
+<!-- [ auth-signin ] start -->
+<div class="auth-wrapper">
+    <div class="auth-content">
+        <form action="@Url.Content("~/Login")" method="post">
+            <div class="card">
+                <div class="row align-items-center text-center">
+                    <div class="col-md-12">
+                        <div class="card-body">
+                            <h4 style="color:#000000;">Corporate Data Distillery </h4>
+                            <h5 class="mb-3 f-w-400">Signin</h5>
+                            <div class="alert alert-danger display-hide" style="display:@(Model.StatusCode == 0 ?"none":"block" )">
+                                <button class="close" data-close="alert"></button>
+                                <span> @(Model.StatusCode < 0 ?msg:"Enter any username and password"). </span>
+                            </div>
+                            <div class="form-group mb-3">
+                                <div class="form-group">
+                                    
+                                    @Html.TextBoxFor(Model => Model.USER_CONTACT, new { @class = "form-control", placeholder = "Enter Mobile Number", autocomplete = "off", @required = "required" })
+                                </div>
+                            </div>
+                            <div class="form-group mb-4">
+                                <div class="form-group">
+                                    
+                                    @Html.TextBoxFor(Model => Model.USER_PASSWORD, new { @class = "form-control", placeholder = "Enter Password", autocomplete = "off", type = "password", @required = "required" })
+                                </div>
+                            </div>
+                                <button class="btn btn-block btn-primary mb-4">Signin</button>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- [ auth-signin ] end -->
+<!-- Required Js -->
+<script src="@Url.Content("~/Content/assets/js/vendor-all.min.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/plugins/bootstrap.min.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/ripple.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/pcoded.min.js")"></script>
+</body>
+</html>

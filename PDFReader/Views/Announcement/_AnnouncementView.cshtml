@@ -1,0 +1,55 @@
+﻿@model PDFReader.Models.AnnoucementViewModel
+
+<div class="card-header">
+    <span class="d-block m-t-5">
+        <h5>
+            Total Announcements <span class="badge badge-pill badge-primary">@Model.TotalAnnouncement</span>
+            Total Categories <span class="badge badge-pill badge-primary">@Model.TotalCategory</span>
+        </h5>
+        <label class="lblShowAll" style="color: #4680ff; font-weight: 600;">
+            <div class="switch switch-primary d-inline m-r-10">
+                <input type="checkbox" class="DeselectCategory" id="switch-deselect">
+                <label for="switch-deselect" class="cr"></label>
+            </div>
+            <b>Deselect All</b>
+        </label>
+        <label class="lblShowRpted" style="color: #4680ff; font-weight: 600;">
+            <div class="switch switch-primary d-inline m-r-10">
+
+                @if (Model.ShowRepeated)
+                {
+                    <input type="checkbox" class="showrpted" id="switch-showrpted" @(Model.ShowRepeated ? "checked" : "")>
+                }
+                else
+                {
+                    <input type="checkbox" class="showrpted" id="switch-showrpted">
+                }
+                <label for="switch-showrpted" class="cr"></label>
+            </div>
+            <b>Show Repeated</b>
+        </label>
+
+        
+    </span>
+</div>
+<div class="card-body Annlist" >
+    <div class="row AnnouncementCounts">
+        @{
+            if (Model.ShowRepeated)
+            {
+                Model.AnnList = new List<PDFReader.Models.AnnouncementCategoryCount>();
+            }
+            else
+            {
+                Model.AnnList = Model.CategoryCounts;
+            }
+        }
+
+        
+        @Html.Partial("_AnnouncementCounts", Model.AnnList)
+    </div>
+    <hr />
+    <div class="row AnnouncementList">
+        @Html.Partial("_AnnouncementList")
+    </div>
+</div>

@@ -1,0 +1,25 @@
+﻿@model List<PDFReader.Models.AnnouncementCategoryCount>
+@{
+    var l1 = new List<PDFReader.Models.AnnouncementCategoryCount>();
+    var l2 = new List<PDFReader.Models.AnnouncementCategoryCount>();
+
+    if (Model.Count() < 3)
+    {
+        l1 = Model;
+    }
+    else
+    {
+        l1 = Model.GetRange(0, (Model.Count() - 1) / 2);
+        l2 = Model.
+            GetRange(Model.Count() / 2,
+            (Model.Count() % 2 != 0 ? Model.Count() / 2 + 1 : Model.Count() / 2));
+    }
+
+}
+
+<div class="col-md-5">
+    @Html.DisplayFor(model => l1)
+</div>
+<div class="col-md-5">
+    @Html.DisplayFor(model => l2)
+</div>

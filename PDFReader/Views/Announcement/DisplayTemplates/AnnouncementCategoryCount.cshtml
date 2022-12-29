@@ -1,0 +1,37 @@
+﻿@model PDFReader.Models.AnnouncementCategoryCount
+@{
+    var HasSubcategories = Model.SubCategories != null && Model.SubCategories.Any();
+    var HasParent = Model.PARENT_ID != null;
+}
+<div style="display: @(HasParent?"none":"")" class="form-check announcement @(!HasParent && Model.Count > 0 ? "" : "ann-disabled")
+    @(HasParent ? $" HasParent parent{Model.PARENT_ID}":"") @(HasSubcategories ? "hasSubcategories":"") " data-catid="@Model.CATEGORY_ID">
+
+    @if (Model.Count > 0)
+    {
+        if (!HasSubcategories)
+        {
+            @Html.CheckBoxFor(model => model.IsChecked, new { @id = Model.CATEGORY_ID, @class = "form-check-input " + (HasSubcategories ? "HasSubCat" : "") })
+        }
+    }
+    else
+    {
+        if (!HasSubcategories)
+        {
+            @Html.CheckBoxFor(model => model.IsChecked, new { @id = Model.CATEGORY_ID, @class = "form-check-input " + (HasSubcategories ? "HasSubCat" : ""), @disabled = "" })
+        }
+    }
+
+    <label data-cat="@Model.CATEGORY_ID" data-newsids="@Model.Ann_Id" class="form-check-label announcement-label" for="@Model.CATEGORY_ID">
+        @Model.CATEGORY @(HasSubcategories ? " +":$"({Model.Count.ToString()})")
+    </label>
+    @if (Model.Count > 0)
+    { <div class="divCatFavorite" data-annids="@Model.Ann_Id" style="color:black; cursor: pointer; position: relative; margin-left: 2px; display: inline; top: 4px;">
+        <i class="fas fa-star"></i>
+    </div>
+    }
+</div>
+
+@if (HasSubcategories)
+{
+    @Html.DisplayFor(model => model.SubCategories)
+}
