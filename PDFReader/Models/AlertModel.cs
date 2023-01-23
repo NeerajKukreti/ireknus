@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Web.Mvc;
 
 namespace PDFReader.Models
 {
     public class AlertModel
     {
-        public int ALERT_ID { get; set;}
+        public int ALERT_ID { get; set; }
         public string ALERT_NAME { get; set; }
         public string CATEGORY { get; set; }
         public string KEYWORD_SET { get; set; }

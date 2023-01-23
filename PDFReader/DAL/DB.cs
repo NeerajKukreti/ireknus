@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -27,11 +26,18 @@ namespace PDFReader
             return reportResult;
         }
 
-        public static int totalAnnouncmentCount(string dtFrom,string dtTo) 
+        public static int totalAnnouncmentCount(string dtFrom, string dtTo)
         {
             using (IDbConnection db = new SqlConnection(Connection.MyConnection()))
             {
                 return db.ExecuteScalar<int>($"SELECT COUNT(ANN_ID) FROM TBL_ANNOUNCEMENT WHERE CONVERT(VARCHAR(10),NEWS_SUBMISSION_DATE,105) IN ('{dtFrom}','{dtTo}')", commandType: CommandType.Text);
+            }
+        }
+        public static DateTime GetLastAnnDateTime(string dtFrom, string dtTo)
+        {
+            using (IDbConnection db = new SqlConnection(Connection.MyConnection()))
+            {
+                return db.ExecuteScalar<DateTime>($"select top(1) NEWS_SUBMISSION_DATE from TBL_ANNOUNCEMENT WHERE CONVERT(VARCHAR(10),NEWS_SUBMISSION_DATE,105) IN ('{dtFrom}','{dtTo}') order by NEWS_SUBMISSION_DATE desc ", commandType: CommandType.Text);
             }
         }
 
@@ -368,6 +374,30 @@ namespace PDFReader
             {
                 db.Open();
                 return db.QueryAsync<AnnouncementModel>($"select * from [dbo].[TBL_ANNOUNCEMENT] where COMPANY_NAME like '%{q}%'", commandType: CommandType.Text).Result;
+            }
+        }
+
+        public static List<AnnCategories> GetAnnCates(List<string> Ids)
+        {
+            using (IDbConnection db = new SqlConnection(Connection.MyConnection()))
+            {
+                db.Open();
+
+                var annCates = new DataTable();
+
+                annCates.Columns.Add("ANN_ID", typeof(string));
+
+                foreach (var item in Ids)
+                {
+                    annCates.Rows.Add(item);
+                }
+
+                return db
+                    .Query<AnnCategories>("sp_GetAnnCates",
+                    new
+                    {
+                        @annType = annCates.AsTableValuedParameter("AnnType")
+                    }, commandType: CommandType.StoredProcedure).ToList();
             }
         }
 

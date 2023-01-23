@@ -88,4 +88,12 @@ namespace PDFReader.Models
         public int WATCHLIST_ID { get; set; }
         public string COMPANY_ID { get; set; }
     }
+
+    public class AnnCategories
+    {
+        public string ANN_ID { get; set; }
+        public int CATEGORY_ID { get; set; }
+        public string CATEGORY { get; set; }
+        public int PARENT_ID { get; set; }
+    }
 }

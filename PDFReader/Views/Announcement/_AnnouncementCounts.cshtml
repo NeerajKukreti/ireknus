@@ -3,17 +3,22 @@
     var l1 = new List<PDFReader.Models.AnnouncementCategoryCount>();
     var l2 = new List<PDFReader.Models.AnnouncementCategoryCount>();
 
-    if (Model.Count() < 3)
+    var other = Model.FirstOrDefault(x => x.CATEGORY.Equals(("Others")));
+    Model.Remove(other);
+
+    if (Model.Count() % 2 == 0)
     {
-        l1 = Model;
+        l1 = Model.GetRange(0, Model.Count() / 2);
+        l2 = Model.GetRange(Model.Count() / 2, Model.Count() / 2);
     }
     else
     {
-        l1 = Model.GetRange(0, (Model.Count() - 1) / 2);
+        l1 = Model.GetRange(0, Model.Count() / 2);
         l2 = Model.
-            GetRange(Model.Count() / 2,
-            (Model.Count() % 2 != 0 ? Model.Count() / 2 + 1 : Model.Count() / 2));
+            GetRange(Model.Count() / 2, (Model.Count() / 2) + 1);
     }
+
+    l2.Add(other);
 
 }
 

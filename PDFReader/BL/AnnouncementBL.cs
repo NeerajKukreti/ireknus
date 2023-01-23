@@ -1,7 +1,8 @@
-﻿using PDFReader.Models;
+﻿using DocumentFormat.OpenXml.Drawing.Diagrams;
+using PDFReader.Models;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
+using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,27 +14,16 @@ namespace PDFReader
         {
             var announcements = GetWatchListCompanies(CompanyName, ShowAll, dtRange, showFav);
 
-            var highPriorityCategories = categories.Where(x => x.PRIORITY == 1).ToList();
-            var lowPriorityCategories = categories.Where(x => x.PRIORITY == 0).ToList();
-            var Parentcategories = categories.Where(x => x.PARENT_ID != null).Select(x => x.PARENT_ID).Distinct().ToList();
-
             List<AnnouncementCategoryCount> searchedCategories = new List<AnnouncementCategoryCount>();
             List<AnnouncementCategoryCount> announcementCategoryCounts = new List<AnnouncementCategoryCount>();
             List<AnnouncementCategoryCount> repeatedAnnList = new List<AnnouncementCategoryCount>();
             Dictionary<string, List<string>> RepeatedAnnList = new Dictionary<string, List<string>>();
-            PerformSearch(categories.ToList(), announcements.ToList(), searchedCategories, repeatedAnnList, RepeatedAnnList);
+            PerformSearch(categories.ToList(), announcements.ToList(), searchedCategories, RepeatedAnnList);
 
-            var annLeftForLowCategories = announcements.Select(x => x.ANN_ID).Except(string.Join(",", searchedCategories.Select(x => x.Ann_Id)).Split(','));
-            //PerformSearch(lowPriorityCategories.ToList(), announcements.Where(x => annLeftForLowCategories.Contains(x.ANN_ID)).ToList(), searchedCategories, repeatedAnnList, RepeatedAnnList);
 
             List<AnnouncementCategoryCount> subCategoriesList = searchedCategories.Where(x =>
-            {
-                var xx = searchedCategories;
-                if (x == null)
-                {
-                }
-                return x != null && x.PARENT_ID != null;
-            }).ToList();
+                  x?.PARENT_ID != null
+            ).ToList();
 
             List<AnnouncementCategoryCount> ActualsearchedCategories = searchedCategories.Except(subCategoriesList).ToList();
 
@@ -50,7 +40,7 @@ namespace PDFReader
 
             announcementCategoryCounts = announcementCategoryCounts.OrderBy(x => x.CATEGORY).ToList();
 
-            var ann1 = string.Join(",", announcementCategoryCounts.Where(x=> !string.IsNullOrEmpty(x.Ann_Id)).Select(x => x.Ann_Id)).Trim(',') + "," +
+            var ann1 = string.Join(",", announcementCategoryCounts.Where(x => !string.IsNullOrEmpty(x.Ann_Id)).Select(x => x.Ann_Id)).Trim(',') + "," +
                 string.Join(",", subCategoriesList.Where(x => !string.IsNullOrEmpty(x.Ann_Id)).Select(x => x.Ann_Id)).Trim(',');
 
             var others = announcements.Select(x => x.ANN_ID).Except(ann1.Split(',')).ToList(); //ann which are not being searched
@@ -75,21 +65,27 @@ namespace PDFReader
             };
         }
 
-        public static async Task PerformSearch(List<AnnouncementCategoryModel> categories, List<AnnouncementModel> announcements,
-            List<AnnouncementCategoryCount> searchedCategories, List<AnnouncementCategoryCount> RepeatedCategoryList, 
-            Dictionary<string, List<string>> RepeatedAnnList)
+        public static async Task PerformSearch(List<AnnouncementCategoryModel> categories, List<AnnouncementResult> announcements,
+            List<KeyValuePair<string, int>> RepeatedAnnList)
         {
             try
             {
-                List<AnnouncementModel> ActualAnn = announcements;
+               
+                List<AnnouncementResult> ActualAnn = announcements;
 
-                List<AnnouncementModel> ActualSearchedAnnList = new List<AnnouncementModel>();
+                List<AnnouncementResult> ActualSearchedAnnList = new List<AnnouncementResult>();
 
                 var previousHighPrority = categories.Max(x => x.PRIORITY);
 
-                foreach (var category in categories.OrderByDescending(x=> x.PRIORITY).ToList())
+                foreach (var category in categories
+                    .Where(x => !x.CATEGORY.Equals("Others"))
+                    .OrderByDescending(x => x.PRIORITY).ToList())
                 {
-                    List<AnnouncementModel> searchedAnn = new List<AnnouncementModel>();
+                    if (category.CATEGORY_ID == 11 || category.CATEGORY_ID == 42)
+                    {
+                    }
+
+                    List<AnnouncementResult> searchedAnn = new List<AnnouncementResult>();
 
                     if (previousHighPrority != category.PRIORITY)
                     {
@@ -99,7 +95,7 @@ namespace PDFReader
 
                     category.SEARCH_VALUES.Split('|').ToList().ForEach(x =>
                     {
-                        var annList = ActualAnn.Where(an => !category.IS_PARENT && an.NEWS_SUBJECT.ToLower().Contains(x.ToLower())).ToList();
+                        var annList = ActualAnn.Where(an => !category.IS_PARENT && an.NEWSSUB.ToLower().Contains(x.ToLower())).ToList();
                         searchedAnn.AddRange(annList);
                     });
 
@@ -107,62 +103,60 @@ namespace PDFReader
 
                     searchedAnn.ForEach(x =>
                     {
-                        if (RepeatedAnnList.ContainsKey(x.ANN_ID))
-                        {
-                            RepeatedAnnList[x.ANN_ID].Add(category.CATEGORY);
-                        }
-                        else 
-                            RepeatedAnnList.Add(x.ANN_ID,new List<string> { category.CATEGORY });
+                        RepeatedAnnList.Add(new KeyValuePair<string, int>(x.NEWSID, category.CATEGORY_ID));
                     });
-
-                    //var RepeatedAnn = ActualSearchedAnnList.Intersect(searchedAnn).ToList();
-                    var RepeatedAnn = new List<AnnouncementModel>();
-                    var ActualSearchedAnn = searchedAnn.Except(RepeatedAnn).ToList();
-
-                    ActualSearchedAnnList.AddRange(ActualSearchedAnn);
-
                     
 
-                    //RepeatedAnnList.AddRange(RepeatedAnn);
-
-                    if (ActualSearchedAnn.Distinct().Any())
-                    {
-                        searchedCategories.Add(new AnnouncementCategoryCount
-                        {
-                            Count = ActualSearchedAnn.Count(),
-                            CATEGORY = category.CATEGORY,
-                            CATEGORY_ID = category.CATEGORY_ID,
-                            PARENT_ID = category.PARENT_ID,
-                            Ann_Id = string.Join(",", ActualSearchedAnn.Select(x => x.ANN_ID))
-                        });
-                    }
-                    else
-                    {
-                        searchedCategories.Add(new AnnouncementCategoryCount
-                        {
-                            Count = 0,
-                            CATEGORY = category.CATEGORY,
-                            CATEGORY_ID = category.CATEGORY_ID,
-                            PARENT_ID = category.PARENT_ID,
-                            Ann_Id = string.Empty
-                        });
-                    }
-
-                    if (RepeatedAnn.Any())
-                    {
-                        RepeatedCategoryList.Add(new AnnouncementCategoryCount
-                        {
-                            Count = RepeatedAnn.Count(),
-                            CATEGORY = category.CATEGORY,
-                            CATEGORY_ID = category.CATEGORY_ID,
-                            PARENT_ID = category.PARENT_ID,
-                            Ann_Id = string.Join(",", RepeatedAnn.Select(x => x.ANN_ID))
-                        });
-                    }
+                    ActualSearchedAnnList.AddRange(searchedAnn);
                 }
+
+                var otherCat = categories.FirstOrDefault(x => x.CATEGORY.ToLower().Equals("other")).CATEGORY_ID;
+
+                var other = announcements.Select(x => x.NEWSID).Except(RepeatedAnnList.Select(x => x.Key).Distinct()).ToList();
+
+                announcements.Where(x => other.Contains(x.NEWSID)).ToList().ForEach(x =>
+                {
+                    RepeatedAnnList.Add(new KeyValuePair<string, int>(x.NEWSID, otherCat));
+                });
+
+
+
             }
-            catch (Exception ex) { 
-            
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public static async Task PerformSearch(List<AnnouncementCategoryModel> categories, List<AnnouncementModel> announcements,
+            List<AnnouncementCategoryCount> searchedCategories, Dictionary<string, List<string>> RepeatedAnnList)
+        {
+            try
+            {
+
+                var data = DB.GetAnnCates(announcements.Select(x => x.ANN_ID).ToList());
+
+                categories.ForEach(cat =>
+                {
+                    var anns = data.Where(x => x.CATEGORY_ID == cat.CATEGORY_ID);
+                    searchedCategories.Add(new AnnouncementCategoryCount
+                    {
+                        Count = anns.Count(),
+                        CATEGORY = cat.CATEGORY,
+                        CATEGORY_ID = cat.CATEGORY_ID,
+                        PARENT_ID = cat.PARENT_ID,
+                        Ann_Id = string.Join(",", anns.Select(x => x.ANN_ID))
+                    });
+                });
+
+                data.GroupBy(x=> x.ANN_ID).ToList().ForEach(x =>
+                {
+                    RepeatedAnnList.Add(x.Key, x.Select(y=> y.CATEGORY).ToList());
+                });
+            }
+            catch (Exception ex)
+            {
+
             }
         }
 
@@ -179,7 +173,7 @@ namespace PDFReader
             {
                 var sDt = DateTime.Parse(dtRange.Split('|')[0]);
                 var eDt = DateTime.Parse(dtRange.Split('|')[1]);
-                ann = DB.GetCompaniesByDtRange(sDt, eDt).ToList(); 
+                ann = DB.GetCompaniesByDtRange(sDt, eDt).ToList();
             }
 
             var watchListAnn = new List<AnnouncementModel>();
@@ -204,9 +198,10 @@ namespace PDFReader
                     watchListAnn = ann.Where(x => watchList.Contains(x.COMPANY_ID)).ToList();
             }
 
-            
 
-            if (ShowFav) {
+
+            if (ShowFav)
+            {
                 watchListAnn = watchListAnn.Where(x => x.IsFavorite).ToList();
             }
 

@@ -38,7 +38,7 @@ namespace PDFReader.Controllers
                        Text = x.SM_NAME.ToString(),
                        Value = x.SMID.ToString()
                    }).ToList(),
-                 ReportList = list.ToList()
+                ReportList = list.ToList()
             };
 
             return View("Report", reportViewModel);
@@ -61,7 +61,7 @@ namespace PDFReader.Controllers
         }
 
         public async Task<ActionResult> GetSearchedReport(string Year)
-        {   
+        {
             IEnumerable<KeywordResult> reportResult = DB.GetSearchedReport(Year);
             Session["searchresult"] = reportResult;
             var xx = Json(data: reportResult, JsonRequestBehavior.AllowGet);
@@ -126,7 +126,7 @@ namespace PDFReader.Controllers
             if (reportResult == null)
                 return Content("retry from execute search");
 
-                return View("DeepSearch", reportResult);
+            return View("DeepSearch", reportResult);
         }
         #endregion
     }

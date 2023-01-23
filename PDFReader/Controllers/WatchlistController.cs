@@ -1,7 +1,6 @@
 ﻿using Dapper;
 using ExcelDataReader;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using PDFReader.Helpers;
 using PDFReader.Models;
 using System;
@@ -35,7 +34,7 @@ namespace PDFReader.Controllers
                 DynamicParameters dp = new DynamicParameters();
                 dp.Add("WATCHLIST_ID", WatchlistModel.WATCHLIST_ID);
                 dp.Add("COMPANY_ID", WatchlistModel.COMPANY_ID);
-                dp.Add("COMPANY_NAME",WatchlistModel.COMPANY_NAME);
+                dp.Add("COMPANY_NAME", WatchlistModel.COMPANY_NAME);
                 dp.Add("ACTION", WatchlistModel.ACTION);
 
                 try
@@ -48,8 +47,6 @@ namespace PDFReader.Controllers
                 }
             }
         }
-
-        
 
         public async Task<ActionResult> LoadWatchlist()
         {
@@ -70,7 +67,7 @@ namespace PDFReader.Controllers
                 {
                     return View("Watchlist", new WatchlistModel());
                 }
-                
+
             }
         }
 
@@ -110,7 +107,7 @@ namespace PDFReader.Controllers
                         var companynames = reader.GetValue(1) ?? "";
 
                         if (!string.IsNullOrEmpty(companycodes.ToString().Trim()) || !string.IsNullOrEmpty(companynames.ToString().Trim()))
-                            list.Add(new WatchlistModel { COMPANY_ID = companycodes.ToString(), COMPANY_NAME=companynames.ToString() });
+                            list.Add(new WatchlistModel { COMPANY_ID = companycodes.ToString(), COMPANY_NAME = companynames.ToString() });
                         // reader.GetDouble(0);
                     }
                     //} //while (reader.NextResult());
@@ -134,70 +131,69 @@ namespace PDFReader.Controllers
 
         public async Task announcement()
         {
-            //var dtFrom = "20210401";
-            //var dtFrom = DateTime.Now.ToString("yyyyMMdd");
-            //var dtTo = "20210405";
+            //var dtFrom = DateTime.Now.AddDays(-1).ToString("yyyyMMdd");
+            //var dtTo = DateTime.Now.ToString("yyyyMMdd");
 
+            //string dtFromForCount = DateTime.Now.AddDays(-1).ToString("dd-MM-yyyy");
+            //string dtToForCount = DateTime.Now.ToString("dd-MM-yyyy");
 
-            var dtFrom = DateTime.Now.AddDays(-1).ToString("yyyyMMdd");
-            //var dtFrom = DateTime.Now.ToString("yyyyMMdd");
-            var dtTo = DateTime.Now.ToString("yyyyMMdd");
+            var dtFrom = DateTime.Now.AddDays(0).ToString("yyyyMMdd");
+            var dtTo = DateTime.Now.AddDays(0).ToString("yyyyMMdd");
 
-            string dtFromForCount = DateTime.Now.AddDays(-1).ToString("dd-MM-yyyy");
-            //var dtFrom = DateTime.Now.ToString("yyyyMMdd");
-            string dtToForCount = DateTime.Now.ToString("dd-MM-yyyy");
-
-            //var dtFrom = DateTime.Parse("03/04/2021").ToString("yyyyMMdd"); ;
-            //var dtTo = DateTime.Parse("04/05/2021").ToString("yyyyMMdd"); ;
+            string dtFromForCount = DateTime.Now.AddDays(0).ToString("dd-MM-yyyy");
+            string dtToForCount = DateTime.Now.AddDays(0).ToString("dd-MM-yyyy");
 
             int totalInsertedAnnouncementCount = DB.totalAnnouncmentCount(dtFromForCount, dtToForCount);
+            //var dt = DB.GetLastAnnDateTime(dtFromForCount, dtToForCount);
+            var dt = DateTime.Now.AddDays(-3);
 
             using (var client = new WebClient()) //WebClient  
             {
                 client.Headers.Add("Content-Type:application/json"); //Content-Type  
                 client.Headers.Add("Accept:application/json");
-                 var jsonresult = client.DownloadString
-                    ($"https://api.bseindia.com/BseIndiaAPI/api/AnnGetData/w?strCat=-1&strPrevDate={dtFrom}&strScrip=&strSearch=P&strToDate={dtTo}&strType=C"); //URI  
-                //Console.WriteLine(Environment.NewLine + result);
+                var jsonresult = client.DownloadString
+                   ($"https://api.bseindia.com/BseIndiaAPI/api/AnnGetData/w?strCat=-1&strPrevDate={dtFrom}&strScrip=&strSearch=P&strToDate={dtTo}&strType=C"); //URI  
 
-                //DataTable dt = (DataTable)JsonConvert.DeserializeObject(result, (typeof(DataTable)));
-                var x = JObject.Parse(jsonresult);
                 try
                 {
                     var result = JsonConvert.DeserializeObject<Root>(jsonresult);
                     var rowcount = result.Table1[0].ROWCNT;
 
-                    int rowsTobeInserted = Convert.ToInt32(rowcount) - totalInsertedAnnouncementCount;
-                    int noOfApiCalls = rowsTobeInserted / 50;
-                    int page = 0;
+                    int rowsTobeInserted = Convert.ToInt32(rowcount); //- totalInsertedAnnouncementCount;
+                    int noOfApiCalls = rowsTobeInserted / 50 + (rowsTobeInserted > 50 && (rowsTobeInserted % 50) > 0 ? 1 : 0);
 
-                    for (int i = 1; i <= noOfApiCalls; i++)
+                    if (noOfApiCalls > 0)
                     {
-                        page = i + 1;
-                        var jsonresultToAppend = client.DownloadString
-                    ($"https://api.bseindia.com/BseIndiaAPI/api/AnnGetData/w?pageno={page}&strCat=-1&strPrevDate={dtFrom}&strScrip=&strSearch=P&strToDate={dtTo}&strType=C"); //URI 
+                        for (int i = noOfApiCalls; i >= 2; i--)
+                        {
+                            var jsonresultToAppend = client.DownloadString
+                        ($"https://api.bseindia.com/BseIndiaAPI/api/AnnGetData/w?pageno={i}&strCat=-1&strPrevDate={dtFrom}&strScrip=&strSearch=P&strToDate={dtTo}&strType=C"); //URI 
 
-                        var resultToAppend = JsonConvert.DeserializeObject<Root>(jsonresultToAppend);
-
-                        result.Table.AddRange(resultToAppend.Table);
+                            var resultToAppend = JsonConvert.DeserializeObject<Root>(jsonresultToAppend);
+                            var annlist = resultToAppend.Table.Where(x => x.DissemDT > dt).ToList();
+                            List<KeyValuePair<string, int>> annCateList = new List<KeyValuePair<string, int>>();
+                            AnnouncementBL.PerformSearch(DB.GetCategories().ToList(), annlist, annCateList);
+                            await insertAnnouncement(annlist, annCateList);
+                        }
                     }
 
-                    await insertAnnouncement(result.Table);
+                    List<KeyValuePair<string, int>> RepeatedAnnList = new List<KeyValuePair<string, int>>();
+                    var annList = result.Table.Where(x => x.DissemDT > dt).ToList();
+                    AnnouncementBL.PerformSearch(DB.GetCategories().ToList(), annList, RepeatedAnnList);
+                    await insertAnnouncement(annList, RepeatedAnnList);
 
                 }
-                catch (Exception ex) {
-                
+                catch (Exception ex)
+                {
+
                 }
             }
         }
 
-        public async Task insertAnnouncement(List<AnnouncementResult> list)
+        public async Task insertAnnouncement(List<AnnouncementResult> list, List<KeyValuePair<string, int>> annList)
         {
             try
             {
-               
-                //var list2 = list1.Take(20).ToList();
-
                 list.ForEach(x =>
                 {
                     if (x.News_submission_dt == null)
@@ -232,29 +228,35 @@ namespace PDFReader.Controllers
 
                     foreach (var item in list1)
                     {
-                        dt.Rows.Add(item.NEWSID, item.SLONGNAME, item.SCRIP_CD, item.NEWSSUB, item.HEADLINE, item.MORE, item.ANNOUNCEMENT_TYPE, item.QUARTER_ID, 
+                        dt.Rows.Add(item.NEWSID, item.SLONGNAME, item.SCRIP_CD, item.NEWSSUB, item.HEADLINE, item.MORE, item.ANNOUNCEMENT_TYPE, item.QUARTER_ID,
                                     item.ATTACHMENTNAME, item.CATEGORYNAME, item.NSURL, item.AGENDA_ID, item.News_submission_dt, item.DissemDT, item.TimeDiff);
-                        
                     }
 
-                    for (int i = 0; i < dt.Rows.Count; i = i + 1000)
+                    var annCates = new DataTable();
+
+                    annCates.Columns.Add("NEWS_ID", typeof(string));
+                    annCates.Columns.Add("COMPANY_ID", typeof(int));
+
+                    foreach (var item in annList)
                     {
-                        var items = dt.Rows.Cast<System.Data.DataRow>().Skip(i).Take(1000);
-
-                        DataTable dataTable = new DataTable();
-                        dataTable = items.CopyToDataTable();
-
-                        var xx = await connection.ExecuteAsync("sp_InsertAnnouncement", new { @announcementType = dataTable.AsTableValuedParameter("AnnouncementType") }, commandType: CommandType.StoredProcedure);
+                        annCates.Rows.Add(item.Key, item.Value);
                     }
 
-                    
+                    var xx = await connection
+                        .ExecuteAsync("sp_InsertAnnouncement",
+                        new
+                        {
+                            @announcementType = dt.AsTableValuedParameter("AnnouncementType"),
+                            @annCatesType = annCates.AsTableValuedParameter("AnnCatesType")
+                        }, commandType: CommandType.StoredProcedure);
+
                 }
             }
             catch (Exception ee)
             {
-                
+
             }
-            
+
         }
     }
 }

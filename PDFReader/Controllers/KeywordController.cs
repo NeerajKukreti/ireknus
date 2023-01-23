@@ -113,10 +113,10 @@ on TBL_KEYWORDS.SMID=Tbl_KeywordSetMaster.SMID WHERE TBL_KEYWORDS.SMID=" + keywo
         {
             string filepath = FileHandler.SaveFile(Request, "Keywords");
             string smid = Request.Params["SMID"].ToString();
-            return (InsertFileData(filepath,smid));
+            return (InsertFileData(filepath, smid));
         }
 
-        private string InsertFileData(string filepath,string smid)
+        private string InsertFileData(string filepath, string smid)
         {
             #region kwyords insertion
 
@@ -144,7 +144,7 @@ on TBL_KEYWORDS.SMID=Tbl_KeywordSetMaster.SMID WHERE TBL_KEYWORDS.SMID=" + keywo
                         var searchkeywords = (string)reader.GetValue(0) ?? "";
 
                         if (!string.IsNullOrEmpty(searchkeywords.Trim()))
-                            list.Add(new KeywordModel { KEYWORD = searchkeywords,SMID=smid });
+                            list.Add(new KeywordModel { KEYWORD = searchkeywords, SMID = smid });
                         // reader.GetDouble(0);
                     }
                     //} //while (reader.NextResult());

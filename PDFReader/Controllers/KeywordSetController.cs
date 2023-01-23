@@ -1,12 +1,8 @@
 ﻿using Dapper;
-using ExcelDataReader;
-using PDFReader.Helpers;
 using PDFReader.Models;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.IO;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 
@@ -40,7 +36,7 @@ namespace PDFReader.Controllers
             }
         }
 
-        
+
 
         public async Task<ActionResult> LoadKeyword()
         {
@@ -50,6 +46,6 @@ namespace PDFReader.Controllers
             }
         }
 
-        
+
     }
 }

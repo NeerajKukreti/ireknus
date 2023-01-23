@@ -688,6 +688,7 @@
     <Content Include="Content\assets\fonts\pctd41d.eot" />
     <Content Include="Content\watchlistformat.xlsx" />
     <Content Include="Content\keywordformat.xlsx" />
+    <Content Include="libman.json" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\Custom\Category\CategoryDatatable.js" />
     <Content Include="Scripts\Custom\Watchlist\WatchlistDatatable.js" />

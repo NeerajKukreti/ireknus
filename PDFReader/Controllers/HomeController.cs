@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 
@@ -15,14 +14,14 @@ namespace PDFReader.Controllers
 {
     public class HomeController : Controller
     {
-        
+
         public async Task<ActionResult> Index()
         {
 
             var list = await DB.GetFinancialYears();
 
-            return View("index",list);
-        }        
+            return View("index", list);
+        }
 
         [HttpPost]
         public string UploadFile()
@@ -74,7 +73,7 @@ namespace PDFReader.Controllers
             {
                 try
                 {
-                    return Json(new { data = await db.QueryAsync<Reports>("SELECT CompanyName,Url FROM tbl_AnnualReports where FinancialYear='"+financialyear+"'", commandType: CommandType.Text) }, JsonRequestBehavior.AllowGet);
+                    return Json(new { data = await db.QueryAsync<Reports>("SELECT CompanyName,Url FROM tbl_AnnualReports where FinancialYear='" + financialyear + "'", commandType: CommandType.Text) }, JsonRequestBehavior.AllowGet);
                 }
                 catch (Exception ee)
                 {

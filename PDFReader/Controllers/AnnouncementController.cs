@@ -1,14 +1,10 @@
 ﻿using ClosedXML.Excel;
-using Dapper;
-using OfficeOpenXml;
 using PDFReader.Model;
 using PDFReader.Models;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
-using System.Data.SqlClient;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -559,31 +555,8 @@ namespace PDFReader.Controllers
         }
         #endregion
 
-        // this method is for testing : do not delete
-        public void TestDT()
-        {
-            IFormatProvider culture = new CultureInfo(CultureInfo.CurrentCulture.Name, true);//en-Us or en-GB not sure
-
-            string frm = DateTime.Now.ToString("yyyy/M/dd");
-            string to = DateTime.Now.AddDays(1).ToString("yyyy/M/dd");
-
-            //type 1 - processed, 2 - unprocessed, 3 - Contains Img, 4 - Non Img
-            using (IDbConnection db = new SqlConnection(Connection.MyConnection()))
-            {
-                var x = db.QueryAsync<KeywordResult>(
-               $"sELECT PageText, ar.ID ReportId, ar.CompanyName, ar.Url " +
-               ", ar.FinancialYear, fk.PDFPageNumber, fk.FoundKeywords, TotalPages, Skipped, ann.news_subject, ann.NEWS_SUBMISSION_DATE, ann.Company_Id " +
-               "FROM dbo.tbl_AnnualReports ar " +
-               $"INNER JOIN dbo.Tbl_FoundKeywords fk ON ar.ID = fk.ReportID  and ar.FinancialYear = 'Preferential Allotment' " +
-               $"and processedDate between  '{frm}'  and '{to}' " +
-               "left join TBL_ANNOUNCEMENT ann on ann.ann_id = ar.annid " +
-               "and processeddate is not null and isnull(isdeleted, 0) = 0 order by CompanyName",
-              commandType: CommandType.Text).Result;
-            }
-        }
-
         #region set favourites
-      
+
         [HttpGet]
         public ActionResult SaveFavorite(int annId, int IsFavorite)
         {
@@ -614,6 +587,5 @@ namespace PDFReader.Controllers
             return Content("");
         }
         #endregion
-
     }
 }

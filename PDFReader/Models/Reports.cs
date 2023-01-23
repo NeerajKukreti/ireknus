@@ -29,8 +29,9 @@ namespace PDFReader.Models
         public DateTime InsertDate { get; set; }
     }
 
-    public class ReportViewModel { 
-        public List<string> ReportList { get;set; }
+    public class ReportViewModel
+    {
+        public List<string> ReportList { get; set; }
         public List<SelectListItem> KeywordSet { get; set; }
     }
 }
