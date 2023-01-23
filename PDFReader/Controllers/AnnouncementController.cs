@@ -144,67 +144,7 @@ namespace PDFReader.Controllers
             return Json(data:
                 watchListCompanies.Select(x => new { value = x.COMPANY_ID, text = x.COMPANY_NAME }).Distinct(), JsonRequestBehavior.AllowGet);
         }
-
-        public ActionResult ShowCompany(string CompanyId, string dtRange)
-        {
-            var colors = new string[] { "blue", "green", "red", "yellow" };
-            var companies = DB.GetCompanies(CompanyId, dtRange).ToList();
-
-            CompanyViewModel companyViewModel = new CompanyViewModel
-            {
-                announcementModels = companies,
-                DtRange = dtRange,
-                CompanyName = companies.FirstOrDefault().COMPANY_NAME,
-                CompanyId = companies.FirstOrDefault().COMPANY_ID
-            };
-
-            return View("CompanyView", companyViewModel);
-        }
-
-        public ActionResult ShowrepeatedAnnouncement()
-        {
-            return PartialView("_RepeatedAnn");
-        }
-
-        public ActionResult GetRepeatedAnnouncements()
-        {
-            var ann = (AnnoucementViewModel)System.Web.HttpContext.Current.Application["CategoriesCount"];
-            var newIds = string.Empty;
-
-            newIds = string.Join(",", ann.RepeatedAnnList.Select(x => x.Ann_Id));
-
-            foreach (var cat in ann.RepeatedAnnList)
-            {
-                if (cat.SubCategories != null && cat.SubCategories.Any())
-                {
-                    newIds = newIds + "," + string.Join(",", cat.SubCategories.Select(x => x.Ann_Id));
-                }
-            }
-
-            var announcements = DB.GetAnnouncements(string.Join(",", newIds.Split(',').Distinct())).ToList();
-
-            announcements.ForEach(x =>
-            {
-                var category = ann.RepeatedAnnList.FirstOrDefault(y => y.Ann_Id.Contains(x.ANN_ID));
-
-                if (category != null)
-                {
-                    x.CategoryId = category.CATEGORY_ID;
-                    x.CategoryName = category.CATEGORY;
-                }
-
-                if (!x.HEAD_LINE.ToLower().Equals(x.MORE.ToLower()))
-                {
-                    x.HEAD_LINE = $"{x.HEAD_LINE} {x.MORE}";
-                }
-            });
-
-            var jsonResult = Json(data: announcements, JsonRequestBehavior.AllowGet);
-            jsonResult.MaxJsonLength = int.MaxValue;
-
-            return jsonResult;
-
-        }
+        
         #endregion
 
         #region announcement settings

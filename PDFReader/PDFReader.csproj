@@ -291,11 +291,8 @@
     <Compile Include="Controllers\KeywordSetController.cs" />
     <Compile Include="Controllers\WatchlistController.cs" />
     <Compile Include="Controllers\KeywordController.cs" />
-    <Compile Include="Controllers\KeywordController1.cs" />
     <Compile Include="Controllers\LoginController.cs" />
-    <Compile Include="Controllers\ProfileController.cs" />
     <Compile Include="Controllers\ReportController.cs" />
-    <Compile Include="Controllers\TestController.cs" />
     <Compile Include="DAL\Connection.cs" />
     <Compile Include="DAL\DB.cs" />
     <Compile Include="Global.asax.cs">
@@ -723,7 +720,6 @@
     <Content Include="Views\Shared\_AnnouncementLayout.cshtml" />
     <Content Include="Views\Shared\_AnnouncementHeader.cshtml" />
     <Content Include="Views\Announcement\DisplayTemplates\AnnouncementCategoryCount.cshtml" />
-    <Content Include="Views\Test\Index.cshtml" />
     <Content Include="Views\Announcement\_AnnouncementCounts.cshtml" />
     <Content Include="Views\Announcement\_AnnouncementList.cshtml" />
     <Content Include="Views\Announcement\_AnnouncementView.cshtml" />

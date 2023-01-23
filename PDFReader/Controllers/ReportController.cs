@@ -44,13 +44,6 @@ namespace PDFReader.Controllers
             return View("Report", reportViewModel);
         }
 
-        public async Task<ActionResult> r1()
-        {
-            //ReportResult reportResult = DB.GetPrcoessedReport(FinancialYear);
-            var list = await DB.GetFinancialYears();
-            return View("Report1", list);
-        }
-
         public async Task<ActionResult> GetReportData(String FinancialYear)
         {
             ReportResult reportResult = DB.GetPrcoessedReport(FinancialYear);
