@@ -18,11 +18,14 @@ namespace PDFReader.Controllers
     public class AnnouncementController : Controller
     {
         #region announcement
+
+        [OutputCache(Duration = 10)]
         public async Task<ActionResult> Index()
         {
             return View();
         }
 
+        [OutputCache(Duration = 10)]
         public async Task<ActionResult> GetAnnouncementView(string CompanyName, string DateRange, bool ShowAll = false, bool ShowRepeated = false, bool showFav = false)
         {
             var categoriesCount = await AnnouncementBL.GetCategoryCounts(CompanyName, ShowAll, DateRange, DB.GetCategories().ToList(), showFav);
@@ -38,6 +41,7 @@ namespace PDFReader.Controllers
             return PartialView("_AnnouncementView", categoriesCount);
         }
 
+        [OutputCache(Duration = 10)]
         public ActionResult GetAnnouncements(string catIds, bool showRepeated = false)
         {
             var ann = (AnnoucementViewModel)System.Web.HttpContext.Current.Application["CategoriesCount"];

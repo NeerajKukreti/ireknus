@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Web.Mvc;
 
 namespace PDFReader.Models
@@ -73,6 +74,11 @@ namespace PDFReader.Models
         public bool ShowRepeated { get; set; }
         public bool ShowFav { get; set; }
         public Dictionary<string, List<string>> D_RepeatedAnnList { get; set; }
+
+        public AnnoucementViewModel Copy()
+        {
+            return (AnnoucementViewModel)this.MemberwiseClone();
+        }
     }
 
     public class CompanyViewModel

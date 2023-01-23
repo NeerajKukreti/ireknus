@@ -17,8 +17,8 @@ namespace PDFReader
             List<AnnouncementCategoryCount> searchedCategories = new List<AnnouncementCategoryCount>();
             List<AnnouncementCategoryCount> announcementCategoryCounts = new List<AnnouncementCategoryCount>();
             List<AnnouncementCategoryCount> repeatedAnnList = new List<AnnouncementCategoryCount>();
-            Dictionary<string, List<string>> RepeatedAnnList = new Dictionary<string, List<string>>();
-            PerformSearch(categories.ToList(), announcements.ToList(), searchedCategories, RepeatedAnnList);
+            Dictionary<string, List<string>> annCategories = new Dictionary<string, List<string>>();
+            PerformSearch(categories.ToList(), announcements.ToList(), searchedCategories, annCategories, repeatedAnnList);
 
 
             List<AnnouncementCategoryCount> subCategoriesList = searchedCategories.Where(x =>
@@ -40,28 +40,13 @@ namespace PDFReader
 
             announcementCategoryCounts = announcementCategoryCounts.OrderBy(x => x.CATEGORY).ToList();
 
-            var ann1 = string.Join(",", announcementCategoryCounts.Where(x => !string.IsNullOrEmpty(x.Ann_Id)).Select(x => x.Ann_Id)).Trim(',') + "," +
-                string.Join(",", subCategoriesList.Where(x => !string.IsNullOrEmpty(x.Ann_Id)).Select(x => x.Ann_Id)).Trim(',');
-
-            var others = announcements.Select(x => x.ANN_ID).Except(ann1.Split(',')).ToList(); //ann which are not being searched
-
-            if (others.Count() > 0)
-                announcementCategoryCounts.Add(new AnnouncementCategoryCount
-                {
-                    CATEGORY = "Others",
-                    CATEGORY_ID = 0,
-                    PARENT_ID = null,
-                    Count = others.Count(),
-                    Ann_Id = string.Join(",", others)
-                });
-
             return new AnnoucementViewModel
             {
                 CategoryCounts = announcementCategoryCounts,
-                TotalAnnouncement = announcements.Count(),//string.Join(",", announcementCategoryCounts.Where(x => !string.IsNullOrEmpty(x.Newsids)).Select(x => x.Newsids)).Split(',').Where(x => !string.IsNullOrEmpty(x)).Count(),
-                TotalCategory = announcements.Count(),//string.Join(",", announcementCategoryCounts.Where(x => !string.IsNullOrEmpty(x.Newsids)).Select(x => x.Newsids)).Split(',').Where(x => !string.IsNullOrEmpty(x)).Count(),
+                TotalAnnouncement = announcements.Count(),
+                TotalCategory = announcements.Count(),
                 RepeatedAnnList = repeatedAnnList,
-                D_RepeatedAnnList = RepeatedAnnList
+                D_RepeatedAnnList = annCategories
             };
         }
 
@@ -81,10 +66,7 @@ namespace PDFReader
                     .Where(x => !x.CATEGORY.Equals("Others"))
                     .OrderByDescending(x => x.PRIORITY).ToList())
                 {
-                    if (category.CATEGORY_ID == 11 || category.CATEGORY_ID == 42)
-                    {
-                    }
-
+        
                     List<AnnouncementResult> searchedAnn = new List<AnnouncementResult>();
 
                     if (previousHighPrority != category.PRIORITY)
@@ -105,12 +87,11 @@ namespace PDFReader
                     {
                         RepeatedAnnList.Add(new KeyValuePair<string, int>(x.NEWSID, category.CATEGORY_ID));
                     });
-                    
 
                     ActualSearchedAnnList.AddRange(searchedAnn);
                 }
 
-                var otherCat = categories.FirstOrDefault(x => x.CATEGORY.ToLower().Equals("other")).CATEGORY_ID;
+                var otherCat = categories.FirstOrDefault(x => x.CATEGORY.ToLower().Equals("others")).CATEGORY_ID;
 
                 var other = announcements.Select(x => x.NEWSID).Except(RepeatedAnnList.Select(x => x.Key).Distinct()).ToList();
 
@@ -129,7 +110,7 @@ namespace PDFReader
         }
 
         public static async Task PerformSearch(List<AnnouncementCategoryModel> categories, List<AnnouncementModel> announcements,
-            List<AnnouncementCategoryCount> searchedCategories, Dictionary<string, List<string>> RepeatedAnnList)
+            List<AnnouncementCategoryCount> searchedCategories, Dictionary<string, List<string>> AnnCategories, List<AnnouncementCategoryCount> RepeatedAnnList)
         {
             try
             {
@@ -151,7 +132,7 @@ namespace PDFReader
 
                 data.GroupBy(x=> x.ANN_ID).ToList().ForEach(x =>
                 {
-                    RepeatedAnnList.Add(x.Key, x.Select(y=> y.CATEGORY).ToList());
+                    AnnCategories.Add(x.Key, x.Select(y=> y.CATEGORY).ToList());
                 });
             }
             catch (Exception ex)
