@@ -33,11 +33,18 @@ namespace PDFReader
                 return db.ExecuteScalar<int>($"SELECT COUNT(ANN_ID) FROM TBL_ANNOUNCEMENT WHERE CONVERT(VARCHAR(10),NEWS_SUBMISSION_DATE,105) IN ('{dtFrom}','{dtTo}')", commandType: CommandType.Text);
             }
         }
-        public static DateTime GetLastAnnDateTime(string dtFrom, string dtTo)
+        public static string GetLastAnnDateTime(string dtFrom, string dtTo)
         {
-            using (IDbConnection db = new SqlConnection(Connection.MyConnection()))
+            try
             {
-                return db.ExecuteScalar<DateTime>($"select top(1) NEWS_SUBMISSION_DATE from TBL_ANNOUNCEMENT WHERE CONVERT(VARCHAR(10),NEWS_SUBMISSION_DATE,105) IN ('{dtFrom}','{dtTo}') order by NEWS_SUBMISSION_DATE desc ", commandType: CommandType.Text);
+                using (IDbConnection db = new SqlConnection(Connection.MyConnection()))
+                {
+                    return db.ExecuteScalar<string>($"select top(1) NEWS_ID from TBL_ANNOUNCEMENT WHERE CONVERT(VARCHAR(10),NEWS_SUBMISSION_DATE, 105) IN ('{dtFrom}','{dtTo}') order by NEWS_SUBMISSION_DATE desc", commandType: CommandType.Text);
+                }
+            }
+            catch (Exception ex)
+            {
+                return "";
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿@model PDFReader.Models.AnnouncementCategoryCount
 @{
+    //Model = Model ?? new PDFReader.Models.AnnouncementCategoryCount();
     var HasSubcategories = Model.SubCategories != null && Model.SubCategories.Any();
     var HasParent = Model.PARENT_ID != null;
 }

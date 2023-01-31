@@ -137,15 +137,15 @@ namespace PDFReader.Controllers
             //string dtFromForCount = DateTime.Now.AddDays(-1).ToString("dd-MM-yyyy");
             //string dtToForCount = DateTime.Now.ToString("dd-MM-yyyy");
 
-            var dtFrom = DateTime.Now.AddDays(0).ToString("yyyyMMdd");
+            var dtFrom = DateTime.Now.AddDays(-1).ToString("yyyyMMdd");
             var dtTo = DateTime.Now.AddDays(0).ToString("yyyyMMdd");
 
-            string dtFromForCount = DateTime.Now.AddDays(0).ToString("dd-MM-yyyy");
+            string dtFromForCount = DateTime.Now.AddDays(-1).ToString("dd-MM-yyyy");
             string dtToForCount = DateTime.Now.AddDays(0).ToString("dd-MM-yyyy");
 
             int totalInsertedAnnouncementCount = DB.totalAnnouncmentCount(dtFromForCount, dtToForCount);
-            //var dt = DB.GetLastAnnDateTime(dtFromForCount, dtToForCount);
-            var dt = DateTime.Now.AddDays(-3);
+            var dt = DB.GetLastAnnDateTime(dtFromForCount, dtToForCount);
+            //var dt = DateTime.Now.AddDays(-3);
 
             using (var client = new WebClient()) //WebClient  
             {
@@ -159,29 +159,37 @@ namespace PDFReader.Controllers
                     var result = JsonConvert.DeserializeObject<Root>(jsonresult);
                     var rowcount = result.Table1[0].ROWCNT;
 
-                    int rowsTobeInserted = Convert.ToInt32(rowcount); //- totalInsertedAnnouncementCount;
+                    int rowsTobeInserted = Convert.ToInt32(rowcount) - totalInsertedAnnouncementCount;
                     int noOfApiCalls = rowsTobeInserted / 50 + (rowsTobeInserted > 50 && (rowsTobeInserted % 50) > 0 ? 1 : 0);
+
+                    var allList = new List<AnnouncementResult>();
+                    allList.AddRange(result.Table);
 
                     if (noOfApiCalls > 0)
                     {
-                        for (int i = noOfApiCalls; i >= 2; i--)
+                        //for (int i = noOfApiCalls; i >= 2; i--)
+                        for (int i = 2; i <= noOfApiCalls; i++)
                         {
                             var jsonresultToAppend = client.DownloadString
                         ($"https://api.bseindia.com/BseIndiaAPI/api/AnnGetData/w?pageno={i}&strCat=-1&strPrevDate={dtFrom}&strScrip=&strSearch=P&strToDate={dtTo}&strType=C"); //URI 
 
                             var resultToAppend = JsonConvert.DeserializeObject<Root>(jsonresultToAppend);
-                            var annlist = resultToAppend.Table.Where(x => x.DissemDT > dt).ToList();
-                            List<KeyValuePair<string, int>> annCateList = new List<KeyValuePair<string, int>>();
-                            AnnouncementBL.PerformSearch(DB.GetCategories().ToList(), annlist, annCateList);
-                            await insertAnnouncement(annlist, annCateList);
+                            allList.AddRange(resultToAppend.Table);
+                            //var annlist = resultToAppend.Table.Where(x => x.DissemDT > dt).ToList();
+                            //List<KeyValuePair<string, int>> annCateList = new List<KeyValuePair<string, int>>();
+                            //AnnouncementBL.PerformSearch(DB.GetCategories().ToList(), annlist, annCateList);
+                            //await insertAnnouncement(annlist, annCateList);
                         }
                     }
 
+                    
+                    var newList = allList.GetRange(0, allList.FindIndex(x => x.NEWSID.Equals(dt)));
                     List<KeyValuePair<string, int>> RepeatedAnnList = new List<KeyValuePair<string, int>>();
-                    var annList = result.Table.Where(x => x.DissemDT > dt).ToList();
-                    AnnouncementBL.PerformSearch(DB.GetCategories().ToList(), annList, RepeatedAnnList);
-                    await insertAnnouncement(annList, RepeatedAnnList);
+                    //var annList = result.Table.Where(x => x.DissemDT > dt).ToList();
 
+                    AnnouncementBL.PerformSearch(DB.GetCategories().ToList(), newList, RepeatedAnnList);
+                    await insertAnnouncement(newList, RepeatedAnnList);
+                    
                 }
                 catch (Exception ex)
                 {
@@ -204,53 +212,62 @@ namespace PDFReader.Controllers
 
                 var list1 = list.OrderBy(x => x.News_submission_dt).ToList();
 
-                using (var connection = new SqlConnection(Connection.MyConnection()))
+                for (int i = 0; i < list1.Count; i = i + 200)
                 {
-                    connection.Open();
+                    var items = list1.Skip(i).Take(200);
+                    var anns = annList.Where(x => items.Select(y => y.NEWSID).Contains(x.Key));
 
-                    var dt = new DataTable();
-
-                    dt.Columns.Add("NEWS_ID", typeof(string));
-                    dt.Columns.Add("COMPANY_NAME", typeof(string));
-                    dt.Columns.Add("COMPANY_ID", typeof(string));
-                    dt.Columns.Add("NEWS_SUBJECT", typeof(string));
-                    dt.Columns.Add("HEAD_LINE", typeof(string));
-                    dt.Columns.Add("MORE", typeof(string));
-                    dt.Columns.Add("ANNOUNCEMENT_TYPE", typeof(string));
-                    dt.Columns.Add("QUARTER_ID", typeof(string));
-                    dt.Columns.Add("ATTACHMENT", typeof(string));
-                    dt.Columns.Add("CATEGORY_NAME_BY_BSE", typeof(string));
-                    dt.Columns.Add("NSURL", typeof(string));
-                    dt.Columns.Add("AGENDA_ID", typeof(int));
-                    dt.Columns.Add("NEWS_SUBMISSION_DATE", typeof(DateTime));
-                    dt.Columns.Add("DISSEMINATION_DATE", typeof(DateTime));
-                    dt.Columns.Add("TIME_DIFFERENCE", typeof(string));
-
-                    foreach (var item in list1)
+                    using (var connection = new SqlConnection(Connection.MyConnection()))
                     {
-                        dt.Rows.Add(item.NEWSID, item.SLONGNAME, item.SCRIP_CD, item.NEWSSUB, item.HEADLINE, item.MORE, item.ANNOUNCEMENT_TYPE, item.QUARTER_ID,
-                                    item.ATTACHMENTNAME, item.CATEGORYNAME, item.NSURL, item.AGENDA_ID, item.News_submission_dt, item.DissemDT, item.TimeDiff);
-                    }
+                        connection.Open();
 
-                    var annCates = new DataTable();
+                        var dt = new DataTable();
 
-                    annCates.Columns.Add("NEWS_ID", typeof(string));
-                    annCates.Columns.Add("COMPANY_ID", typeof(int));
+                        dt.Columns.Add("NEWS_ID", typeof(string));
+                        dt.Columns.Add("COMPANY_NAME", typeof(string));
+                        dt.Columns.Add("COMPANY_ID", typeof(string));
+                        dt.Columns.Add("NEWS_SUBJECT", typeof(string));
+                        dt.Columns.Add("HEAD_LINE", typeof(string));
+                        dt.Columns.Add("MORE", typeof(string));
+                        dt.Columns.Add("ANNOUNCEMENT_TYPE", typeof(string));
+                        dt.Columns.Add("QUARTER_ID", typeof(string));
+                        dt.Columns.Add("ATTACHMENT", typeof(string));
+                        dt.Columns.Add("CATEGORY_NAME_BY_BSE", typeof(string));
+                        dt.Columns.Add("NSURL", typeof(string));
+                        dt.Columns.Add("AGENDA_ID", typeof(int));
+                        dt.Columns.Add("NEWS_SUBMISSION_DATE", typeof(DateTime));
+                        dt.Columns.Add("DISSEMINATION_DATE", typeof(DateTime));
+                        dt.Columns.Add("TIME_DIFFERENCE", typeof(string));
 
-                    foreach (var item in annList)
-                    {
-                        annCates.Rows.Add(item.Key, item.Value);
-                    }
-
-                    var xx = await connection
-                        .ExecuteAsync("sp_InsertAnnouncement",
-                        new
+                        foreach (var item in items)
                         {
-                            @announcementType = dt.AsTableValuedParameter("AnnouncementType"),
-                            @annCatesType = annCates.AsTableValuedParameter("AnnCatesType")
-                        }, commandType: CommandType.StoredProcedure);
+                            dt.Rows.Add(item.NEWSID, item.SLONGNAME, item.SCRIP_CD, item.NEWSSUB, item.HEADLINE, item.MORE, item.ANNOUNCEMENT_TYPE, item.QUARTER_ID,
+                                        item.ATTACHMENTNAME, item.CATEGORYNAME, item.NSURL, item.AGENDA_ID, item.News_submission_dt, item.DissemDT, item.TimeDiff);
+                        }
+
+                        var annCates = new DataTable();
+
+                        annCates.Columns.Add("NEWS_ID", typeof(string));
+                        annCates.Columns.Add("CATEGORY_ID", typeof(int));
+
+                        foreach (var item in anns)
+                        {
+                            annCates.Rows.Add(item.Key, item.Value);
+                        }
+
+                        var xx = await connection
+                            .QueryAsync("sp_InsertAnnouncement1",
+                            new
+                            {
+                                @announcementType = dt.AsTableValuedParameter("AnnouncementType"),
+                                @annCatesType = annCates.AsTableValuedParameter("AnnCatesType")
+                            }, commandType: CommandType.StoredProcedure);
+
+                    }
 
                 }
+
+                
             }
             catch (Exception ee)
             {
