@@ -12,7 +12,7 @@ namespace PDFReader
 {
     internal class PDFSearch
     {
-        public static async Task<List<FetchedKeywords>> Search(int ReportID, string PDFUrl, List<String> searchList)
+        public static async Task<List<FetchedKeywords>> Search(int ReportID, string PDFUrl, List<string> searchList)
         {
             List<FetchedKeywords> fetchedKeywords = new List<FetchedKeywords>();
             int page = 0;
@@ -52,9 +52,6 @@ namespace PDFReader
                             keywords.Add(keyword);
                         }
                     });
-
-                    //if (!string.IsNullOrEmpty(keywords.ToString()))
-                    //    strlist.Add(page, keywords.ToString());
 
                     keywords.ForEach(keyword =>
                     {

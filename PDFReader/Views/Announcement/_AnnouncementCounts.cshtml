@@ -4,21 +4,31 @@
     var l2 = new List<PDFReader.Models.AnnouncementCategoryCount>();
 
     var other = Model.FirstOrDefault(x => x.CATEGORY.Equals(("Others")));
-    var copyObj = Model.Skip(0).ToList();
+
+    var categories = Model.Skip(0).ToList();
+    categories.Remove(other);
+
+    var mainCat = categories.Where(x => x.PARENT_ID == null).ToList();
+    var subcategories = categories.Where(x => x.PARENT_ID != null);
+    mainCat = mainCat.Except(subcategories).ToList();
+
+    foreach (var cat in mainCat) {
+        var subCats = subcategories.Where(x => x.PARENT_ID == cat.CATEGORY_ID);
+        cat.SubCategories = subCats.ToList();
+    }
 
 
-    copyObj.Remove(other);
 
-    if (copyObj.Count() % 2 == 0)
+    if (mainCat.Count() % 2 == 0)
     {
-        l1 = copyObj.GetRange(0, copyObj.Count() / 2);
-        l2 = copyObj.GetRange(copyObj.Count() / 2, copyObj.Count() / 2);
+        l1 = mainCat.GetRange(0, mainCat.Count() / 2);
+        l2 = mainCat.GetRange(mainCat.Count() / 2, mainCat.Count() / 2);
     }
     else
     {
-        l1 = copyObj.GetRange(0, copyObj.Count() / 2);
-        l2 = copyObj.
-            GetRange(copyObj.Count() / 2, (copyObj.Count() / 2) + 1);
+        l1 = mainCat.GetRange(0, mainCat.Count() / 2);
+        l2 = mainCat.
+            GetRange(mainCat.Count() / 2, (mainCat.Count() / 2) + 1);
     }
 
     if (other != null)

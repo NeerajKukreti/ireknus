@@ -20,30 +20,34 @@ namespace PDFReader.Controllers
     {
         #region announcement
 
-        [OutputCache(Duration = 10, Location = OutputCacheLocation.Client)]
         public async Task<ActionResult> Index()
         {
             return View();
         }
 
-        [OutputCache(Duration = 10, Location = OutputCacheLocation.Client)]
+        [OutputCache(Duration = 20, Location = OutputCacheLocation.Client, VaryByParam = "none")]
         public async Task<ActionResult> GetAnnouncementView(string CompanyName, string DateRange, bool ShowAll = false, bool ShowRepeated = false, bool showFav = false)
         {
-            var categoriesCount = await AnnouncementBL.GetCategoryCounts(CompanyName, ShowAll, DateRange, DB.GetCategories().ToList(), showFav);
-
-            if (ShowRepeated)
-            {
-                categoriesCount.ShowRepeated = ShowRepeated;
-                categoriesCount.TotalAnnouncement = string.Join(",", categoriesCount.RepeatedAnnList.Where(x => !string.IsNullOrEmpty(x.Ann_Id)).Select(x => x.Ann_Id)).Split(',').Where(x => !string.IsNullOrEmpty(x)).Count();
-                categoriesCount.TotalCategory = string.Join(",", categoriesCount.RepeatedAnnList.Where(x => !string.IsNullOrEmpty(x.Ann_Id)).Select(x => x.Ann_Id)).Split(',').Where(x => !string.IsNullOrEmpty(x)).Count();
-            }
-
-            System.Web.HttpContext.Current.Application["CategoriesCount"] = categoriesCount;
+            var categoriesCount = AnnouncementBL.GetCategoryCounts(CompanyName, ShowAll, DateRange, showFav, ShowRepeated).Result;
+            categoriesCount.ShowRepeated = ShowRepeated;
+           
             return PartialView("_AnnouncementView", categoriesCount);
         }
 
-        [OutputCache(Duration = 10, Location = OutputCacheLocation.Client)]
-        public ActionResult GetAnnouncements(string catIds, bool showRepeated = false)
+        [OutputCache(Duration = 20, Location = OutputCacheLocation.Client, VaryByParam = "none")]
+        public ActionResult GetAnnouncements(string companyName, string catIds, bool showRepeated = false, string dtRange = "", bool showFav = false, bool showAll = false, int? start = null, int? length = null)
+        {
+            var announcements = DB.GetDashboardDetails(catIds, companyName,showAll, dtRange, showFav, start, length);
+
+            
+            announcements = showRepeated? announcements.Where(x => x.rn > 1) : announcements.Where(x => x.rn == 1);
+            
+            var jsonResult = Json(data: announcements, JsonRequestBehavior.AllowGet);
+            jsonResult.MaxJsonLength = int.MaxValue;
+            return jsonResult;
+        }
+            [OutputCache(Duration = 20, Location = OutputCacheLocation.Client, VaryByParam = "none")]
+        public ActionResult GetAnnouncements1(string catIds, bool showRepeated = false)
         {
             var ann = (AnnoucementViewModel)System.Web.HttpContext.Current.Application["CategoriesCount"];
             var newIds = string.Empty;
@@ -256,7 +260,7 @@ namespace PDFReader.Controllers
 
                 var date = DateTime.Now.AddDays(-1).Date;
                 var dtRange = $"{date}|{date}";
-                var announcementData = AnnouncementBL.GetCategoryCounts(string.Empty, alert.WATCHLIST, dtRange, categories.ToList(), false).Result;
+                var announcementData = AnnouncementBL.GetCategoryCounts(string.Empty, alert.WATCHLIST, dtRange, false).Result;
                 var announcements = DB.GetAnnouncements(string.Join(",", announcementData.CategoryCounts.Where(x => !x.CATEGORY.Equals("Others")).Select(x => x.Ann_Id))).ToList();
                 List<Reports> reports = new List<Reports>();
 
@@ -455,7 +459,7 @@ namespace PDFReader.Controllers
 
                     var date = alertDate;
                     var dtRange = $"{date}|{date}";
-                    var announcementData = AnnouncementBL.GetCategoryCounts(string.Empty, alert.WATCHLIST, dtRange, categories.ToList(), false).Result;
+                    var announcementData = AnnouncementBL.GetCategoryCounts(string.Empty, alert.WATCHLIST, dtRange, false).Result;
                     var announcements = DB.GetAnnouncements(string.Join(",", announcementData.CategoryCounts.Where(x => !x.CATEGORY.Equals("Others")).Select(x => x.Ann_Id))).ToList();
                     List<Reports> reports = new List<Reports>();
 

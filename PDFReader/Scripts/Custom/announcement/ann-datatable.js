@@ -23,10 +23,17 @@ var annTable = function () {
     //TODO:: table-datatables-scroller.js use to fix scroller issue
     var table;
     var Keyword = function (catIds) {
+        var xx = $('input[name="daterange"]').val().split("-")
+        var dtRange = new Date(xx[0].trim()).toDateString() + "|" + new Date(xx[1].trim()).toDateString();
+       
         table = $('#tblAnn').dataTable({
+            processing: true,
+            serverSide: true,
             retrieve: true,
             ajax: {
-                url: getAnnounementUrl + "?catIds=" + catIds + "&showRepeated=" + $('#switch-showrpted').is(':checked') + "&showFav=" + $('.showfav').is(':checked'),
+                url: getAnnounementUrl + "?catIds=" + catIds + "&showRepeated=" + $('#switch-showrpted').is(':checked') +
+                    "&showFav=" + $('.showfav').is(':checked') + "&dtRange=" + dtRange + "&showAll=" + $('.ShowAll').is(':checked') +
+                    "&companyName=" + $('.companyList ').val(),
                 method: "GET",
                 datatype: "json",
                 error: function (err) {
@@ -139,7 +146,7 @@ var annTable = function () {
             if (!jQuery().dataTable) {
                 return;
             }
-
+            
             Keyword(year);
         },
         destroy: function () {

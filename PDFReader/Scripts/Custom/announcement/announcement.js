@@ -1,7 +1,10 @@
 $(document).ready(function () {
     function ShowAnnouncementCategoryWise() {
-        var ids = $('input[type=checkbox]:checked').map(function (i, e) {
+        var ids = $('input[type=checkbox]:checked').map(function (i, e)
+        {
+            //if (!$(e).parent().hasClass('ann-disabled'))
             return $(e).parent().find('label').data('cat');
+
         }).get().join(',');
 
         if (ids.length == 0) { annTable.clear(); annTable.destroy(); return; }
@@ -112,9 +115,8 @@ $(document).ready(function () {
     $(document).on('change', '.showrpted', function () {
         $('.showfav').prop('checked', false);
 
-        var dtFrm = (new Date($('.dtCtrl').data('daterangepicker').startDate._d)).toISOString();
-        var dtTo = (new Date($('.dtCtrl').data('daterangepicker').endDate._d)).toISOString();
-        var dtRange = dtFrm + "|" + dtTo;
+        var xx = $('input[name="daterange"]').val().split("-")
+        var dtRange = new Date(xx[0].trim()).toDateString() + "|" + new Date(xx[1].trim()).toDateString();
 
         if (this.checked) {
             LoadAnnouncementView(dtRange, $('.ShowAll').is(':checked'), $('.companyList ').val(), true, $('.showfav').is(':checked'));

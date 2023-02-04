@@ -3,6 +3,7 @@ using PDFReader.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -10,44 +11,14 @@ namespace PDFReader
 {
     internal class AnnouncementBL
     {
-        public static async Task<AnnoucementViewModel> GetCategoryCounts(string CompanyName, bool ShowAll, string dtRange, List<AnnouncementCategoryModel> categories, bool showFav)
+        public static async Task<AnnoucementViewModel> GetCategoryCounts(string CompanyName, bool ShowAll, string dtRange,bool showFav, bool showrepeated = false)
         {
-            var announcements = GetWatchListCompanies(CompanyName, ShowAll, dtRange, showFav);
-
-            List<AnnouncementCategoryCount> searchedCategories = new List<AnnouncementCategoryCount>();
-            List<AnnouncementCategoryCount> announcementCategoryCounts = new List<AnnouncementCategoryCount>();
-            List<AnnouncementCategoryCount> repeatedAnnList = new List<AnnouncementCategoryCount>();
-            Dictionary<string, List<string>> annCategories = new Dictionary<string, List<string>>();
-            PerformSearch(categories.ToList(), announcements.ToList(), searchedCategories, annCategories, repeatedAnnList);
-
-
-            List<AnnouncementCategoryCount> subCategoriesList = searchedCategories.Where(x =>
-                  x?.PARENT_ID != null
-            ).ToList();
-
-            List<AnnouncementCategoryCount> ActualsearchedCategories = searchedCategories.Except(subCategoriesList).ToList();
-
-            ActualsearchedCategories.ForEach(x => //assinging subs to cats
-            {
-                var subCategories = subCategoriesList.Where(cat => cat.PARENT_ID == x.CATEGORY_ID).ToList();
-
-                if (subCategories.Any())
-                {
-                    x.SubCategories = new List<AnnouncementCategoryCount>(subCategories);
-                }
-                announcementCategoryCounts.Add(x);
-            });
-
-            announcementCategoryCounts = announcementCategoryCounts.OrderBy(x => x.CATEGORY).ToList();
-
-            return new AnnoucementViewModel
-            {
-                CategoryCounts = announcementCategoryCounts,
-                TotalAnnouncement = announcements.Count(),
-                TotalCategory = announcements.Count(),
-                RepeatedAnnList = repeatedAnnList,
-                D_RepeatedAnnList = annCategories
-            };
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            var AnnoucementView = DB.GetDashboardCategories(String.Empty, CompanyName, ShowAll, dtRange, showFav, showrepeated);
+            stopwatch.Stop();
+            var xx = stopwatch.ElapsedMilliseconds;
+            return AnnoucementView;
         }
 
         public static async Task PerformSearch(List<AnnouncementCategoryModel> categories, List<AnnouncementResult> announcements,
@@ -55,7 +26,7 @@ namespace PDFReader
         {
             try
             {
-               
+
                 List<AnnouncementResult> ActualAnn = announcements;
 
                 List<AnnouncementResult> ActualSearchedAnnList = new List<AnnouncementResult>();
@@ -66,7 +37,7 @@ namespace PDFReader
                     .Where(x => !x.CATEGORY.Equals("Others"))
                     .OrderByDescending(x => x.PRIORITY).ToList())
                 {
-        
+
                     List<AnnouncementResult> searchedAnn = new List<AnnouncementResult>();
 
                     if (previousHighPrority != category.PRIORITY)
@@ -114,8 +85,9 @@ namespace PDFReader
         {
             try
             {
-
                 var data = DB.GetAnnCates(announcements.Select(x => x.ANN_ID).ToList());
+                var rptAnn = announcements.Where(x => x.rn > 1).Select(x => x.ANN_ID);
+                var data1 = data.Where(x => rptAnn.Contains(x.ANN_ID));
 
                 categories.ForEach(cat =>
                 {
@@ -126,14 +98,28 @@ namespace PDFReader
                         CATEGORY = cat.CATEGORY,
                         CATEGORY_ID = cat.CATEGORY_ID,
                         PARENT_ID = cat.PARENT_ID,
-                        Ann_Id = string.Join(",", anns.Select(x => x.ANN_ID))
+                        //Ann_Id = string.Join(",", anns.Select(x => x.ANN_ID))
                     });
+
+
+                    anns = data1.Where(x => x.CATEGORY_ID == cat.CATEGORY_ID);
+                    RepeatedAnnList.Add(new AnnouncementCategoryCount
+                    {
+                        Count = anns.Count(),
+                        CATEGORY = cat.CATEGORY,
+                        CATEGORY_ID = cat.CATEGORY_ID,
+                        PARENT_ID = cat.PARENT_ID,
+                        //Ann_Id = string.Join(",", anns.Select(x => x.ANN_ID))
+                    });
+
                 });
 
-                data.GroupBy(x=> x.ANN_ID).ToList().ForEach(x =>
-                {
-                    AnnCategories.Add(x.Key, x.Select(y=> y.CATEGORY).ToList());
-                });
+                data.GroupBy(x => x.ANN_ID).ToList().ForEach(x =>
+                 {
+                     AnnCategories.Add(x.Key, x.Select(y => y.CATEGORY).ToList());
+                 });
+
+
             }
             catch (Exception ex)
             {
@@ -143,50 +129,9 @@ namespace PDFReader
 
         public static IEnumerable<AnnouncementModel> GetWatchListCompanies(string CompanyName, bool ShowAll, string dtRange, bool ShowFav = false)
         {
-            var watchList = new List<string>();
+            var ann = DB.GetDashboardDetails(string.Empty, CompanyName, ShowAll, dtRange, ShowFav);
 
-            if (!ShowAll)
-                watchList = DB.GetWatchList().Select(y => y.COMPANY_ID).ToList();
-
-            var ann = new List<AnnouncementModel>();
-
-            if (!string.IsNullOrEmpty(dtRange)) // note: date range will never be empty
-            {
-                var sDt = DateTime.Parse(dtRange.Split('|')[0]);
-                var eDt = DateTime.Parse(dtRange.Split('|')[1]);
-                ann = DB.GetCompaniesByDtRange(sDt, eDt).ToList();
-            }
-
-            var watchListAnn = new List<AnnouncementModel>();
-
-            if (!string.IsNullOrEmpty(CompanyName))
-            {
-                if (ShowAll)
-                {
-                    watchListAnn = ann.Where(x =>
-                        x.COMPANY_NAME.ToLower().Equals(CompanyName.ToLower())).ToList();
-                }
-                else
-                    watchListAnn = ann.Where(x =>
-                        watchList.Contains(x.COMPANY_ID) &&
-                        x.COMPANY_NAME.ToLower().Equals(CompanyName.ToLower())).ToList();
-            }
-            else
-            {
-                if (ShowAll)
-                    watchListAnn = ann.ToList();
-                else
-                    watchListAnn = ann.Where(x => watchList.Contains(x.COMPANY_ID)).ToList();
-            }
-
-
-
-            if (ShowFav)
-            {
-                watchListAnn = watchListAnn.Where(x => x.IsFavorite).ToList();
-            }
-
-            return watchListAnn;
+            return ann;
         }
     }
 }

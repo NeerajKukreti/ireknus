@@ -129,23 +129,32 @@ namespace PDFReader.Controllers
             return "All Watchlist Company Code Added Successfully";
         }
 
-        public async Task announcement()
+        public async Task JobLoop()
         {
-            //var dtFrom = DateTime.Now.AddDays(-1).ToString("yyyyMMdd");
-            //var dtTo = DateTime.Now.ToString("yyyyMMdd");
+            DateTime st = Convert.ToDateTime("01/01/2022");
+            DateTime end = Convert.ToDateTime("31/12/2022");
 
-            //string dtFromForCount = DateTime.Now.AddDays(-1).ToString("dd-MM-yyyy");
-            //string dtToForCount = DateTime.Now.ToString("dd-MM-yyyy");
+            for (var dt = st; dt <= end; dt = dt.AddDays(1))
+            {
+                await announcement(dt);
+            }
+        }
+        public async Task announcement(DateTime dt1)
+        {
+            var frm = dt1;
+            var to = dt1;
 
-            var dtFrom = DateTime.Now.AddDays(-1).ToString("yyyyMMdd");
-            var dtTo = DateTime.Now.AddDays(0).ToString("yyyyMMdd");
+            //var frm = DateTime.Now.AddDays(-1);
+            //var to = DateTime.Now.AddDays(0);
 
-            string dtFromForCount = DateTime.Now.AddDays(-1).ToString("dd-MM-yyyy");
-            string dtToForCount = DateTime.Now.AddDays(0).ToString("dd-MM-yyyy");
+            var dtFrom = frm.ToString("yyyyMMdd");
+            var dtTo = to.ToString("yyyyMMdd");
+
+            string dtFromForCount = frm.ToString("dd-MM-yyyy");
+            string dtToForCount = to.ToString("dd-MM-yyyy");
 
             int totalInsertedAnnouncementCount = DB.totalAnnouncmentCount(dtFromForCount, dtToForCount);
             var dt = DB.GetLastAnnDateTime(dtFromForCount, dtToForCount);
-            //var dt = DateTime.Now.AddDays(-3);
 
             using (var client = new WebClient()) //WebClient  
             {
@@ -182,14 +191,18 @@ namespace PDFReader.Controllers
                         }
                     }
 
-                    
-                    var newList = allList.GetRange(0, allList.FindIndex(x => x.NEWSID.Equals(dt)));
-                    List<KeyValuePair<string, int>> RepeatedAnnList = new List<KeyValuePair<string, int>>();
-                    //var annList = result.Table.Where(x => x.DissemDT > dt).ToList();
+                    if (allList.Any())
+                    {
+                        var newList = allList.Where(x => x.DT_TM > dt).ToList();
+                        List<KeyValuePair<string, int>> RepeatedAnnList = new List<KeyValuePair<string, int>>();
+                        //var annList = result.Table.Where(x => x.DissemDT > dt).ToList();
 
-                    AnnouncementBL.PerformSearch(DB.GetCategories().ToList(), newList, RepeatedAnnList);
-                    await insertAnnouncement(newList, RepeatedAnnList);
-                    
+                        if (newList.Any())
+                        {
+                            AnnouncementBL.PerformSearch(DB.GetCategories().ToList(), newList, RepeatedAnnList);
+                            await insertAnnouncement(newList, RepeatedAnnList);
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -227,6 +240,8 @@ namespace PDFReader.Controllers
                         dt.Columns.Add("COMPANY_NAME", typeof(string));
                         dt.Columns.Add("COMPANY_ID", typeof(string));
                         dt.Columns.Add("NEWS_SUBJECT", typeof(string));
+                        dt.Columns.Add("DT_TM", typeof(DateTime));
+                        dt.Columns.Add("NEWS_DT", typeof(DateTime));
                         dt.Columns.Add("HEAD_LINE", typeof(string));
                         dt.Columns.Add("MORE", typeof(string));
                         dt.Columns.Add("ANNOUNCEMENT_TYPE", typeof(string));
@@ -241,7 +256,7 @@ namespace PDFReader.Controllers
 
                         foreach (var item in items)
                         {
-                            dt.Rows.Add(item.NEWSID, item.SLONGNAME, item.SCRIP_CD, item.NEWSSUB, item.HEADLINE, item.MORE, item.ANNOUNCEMENT_TYPE, item.QUARTER_ID,
+                            dt.Rows.Add(item.NEWSID, item.SLONGNAME, item.SCRIP_CD, item.NEWSSUB, item.DT_TM, item.NEWS_DT, item.HEADLINE, item.MORE, item.ANNOUNCEMENT_TYPE, item.QUARTER_ID,
                                         item.ATTACHMENTNAME, item.CATEGORYNAME, item.NSURL, item.AGENDA_ID, item.News_submission_dt, item.DissemDT, item.TimeDiff);
                         }
 
@@ -256,7 +271,7 @@ namespace PDFReader.Controllers
                         }
 
                         var xx = await connection
-                            .QueryAsync("sp_InsertAnnouncement1",
+                            .QueryAsync("sp_InsertAnnouncement",
                             new
                             {
                                 @announcementType = dt.AsTableValuedParameter("AnnouncementType"),
@@ -267,7 +282,7 @@ namespace PDFReader.Controllers
 
                 }
 
-                
+
             }
             catch (Exception ee)
             {

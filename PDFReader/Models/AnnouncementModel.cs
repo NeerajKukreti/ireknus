@@ -7,6 +7,7 @@ namespace PDFReader.Models
 {
     public class AnnouncementModel
     {
+        public int rn { get; set; }
         public int CategoryId { get; set; }
         public string CategoryName { get; set; }
         public string ANN_ID { get; set; }

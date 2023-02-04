@@ -1,11 +1,14 @@
 ﻿using Dapper;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using PDFReader.Model;
 using PDFReader.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PDFReader
@@ -33,19 +36,14 @@ namespace PDFReader
                 return db.ExecuteScalar<int>($"SELECT COUNT(ANN_ID) FROM TBL_ANNOUNCEMENT WHERE CONVERT(VARCHAR(10),NEWS_SUBMISSION_DATE,105) IN ('{dtFrom}','{dtTo}')", commandType: CommandType.Text);
             }
         }
-        public static string GetLastAnnDateTime(string dtFrom, string dtTo)
+        public static DateTime GetLastAnnDateTime(string dtFrom, string dtTo)
         {
-            try
+
+            using (IDbConnection db = new SqlConnection(Connection.MyConnection()))
             {
-                using (IDbConnection db = new SqlConnection(Connection.MyConnection()))
-                {
-                    return db.ExecuteScalar<string>($"select top(1) NEWS_ID from TBL_ANNOUNCEMENT WHERE CONVERT(VARCHAR(10),NEWS_SUBMISSION_DATE, 105) IN ('{dtFrom}','{dtTo}') order by NEWS_SUBMISSION_DATE desc", commandType: CommandType.Text);
-                }
+                return db.ExecuteScalar<DateTime>($"select top(1) DT_TM from TBL_ANNOUNCEMENT WHERE CONVERT(VARCHAR(10),NEWS_SUBMISSION_DATE, 105) IN ('{dtFrom}','{dtTo}') order by NEWS_SUBMISSION_DATE desc", commandType: CommandType.Text);
             }
-            catch (Exception ex)
-            {
-                return "";
-            }
+
         }
 
         public static async Task<IEnumerable<string>> GetFinancialYears()
@@ -364,7 +362,7 @@ namespace PDFReader
             }
         }
 
-        public static IEnumerable<AnnouncementModel> GetCompaniesByDtRange(DateTime dtFrm, DateTime to)
+        public static IEnumerable<AnnouncementModel> GetAnnouncementByDtRange(DateTime dtFrm, DateTime to)
         {
             List<AnnouncementModel> announcementModels = new List<AnnouncementModel>();
             using (IDbConnection db = new SqlConnection(Connection.MyConnection()))
@@ -501,6 +499,97 @@ namespace PDFReader
                         commandType: CommandType.Text);
             }
         }
+
+        public static IEnumerable<AnnouncementModel> GetDashboardDetails(string catIds, string CompanyName, bool ShowAll, string dtRange, bool ShowFav = false, int? start = null, int? length = null)
+        {
+
+            var sDt = DateTime.Parse(dtRange.Split('|')[0]);
+            var eDt = DateTime.Parse(dtRange.Split('|')[1]);
+
+            using (var connection = new SqlConnection(Connection.MyConnection()))
+            {
+                connection.Open();
+
+                var Ids = string.IsNullOrEmpty(catIds) ? new string[0] : catIds.Split(',');
+                var annCates = new DataTable();
+
+                annCates.Columns.Add("ANN_ID", typeof(string));
+
+                foreach (var item in Ids)
+                {
+                    annCates.Rows.Add(item);
+                }
+
+                return connection.Query<AnnouncementModel>("sp_GetDashboardDetails", 
+                    new {
+                        @CatIds = annCates.AsTableValuedParameter("AnnType"),
+                        @dtStart = sDt,
+                        @dtEnd = eDt,
+                        @showAll = ShowAll,
+                        @showFav = ShowFav,
+                        @companyName = CompanyName ,
+                        @start = start,
+                        @length = length
+                    }, commandType: CommandType.StoredProcedure);
+            }
+        }
+
+        public static AnnoucementViewModel GetDashboardCategories(string catIds, string CompanyName, bool ShowAll, string dtRange, bool ShowFav = false, bool ShowRpt = false)
+        {
+
+            var data = new AnnoucementViewModel();
+
+            var sDt = DateTime.Parse(dtRange.Split('|')[0]);
+            var eDt = DateTime.Parse(dtRange.Split('|')[1]);
+            var Ids = string.IsNullOrEmpty(catIds) ? new string[0] : catIds.Split(',');
+            var annCates = new DataTable();
+
+            annCates.Columns.Add("ANN_ID", typeof(string));
+
+            foreach (var item in Ids)
+            {
+                annCates.Rows.Add(item);
+            }
+            
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            using (var connection = new SqlConnection(Connection.MyConnection()))
+            {
+                connection.Open();
+                var resultSet = connection.QueryMultiple("sp_GetDashboardCategories",
+                    new
+                    {
+                        @CatIds = annCates.AsTableValuedParameter("AnnType"),
+                        @dtStart = sDt,
+                        @dtEnd = eDt,
+                        @showAll = ShowAll,
+                        @showFav = ShowFav,
+                        @companyName = CompanyName
+                    }, commandType: CommandType.StoredProcedure);
+
+                data.TotalAnnouncement = resultSet.Read<int>().First();
+                var xx5 = stopwatch.ElapsedMilliseconds;
+                data.CategoryCounts = resultSet.Read<AnnouncementCategoryCount>().ToList();
+                var xx4 = stopwatch.ElapsedMilliseconds;
+                var rptTotalAnnouncement = resultSet.Read<int>().First();
+                var xx3 = stopwatch.ElapsedMilliseconds;
+                data.RepeatedAnnList = resultSet.Read<AnnouncementCategoryCount>().ToList();
+                var xx2 = stopwatch.ElapsedMilliseconds;
+                data.TotalCategory = data.TotalAnnouncement;
+                var xx1 = stopwatch.ElapsedMilliseconds;
+
+
+                if (ShowRpt)
+                {
+                    data.TotalAnnouncement = rptTotalAnnouncement;
+                    data.TotalCategory = rptTotalAnnouncement;
+                }
+
+                return data;
+            }
+        }
+
         #endregion
     }
 }

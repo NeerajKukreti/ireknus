@@ -3,6 +3,10 @@
     //Model = Model ?? new PDFReader.Models.AnnouncementCategoryCount();
     var HasSubcategories = Model.SubCategories != null && Model.SubCategories.Any();
     var HasParent = Model.PARENT_ID != null;
+
+    if (Model.CATEGORY.Equals("Reg. 57 (1)")) { 
+    
+    }
 }
 <div style="display: @(HasParent?"none":"")" class="form-check announcement @(!HasParent && Model.Count > 0 ? "" : "ann-disabled")
     @(HasParent ? $" HasParent parent{Model.PARENT_ID}":"") @(HasSubcategories ? "hasSubcategories":"") " data-catid="@Model.CATEGORY_ID">
