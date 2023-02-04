@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using DocumentFormat.OpenXml.Office2010.Excel;
 using PDFReader.Model;
 using PDFReader.Models;
 using System;
@@ -500,7 +499,7 @@ namespace PDFReader
             }
         }
 
-        public static IEnumerable<AnnouncementModel> GetDashboardDetails(string catIds, string CompanyName, bool ShowAll, string dtRange, bool ShowFav = false, int? start = null, int? length = null)
+        public static AnnoucementGridData GetDashboardDetails(string catIds, string CompanyName, bool ShowAll, string dtRange, bool ShowFav = false, int? start = null, int? length = null, bool showRpt = false)
         {
 
             var sDt = DateTime.Parse(dtRange.Split('|')[0]);
@@ -520,17 +519,26 @@ namespace PDFReader
                     annCates.Rows.Add(item);
                 }
 
-                return connection.Query<AnnouncementModel>("sp_GetDashboardDetails", 
+                var resultSet = connection.QueryMultiple("sp_GetDashboardDetails", 
                     new {
                         @CatIds = annCates.AsTableValuedParameter("AnnType"),
                         @dtStart = sDt,
                         @dtEnd = eDt,
                         @showAll = ShowAll,
                         @showFav = ShowFav,
-                        @companyName = CompanyName ,
+                        @companyName = CompanyName,
+                        @showRpt = showRpt,
                         @start = start,
                         @length = length
                     }, commandType: CommandType.StoredProcedure);
+
+                var data = new AnnoucementGridData();
+
+                //data.recordsTotal = resultSet.Read<int>().First();
+                //data.recordsFiltered = data.recordsTotal;
+                data.data = resultSet.Read<AnnouncementModel>().ToList();
+
+                return data;
             }
         }
 

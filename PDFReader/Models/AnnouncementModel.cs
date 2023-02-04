@@ -5,6 +5,13 @@ using System.Web.Mvc;
 
 namespace PDFReader.Models
 {
+    public class AnnoucementGridData {
+        public int draw { get; set; }
+        public int recordsTotal { get; set; }
+        public int recordsFiltered { get; set; }
+        public IEnumerable<AnnouncementModel> data { get; set; }
+    }
+
     public class AnnouncementModel
     {
         public int rn { get; set; }

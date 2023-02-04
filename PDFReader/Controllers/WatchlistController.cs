@@ -131,21 +131,21 @@ namespace PDFReader.Controllers
 
         public async Task JobLoop()
         {
-            DateTime st = Convert.ToDateTime("01/01/2022");
-            DateTime end = Convert.ToDateTime("31/12/2022");
+            DateTime st = Convert.ToDateTime("01/01/2023");
+            DateTime end = Convert.ToDateTime("04/02/2023");
 
             for (var dt = st; dt <= end; dt = dt.AddDays(1))
             {
-                await announcement(dt);
+                //await announcement(dt);
             }
         }
-        public async Task announcement(DateTime dt1)
+        public async Task announcement()
         {
-            var frm = dt1;
-            var to = dt1;
+            //var frm = dt1;
+            //var to = dt1;
 
-            //var frm = DateTime.Now.AddDays(-1);
-            //var to = DateTime.Now.AddDays(0);
+            var frm = DateTime.Now.AddDays(-1);
+            var to = DateTime.Now.AddDays(0);
 
             var dtFrom = frm.ToString("yyyyMMdd");
             var dtTo = to.ToString("yyyyMMdd");

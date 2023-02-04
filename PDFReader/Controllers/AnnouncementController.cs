@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Drawing.Charts;
 using PDFReader.Model;
 using PDFReader.Models;
 using System;
@@ -30,23 +31,23 @@ namespace PDFReader.Controllers
         {
             var categoriesCount = AnnouncementBL.GetCategoryCounts(CompanyName, ShowAll, DateRange, showFav, ShowRepeated).Result;
             categoriesCount.ShowRepeated = ShowRepeated;
-           
+
             return PartialView("_AnnouncementView", categoriesCount);
         }
 
         [OutputCache(Duration = 20, Location = OutputCacheLocation.Client, VaryByParam = "none")]
-        public ActionResult GetAnnouncements(string companyName, string catIds, bool showRepeated = false, string dtRange = "", bool showFav = false, bool showAll = false, int? start = null, int? length = null)
+        public ActionResult GetAnnouncements(string companyName, string catIds, bool showRepeated = false, string dtRange = "", bool showFav = false, bool showAll = false, int? start = null, int? length = null, int? draw = null)
         {
-            var announcements = DB.GetDashboardDetails(catIds, companyName,showAll, dtRange, showFav, start, length);
+            var announcements = DB.GetDashboardDetails(catIds, companyName, showAll, dtRange, showFav, start, length, showRepeated);
 
-            
-            announcements = showRepeated? announcements.Where(x => x.rn > 1) : announcements.Where(x => x.rn == 1);
-            
-            var jsonResult = Json(data: announcements, JsonRequestBehavior.AllowGet);
+            if (draw != null)
+            announcements.draw = draw.Value;
+
+            var jsonResult = Json(announcements, JsonRequestBehavior.AllowGet);
             jsonResult.MaxJsonLength = int.MaxValue;
             return jsonResult;
         }
-            [OutputCache(Duration = 20, Location = OutputCacheLocation.Client, VaryByParam = "none")]
+        [OutputCache(Duration = 20, Location = OutputCacheLocation.Client, VaryByParam = "none")]
         public ActionResult GetAnnouncements1(string catIds, bool showRepeated = false)
         {
             var ann = (AnnoucementViewModel)System.Web.HttpContext.Current.Application["CategoriesCount"];
@@ -145,11 +146,12 @@ namespace PDFReader.Controllers
         public ActionResult GetCompanies(string q, string DateRange, bool ShowAll = false, bool showFav = false)
         {
             var watchListCompanies = AnnouncementBL
-                .GetWatchListCompanies("", ShowAll, DateRange, showFav).Where(x => x.COMPANY_ID.ToLower().Contains(q.ToLower()));
+                .GetWatchListCompanies("", ShowAll, DateRange, showFav)
+                .data.Where(x => x.COMPANY_ID.ToLower().Contains(q.ToLower()));
             return Json(data:
                 watchListCompanies.Select(x => new { value = x.COMPANY_ID, text = x.COMPANY_NAME }).Distinct(), JsonRequestBehavior.AllowGet);
         }
-        
+
         #endregion
 
         #region announcement settings
@@ -300,7 +302,7 @@ namespace PDFReader.Controllers
         {
             try
             {
-                DataTable dt = new DataTable();
+                var dt = new System.Data.DataTable();
                 //Setiing Table Name  
                 dt.TableName = "SearchedKeyword";
                 //Add Columns  

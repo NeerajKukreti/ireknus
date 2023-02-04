@@ -127,7 +127,7 @@ namespace PDFReader
             }
         }
 
-        public static IEnumerable<AnnouncementModel> GetWatchListCompanies(string CompanyName, bool ShowAll, string dtRange, bool ShowFav = false)
+        public static AnnoucementGridData GetWatchListCompanies(string CompanyName, bool ShowAll, string dtRange, bool ShowFav = false)
         {
             var ann = DB.GetDashboardDetails(string.Empty, CompanyName, ShowAll, dtRange, ShowFav);
 
