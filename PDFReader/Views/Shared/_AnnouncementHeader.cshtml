@@ -106,8 +106,9 @@
         resolver: 'custom',
         events: {
             search: function (qry, callback) {
-                debugger;
+                
                 $('.lblClearSearch').show();
+                $('.bootstrap-autocomplete .dropdown-menu').empty();
                 ///var xx = $('input[name="daterange"]').daterangepicker().val().split("-")
                 var dtFrm = (new Date($('.dtCtrl').data('daterangepicker').startDate._d)).toISOString();
                 var dtTo = (new Date($('.dtCtrl').data('daterangepicker').endDate._d)).toISOString();
@@ -129,7 +130,7 @@
     });
 
     $('.basicAutoComplete').on('autocomplete.select', function (evt, item) {
-        debugger;
+         
 
         var dtFrm = (new Date($('.dtCtrl').data('daterangepicker').startDate._d)).toISOString();
         var dtTo = (new Date($('.dtCtrl').data('daterangepicker').endDate._d)).toISOString();

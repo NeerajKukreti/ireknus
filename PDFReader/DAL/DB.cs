@@ -598,6 +598,13 @@ namespace PDFReader
             }
         }
 
+        public static IEnumerable<WatchlistModel> SearchCompany(string id)
+        {
+            using (IDbConnection db = new SqlConnection(Connection.MyConnection()))
+            {
+                return db.Query<WatchlistModel>($"SELECT DISTINCT COMPANY_ID, COMPANY_NAME FROM TBL_ANNOUNCEMENT WHERE COMPANY_ID LIKE '{id}'+'%'", commandType: CommandType.Text);
+            }
+        }
         #endregion
     }
 }

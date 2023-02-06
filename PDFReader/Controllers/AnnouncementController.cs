@@ -145,11 +145,9 @@ namespace PDFReader.Controllers
 
         public ActionResult GetCompanies(string q, string DateRange, bool ShowAll = false, bool showFav = false)
         {
-            var watchListCompanies = AnnouncementBL
-                .GetWatchListCompanies("", ShowAll, DateRange, showFav)
-                .data.Where(x => x.COMPANY_ID.ToLower().Contains(q.ToLower()));
+            var list = DB.SearchCompany(q);
             return Json(data:
-                watchListCompanies.Select(x => new { value = x.COMPANY_ID, text = x.COMPANY_NAME }).Distinct(), JsonRequestBehavior.AllowGet);
+                list.Select(x => new { value = x.COMPANY_ID, text = x.COMPANY_NAME }).Distinct(), JsonRequestBehavior.AllowGet);
         }
 
         #endregion

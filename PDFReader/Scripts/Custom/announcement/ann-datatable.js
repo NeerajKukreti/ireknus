@@ -34,8 +34,8 @@ var annTable = function () {
                     "&companyName=" + $('.companyList ').val(),
                 method: "GET",
                 datatype: "json",
-                beforeSend: function () { $.blockUI() },
-                complete: function () { $.unblockUI() },
+               //beforeSend: function () { $.blockUI() },
+                //complete: function () { $.unblockUI() },
                 error: function (err) {
                     location.reload();
                 }
@@ -95,7 +95,7 @@ var annTable = function () {
                         var val = oData.IsFavorite ? 0 : 1;
 
                         $(nTd).html("<a target='_blank' href=" + oData.ATTACHMENT + "><i class='fas fa-file-pdf'></i></a>" +
-                            "<br><div class='divIsFavorite' data-addnid='" + oData.ANN_ID + "' data-isfavorite='" + val + "' style=' cursor:pointer; color:" + color + "; position:relative; margin-left: -2px;'><i class='fas fa-star'></i></div>");
+                            " | <span class='divIsFavorite' data-addnid='" + oData.ANN_ID + "' data-isfavorite='" + val + "' style=' cursor:pointer; color:" + color + "; position:relative; margin-left: -2px;'><i class='fas fa-star'></i></span>");
                     }
                 }
             ],
