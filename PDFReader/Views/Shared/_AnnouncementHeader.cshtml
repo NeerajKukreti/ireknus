@@ -130,13 +130,13 @@
     });
 
     $('.basicAutoComplete').on('autocomplete.select', function (evt, item) {
-         
+        debugger;
 
-        var dtFrm = (new Date($('.dtCtrl').data('daterangepicker').startDate._d)).toISOString();
-        var dtTo = (new Date($('.dtCtrl').data('daterangepicker').endDate._d)).toISOString();
-        startDate = dtFrm;
-        endDate = dtTo;
-        var dtRange = dtFrm + "|" + dtTo;
+        var xx = $('input[name="daterange"]').val().split("-")
+        if (xx.length == 1)
+            dtRange = new Date().toDateString() + "|" + new Date().toDateString();
+        else
+            dtRange = new Date(xx[0].trim()).toDateString() + "|" + new Date(xx[1].trim()).toDateString();
 
         $.ajax({
             url: getAnnouncementView + "?CompanyName=" + $(this).val() + "&ShowAll=" + $('.ShowAll').is(':checked') + "&DateRange=" + dtRange,

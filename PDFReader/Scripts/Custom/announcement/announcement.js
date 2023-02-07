@@ -1,4 +1,5 @@
 $(document).ready(function () {
+    
     function ShowAnnouncementCategoryWise() {
         var ids = $('input[type=checkbox]:checked').map(function (i, e)
         {

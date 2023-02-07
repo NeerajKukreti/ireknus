@@ -13,11 +13,9 @@ namespace PDFReader
     {
         public static async Task<AnnoucementViewModel> GetCategoryCounts(string CompanyName, bool ShowAll, string dtRange,bool showFav, bool showrepeated = false)
         {
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
+           
             var AnnoucementView = DB.GetDashboardCategories(String.Empty, CompanyName, ShowAll, dtRange, showFav, showrepeated);
-            stopwatch.Stop();
-            var xx = stopwatch.ElapsedMilliseconds;
+            
             return AnnoucementView;
         }
 

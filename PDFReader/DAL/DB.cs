@@ -542,6 +542,42 @@ namespace PDFReader
             }
         }
 
+        public static int GetDashboardCategoriesCnt(string catIds, string CompanyName, bool ShowAll, string dtRange, bool ShowFav = false, bool ShowRpt = false)
+        {
+            var sDt = DateTime.Parse(dtRange.Split('|')[0]);
+            var eDt = DateTime.Parse(dtRange.Split('|')[1]);
+            var Ids = string.IsNullOrEmpty(catIds) ? new string[0] : catIds.Split(',');
+            var annCates = new DataTable();
+
+            annCates.Columns.Add("ANN_ID", typeof(string));
+
+            foreach (var item in Ids)
+            {
+                annCates.Rows.Add(item);
+            }
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            using (var connection = new SqlConnection(Connection.MyConnection()))
+            {
+                connection.Open();
+                var cnt = connection.ExecuteScalar<int>("sp_GetDashboardCategoriesCnt",
+                    new
+                    {
+                        @CatIds = annCates.AsTableValuedParameter("AnnType"),
+                        @dtStart = sDt,
+                        @dtEnd = eDt,
+                        @showAll = ShowAll,
+                        @showFav = ShowFav,
+                        @companyName = CompanyName,
+                        @showRpt = ShowRpt
+                    }, commandType: CommandType.StoredProcedure);
+
+                return cnt;
+            }
+        }
+
         public static AnnoucementViewModel GetDashboardCategories(string catIds, string CompanyName, bool ShowAll, string dtRange, bool ShowFav = false, bool ShowRpt = false)
         {
 
@@ -565,7 +601,7 @@ namespace PDFReader
             using (var connection = new SqlConnection(Connection.MyConnection()))
             {
                 connection.Open();
-                var resultSet = connection.QueryMultiple("sp_GetDashboardCategories",
+                var resultSet = connection.Query<AnnouncementCategoryCount>("sp_GetDashboardCategories",
                     new
                     {
                         @CatIds = annCates.AsTableValuedParameter("AnnType"),
@@ -576,23 +612,10 @@ namespace PDFReader
                         @companyName = CompanyName
                     }, commandType: CommandType.StoredProcedure);
 
-                data.TotalAnnouncement = resultSet.Read<int>().First();
-                var xx5 = stopwatch.ElapsedMilliseconds;
-                data.CategoryCounts = resultSet.Read<AnnouncementCategoryCount>().ToList();
-                var xx4 = stopwatch.ElapsedMilliseconds;
-                var rptTotalAnnouncement = resultSet.Read<int>().First();
-                var xx3 = stopwatch.ElapsedMilliseconds;
-                data.RepeatedAnnList = resultSet.Read<AnnouncementCategoryCount>().ToList();
-                var xx2 = stopwatch.ElapsedMilliseconds;
-                data.TotalCategory = data.TotalAnnouncement;
-                var xx1 = stopwatch.ElapsedMilliseconds;
-
-
                 if (ShowRpt)
-                {
-                    data.TotalAnnouncement = rptTotalAnnouncement;
-                    data.TotalCategory = rptTotalAnnouncement;
-                }
+                    data.RepeatedAnnList = resultSet.ToList();
+                else
+                    data.CategoryCounts = resultSet.ToList();
 
                 return data;
             }

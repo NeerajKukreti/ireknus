@@ -1,10 +1,9 @@
-﻿@model PDFReader.Models.AnnoucementViewModel
-
+﻿@model System.Int32
 <div class="card-header">
     <span class="d-block m-t-5">
         <h5>
-            Total Announcements <span class="badge badge-pill badge-primary">@Model.TotalAnnouncement</span>
-            Total Categories <span class="badge badge-pill badge-primary">@Model.TotalCategory</span>
+            Total Announcements <span class="badge badge-pill badge-primary">@Model</span>
+            Total Categories <span class="badge badge-pill badge-primary">@Model</span>
         </h5>
         <label class="lblShowAll" style="color: #4680ff; font-weight: 600;">
             <div class="switch switch-primary d-inline m-r-10">
@@ -16,9 +15,9 @@
         <label class="lblShowRpted" style="color: #4680ff; font-weight: 600;">
             <div class="switch switch-primary d-inline m-r-10">
 
-                @if (Model.ShowRepeated)
+                @if (ViewBag.ShowRepeated)
                 {
-                    <input type="checkbox" class="showrpted" id="switch-showrpted" @(Model.ShowRepeated ? "checked" : "")>
+                    <input type="checkbox" class="showrpted" id="switch-showrpted" @(ViewBag.ShowRepeated ? "checked" : "")>
                 }
                 else
                 {
@@ -29,29 +28,61 @@
             <b>Show Repeated</b>
         </label>
 
-        
+
     </span>
 </div>
-<div class="card-body Annlist" >
-    <div class="row AnnouncementCounts">
-        @{
-            if (Model.ShowRepeated)
-            {
-                Model.AnnList = Model.RepeatedAnnList;
-            }
-            else
-            {
-                Model.AnnList = Model.CategoryCounts;
-            }
-        }
-
-        
-        @Html.Partial("_AnnouncementCounts", Model.AnnList)
-    </div>
+<div class="card-body Annlist">
+    <div class="row AnnouncementCounts"></div>
     <hr />
     <div class="row AnnouncementList">
         @Html.Partial("_AnnouncementList")
+        @*<style>
+            div.dataTables_scrollHeadInner thead {
+                height: 10em;
+            }
+        </style>
+        <link rel="stylesheet" href="@Url.Content("~/Content/assets/css/plugins/dataTables.bootstrap4.min.css")">
+
+        <table id="tblAnn" class="table table-bordered">
+        </table>
 
 
+        <script src="@Url.Content("~/Content/assets/js/plugins/jquery.dataTables.min.js")"></script>
+        <script src="@Url.Content("~/Content/assets/js/plugins/dataTables.bootstrap4.min.js")"></script>
+
+        <script src="@Url.Content("~/Content/assets/js/plugins/buttons.colVis.min.js")"></script>
+        <script src="@Url.Content("~/Content/assets/js/plugins/buttons.print.min.js")"></script>
+        <script src="@Url.Content("~/Content/assets/js/plugins/pdfmake.min.js")"></script>
+        <script src="@Url.Content("~/Content/assets/js/plugins/jszip.min.js")"></script>
+        <script src="@Url.Content("~/Content/assets/js/plugins/dataTables.buttons.min.js")"></script>
+        <script src="@Url.Content("~/Content/assets/js/plugins/buttons.html5.min.js")"></script>
+        <script src="@Url.Content("~/Content/assets/js/plugins/buttons.bootstrap4.min.js")"></script>
+
+
+        <script src="~/Scripts/Custom/announcement/ann-datatable.js"></script>*@
     </div>
 </div>
+
+<script>
+    //loads
+    
+    var xx = $('input[name="daterange"]').val().split("-")
+    if (xx.length == 1)
+        dtRange = new Date().toDateString() + "|" + new Date().toDateString();
+    else
+    dtRange = new Date(xx[0].trim()).toDateString() + "|" + new Date(xx[1].trim()).toDateString();
+
+    var GetDashboardCategories = "@Url.Content("~/Announcement/GetDashboardCategories")";
+    $.ajax({
+        url: GetDashboardCategories + "?DateRange=" + dtRange +
+            "&CompanyName=" + $('.companyList ').val() +
+            "&ShowAll=" + $('.ShowAll').is(':checked') +
+            "&ShowRepeated=" + $('#switch-showrpted').is(':checked') +
+            "&showFav=" + $('.showfav').is(':checked'),
+        type: 'GET',
+        success: function (res) {
+
+            $('.AnnouncementCounts').empty().html(res);
+        }
+    });
+</script>

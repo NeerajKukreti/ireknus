@@ -29,10 +29,21 @@ namespace PDFReader.Controllers
         [OutputCache(Duration = 20, Location = OutputCacheLocation.Client, VaryByParam = "none")]
         public async Task<ActionResult> GetAnnouncementView(string CompanyName, string DateRange, bool ShowAll = false, bool ShowRepeated = false, bool showFav = false)
         {
-            var categoriesCount = AnnouncementBL.GetCategoryCounts(CompanyName, ShowAll, DateRange, showFav, ShowRepeated).Result;
-            categoriesCount.ShowRepeated = ShowRepeated;
+            var categoriesCount = DB.GetDashboardCategoriesCnt(null,CompanyName, ShowAll, DateRange, showFav, ShowRepeated);
+            //var categoriesCount = AnnouncementBL.GetCategoryCounts(CompanyName, ShowAll, DateRange, showFav, ShowRepeated).Result;
+            //categoriesCount.ShowRepeated = ShowRepeated;
+            ViewBag.ShowRepeated = ShowRepeated;
 
             return PartialView("_AnnouncementView", categoriesCount);
+        }
+
+        public async Task<ActionResult> GetDashboardCategories(string CompanyName, string DateRange, bool ShowAll = false, bool ShowRepeated = false, bool showFav = false)
+        {
+            var categoriesCount = AnnouncementBL.GetCategoryCounts(CompanyName, ShowAll, DateRange, showFav, ShowRepeated).Result;
+            categoriesCount.ShowRepeated = ShowRepeated;
+            ViewBag.ShowRepeated = ShowRepeated;
+
+            return PartialView("_AnnouncementCounts", categoriesCount.CategoryCounts);
         }
 
         [OutputCache(Duration = 20, Location = OutputCacheLocation.Client, VaryByParam = "none")]

@@ -100,7 +100,7 @@ var annTable = function () {
                 }
             ],
             'iDisplayLength': 100,
-            dom: 'plBfrtip',
+            dom: 'plifrtpi',
             buttons: [
                 $.extend(true, {}, buttonCommon, {
                     extend: 'csvHtml5',
@@ -134,7 +134,6 @@ var annTable = function () {
                 })
             ],
             "lengthMenu": [[25, 50, 100, -1], [25, 50, 100, "All"]],
-
         });
     }
 
