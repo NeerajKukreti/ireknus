@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -37,6 +38,7 @@ namespace PDFReader.Controllers
             return PartialView("_AnnouncementView", categoriesCount);
         }
 
+        [OutputCache(Duration = 20, Location = OutputCacheLocation.Client, VaryByParam = "none")]
         public async Task<ActionResult> GetDashboardCategories(string CompanyName, string DateRange, bool ShowAll = false, bool ShowRepeated = false, bool showFav = false)
         {
             var categoriesCount = AnnouncementBL.GetCategoryCounts(CompanyName, ShowAll, DateRange, showFav, ShowRepeated).Result;
@@ -46,113 +48,25 @@ namespace PDFReader.Controllers
             return PartialView("_AnnouncementCounts", categoriesCount.CategoryCounts);
         }
 
-        [OutputCache(Duration = 20, Location = OutputCacheLocation.Client, VaryByParam = "none")]
+        [OutputCache(Duration = 20, Location = OutputCacheLocation.Client, VaryByParam = "catIds")]
         public ActionResult GetAnnouncements(string companyName, string catIds, bool showRepeated = false, string dtRange = "", bool showFav = false, bool showAll = false, int? start = null, int? length = null, int? draw = null)
         {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             var announcements = DB.GetDashboardDetails(catIds, companyName, showAll, dtRange, showFav, start, length, showRepeated);
-
+            
+            var xx = stopwatch.Elapsed.TotalSeconds;
             if (draw != null)
             announcements.draw = draw.Value;
 
             var jsonResult = Json(announcements, JsonRequestBehavior.AllowGet);
             jsonResult.MaxJsonLength = int.MaxValue;
+            stopwatch.Stop();
+            var xx1 = stopwatch.Elapsed.TotalSeconds;
             return jsonResult;
+            
         }
         [OutputCache(Duration = 20, Location = OutputCacheLocation.Client, VaryByParam = "none")]
-        public ActionResult GetAnnouncements1(string catIds, bool showRepeated = false)
-        {
-            var ann = (AnnoucementViewModel)System.Web.HttpContext.Current.Application["CategoriesCount"];
-            var newIds = string.Empty;
-            var announcements = new List<AnnouncementModel>();
-
-            List<AnnouncementCategoryCount> categoryCounts = showRepeated ? ann.RepeatedAnnList : ann.CategoryCounts;
-
-            if (!showRepeated)
-            {
-                if (string.IsNullOrEmpty(catIds))
-                {
-                    newIds = string.Join(",", categoryCounts.Where(x => !string.IsNullOrEmpty(x.Ann_Id)).Select(x => x.Ann_Id));
-
-                    foreach (var cat in categoryCounts)
-                    {
-                        if (cat.SubCategories != null && cat.SubCategories.Any())
-                        {
-                            newIds = newIds + "," + string.Join(",", cat.SubCategories.Where(x => !string.IsNullOrEmpty(x.Ann_Id)).Select(x => x.Ann_Id));
-                        }
-                    }
-                }
-                else
-                {
-                    newIds = string.Join(",",
-                        categoryCounts
-                        .Where(x => catIds.Split(',').Contains(x.CATEGORY_ID.ToString())).Where(x => !string.IsNullOrEmpty(x.Ann_Id)).Select(x => x.Ann_Id).Distinct()
-                        );
-
-                    categoryCounts
-                        .ForEach(x =>
-                        {
-                            if (x.SubCategories != null && x.SubCategories.Any())
-                            {
-                                newIds = newIds + "," + string.Join(",", x.SubCategories
-                                        .Where(y => catIds.Split(',').Contains(y.CATEGORY_ID.ToString()))
-                                        .Where(y => !string.IsNullOrEmpty(y.Ann_Id)).Select(y => y.Ann_Id).Distinct());
-                            }
-                        });
-
-                }
-
-                announcements = DB.GetAnnouncements(string.Join(",", newIds.Split(',').Distinct())).ToList();
-                //announcements = DB.GetAnnouncements(string.Join(",", newIds.Split(','))).ToList();
-
-                announcements.ForEach(x =>
-                {
-                    var category = categoryCounts.FirstOrDefault(y => y.Ann_Id.Contains(x.ANN_ID));
-
-                    if (category != null)
-                    {
-                        x.CategoryId = category.CATEGORY_ID;
-                        x.CategoryName = category.CATEGORY;
-                    }
-
-                    if (!x.HEAD_LINE.ToLower().Equals(x.MORE.ToLower()))
-                    {
-                        x.HEAD_LINE = $"{x.HEAD_LINE} {x.MORE}";
-                    }
-
-                    x.DISSEMINATION_DATE_STR = x.NEWS_SUBMISSION_DATE.ToString("dd/MM/yyyy HH:mm:ss");
-                    x.NEWS_SUBMISSION_DATE_STR = x.NEWS_SUBMISSION_DATE.ToString("dd/MM/yyyy HH:mm:ss");
-                    x.ATTACHMENT = $"https://www.bseindia.com/xml-data/corpfiling/AttachLive/{x.ATTACHMENT}";
-                });
-            }
-            else
-            {
-
-                var rptList = ann.D_RepeatedAnnList.ToList().Where(x => x.Value.Count() > 1).ToList();
-                announcements = DB.GetAnnouncements(string.Join(",", rptList.Select(x => x.Key))).ToList();
-
-                announcements.ForEach(x =>
-                {
-                    var category = rptList.FirstOrDefault(y => y.Key.Contains(x.ANN_ID));
-
-                    //if (category.)
-                    {
-                        x.CategoryId = 0;
-                        x.CategoryName = string.Join(",", category.Value);
-                    }
-
-                    if (!x.HEAD_LINE.ToLower().Equals(x.MORE.ToLower()))
-                    {
-                        x.HEAD_LINE = $"{x.HEAD_LINE} {x.MORE}";
-                    }
-                });
-            }
-
-            var jsonResult = Json(data: announcements, JsonRequestBehavior.AllowGet);
-            jsonResult.MaxJsonLength = int.MaxValue;
-
-            return jsonResult;
-
-        }
 
         public ActionResult GetCompanies(string q, string DateRange, bool ShowAll = false, bool showFav = false)
         {

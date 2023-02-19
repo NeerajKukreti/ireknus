@@ -32,40 +32,42 @@
     </span>
 </div>
 <div class="card-body Annlist">
-    <div class="row AnnouncementCounts"></div>
+    <div class="row AnnouncementCounts">
+        <img src="~/Content/Images/spinner.gif" height="38px" />
+    </div>
     <hr />
     <div class="row AnnouncementList">
         @Html.Partial("_AnnouncementList")
         @*<style>
-            div.dataTables_scrollHeadInner thead {
-                height: 10em;
-            }
-        </style>
-        <link rel="stylesheet" href="@Url.Content("~/Content/assets/css/plugins/dataTables.bootstrap4.min.css")">
+                div.dataTables_scrollHeadInner thead {
+                    height: 10em;
+                }
+            </style>
+            <link rel="stylesheet" href="@Url.Content("~/Content/assets/css/plugins/dataTables.bootstrap4.min.css")">
 
-        <table id="tblAnn" class="table table-bordered">
-        </table>
-
-
-        <script src="@Url.Content("~/Content/assets/js/plugins/jquery.dataTables.min.js")"></script>
-        <script src="@Url.Content("~/Content/assets/js/plugins/dataTables.bootstrap4.min.js")"></script>
-
-        <script src="@Url.Content("~/Content/assets/js/plugins/buttons.colVis.min.js")"></script>
-        <script src="@Url.Content("~/Content/assets/js/plugins/buttons.print.min.js")"></script>
-        <script src="@Url.Content("~/Content/assets/js/plugins/pdfmake.min.js")"></script>
-        <script src="@Url.Content("~/Content/assets/js/plugins/jszip.min.js")"></script>
-        <script src="@Url.Content("~/Content/assets/js/plugins/dataTables.buttons.min.js")"></script>
-        <script src="@Url.Content("~/Content/assets/js/plugins/buttons.html5.min.js")"></script>
-        <script src="@Url.Content("~/Content/assets/js/plugins/buttons.bootstrap4.min.js")"></script>
+            <table id="tblAnn" class="table table-bordered">
+            </table>
 
 
-        <script src="~/Scripts/Custom/announcement/ann-datatable.js"></script>*@
+            <script src="@Url.Content("~/Content/assets/js/plugins/jquery.dataTables.min.js")"></script>
+            <script src="@Url.Content("~/Content/assets/js/plugins/dataTables.bootstrap4.min.js")"></script>
+
+            <script src="@Url.Content("~/Content/assets/js/plugins/buttons.colVis.min.js")"></script>
+            <script src="@Url.Content("~/Content/assets/js/plugins/buttons.print.min.js")"></script>
+            <script src="@Url.Content("~/Content/assets/js/plugins/pdfmake.min.js")"></script>
+            <script src="@Url.Content("~/Content/assets/js/plugins/jszip.min.js")"></script>
+            <script src="@Url.Content("~/Content/assets/js/plugins/dataTables.buttons.min.js")"></script>
+            <script src="@Url.Content("~/Content/assets/js/plugins/buttons.html5.min.js")"></script>
+            <script src="@Url.Content("~/Content/assets/js/plugins/buttons.bootstrap4.min.js")"></script>
+
+
+            <script src="~/Scripts/Custom/announcement/ann-datatable.js"></script>*@
     </div>
 </div>
 
 <script>
     //loads
-    
+
     var xx = $('input[name="daterange"]').val().split("-")
     if (xx.length == 1)
         dtRange = new Date().toDateString() + "|" + new Date().toDateString();
@@ -80,9 +82,11 @@
             "&ShowRepeated=" + $('#switch-showrpted').is(':checked') +
             "&showFav=" + $('.showfav').is(':checked'),
         type: 'GET',
+        beforeSend: function () { },
         success: function (res) {
 
             $('.AnnouncementCounts').empty().html(res);
-        }
+        },
+        complete: function () {  }
     });
 </script>

@@ -519,7 +519,9 @@ namespace PDFReader
                     annCates.Rows.Add(item);
                 }
 
-                var resultSet = connection.QueryMultiple("sp_GetDashboardDetails", 
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+                var resultSet = connection.Query<AnnouncementModel>("sp_GetDashboardDetails", 
                     new {
                         @CatIds = annCates.AsTableValuedParameter("AnnType"),
                         @dtStart = sDt,
@@ -532,11 +534,13 @@ namespace PDFReader
                         @length = length
                     }, commandType: CommandType.StoredProcedure);
 
+                stopwatch.Stop();
+                var xx = stopwatch.Elapsed.TotalSeconds;
                 var data = new AnnoucementGridData();
 
                 //data.recordsTotal = resultSet.Read<int>().First();
                 //data.recordsFiltered = data.recordsTotal;
-                data.data = resultSet.Read<AnnouncementModel>().ToList();
+                data.data = resultSet;
 
                 return data;
             }
