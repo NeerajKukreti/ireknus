@@ -131,14 +131,87 @@ namespace PDFReader.Controllers
 
         public async Task JobLoop()
         {
-            DateTime st = Convert.ToDateTime("01/01/2023");
-            DateTime end = Convert.ToDateTime("04/02/2023");
+            DateTime st = Convert.ToDateTime("01/01/2023"); //DD/MM/YYYY
+            DateTime end = Convert.ToDateTime("24/02/2023");
 
             for (var dt = st; dt <= end; dt = dt.AddDays(1))
             {
-                //await announcement(dt);
+                await announcement1(dt);
             }
         }
+        public async Task announcement1(DateTime dt1)
+        {
+            var frm = dt1;
+            var to = dt1;
+
+            //var frm = DateTime.Now.AddDays(-1);
+            //var to = DateTime.Now.AddDays(0);
+
+            var dtFrom = frm.ToString("yyyyMMdd");
+            var dtTo = to.ToString("yyyyMMdd");
+
+            string dtFromForCount = frm.ToString("dd-MM-yyyy");
+            string dtToForCount = to.ToString("dd-MM-yyyy");
+
+            int totalInsertedAnnouncementCount = DB.totalAnnouncmentCount(dtFromForCount, dtToForCount);
+            var dt = DB.GetLastAnnDateTime(dtFromForCount, dtToForCount);
+
+            using (var client = new WebClient()) //WebClient  
+            {
+                client.Headers.Add("Content-Type:application/json"); //Content-Type  
+                client.Headers.Add("Accept:application/json");
+                var jsonresult = client.DownloadString
+                   ($"https://api.bseindia.com/BseIndiaAPI/api/AnnGetData/w?strCat=-1&strPrevDate={dtFrom}&strScrip=&strSearch=P&strToDate={dtTo}&strType=C"); //URI  
+
+                try
+                {
+                    var result = JsonConvert.DeserializeObject<Root>(jsonresult);
+                    var rowcount = result.Table1[0].ROWCNT;
+                    //totalInsertedAnnouncementCount = 0; 
+                    int rowsTobeInserted = Convert.ToInt32(rowcount) - totalInsertedAnnouncementCount;
+                    int noOfApiCalls = rowsTobeInserted / 50 + (rowsTobeInserted > 50 && (rowsTobeInserted % 50) > 0 ? 1 : 0);
+
+                    var allList = new List<AnnouncementResult>();
+                    allList.AddRange(result.Table);
+
+                    if (noOfApiCalls > 0)
+                    {
+                        //for (int i = noOfApiCalls; i >= 2; i--)
+                        for (int i = 2; i <= noOfApiCalls; i++)
+                        {
+                            var jsonresultToAppend = client.DownloadString
+                        ($"https://api.bseindia.com/BseIndiaAPI/api/AnnGetData/w?pageno={i}&strCat=-1&strPrevDate={dtFrom}&strScrip=&strSearch=P&strToDate={dtTo}&strType=C"); //URI 
+
+                            var resultToAppend = JsonConvert.DeserializeObject<Root>(jsonresultToAppend);
+                            allList.AddRange(resultToAppend.Table);
+                            //var annlist = resultToAppend.Table.Where(x => x.DissemDT > dt).ToList();
+                            //List<KeyValuePair<string, int>> annCateList = new List<KeyValuePair<string, int>>();
+                            //AnnouncementBL.PerformSearch(DB.GetCategories().ToList(), annlist, annCateList);
+                            //await insertAnnouncement(annlist, annCateList);
+                        }
+                    }
+
+                    if (allList.Any())
+                    {
+                        var newList = allList.Where(x => x.DT_TM > dt).ToList(); //uncomment
+                        //var newList = allList;
+                        List<KeyValuePair<string, int>> RepeatedAnnList = new List<KeyValuePair<string, int>>();
+                        //var annList = result.Table.Where(x => x.DissemDT > dt).ToList();
+
+                        if (newList.Any())
+                        {
+                            AnnouncementBL.PerformSearch(DB.GetCategories().ToList(), newList, RepeatedAnnList);
+                            await insertAnnouncement(newList, RepeatedAnnList);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+        }
+
         public async Task announcement()
         {
             //var frm = dt1;
@@ -167,7 +240,7 @@ namespace PDFReader.Controllers
                 {
                     var result = JsonConvert.DeserializeObject<Root>(jsonresult);
                     var rowcount = result.Table1[0].ROWCNT;
-
+                    //totalInsertedAnnouncementCount = 0; 
                     int rowsTobeInserted = Convert.ToInt32(rowcount) - totalInsertedAnnouncementCount;
                     int noOfApiCalls = rowsTobeInserted / 50 + (rowsTobeInserted > 50 && (rowsTobeInserted % 50) > 0 ? 1 : 0);
 
@@ -193,7 +266,8 @@ namespace PDFReader.Controllers
 
                     if (allList.Any())
                     {
-                        var newList = allList.Where(x => x.DT_TM > dt).ToList();
+                        var newList = allList.Where(x => x.DT_TM > dt).ToList(); //uncomment
+                        //var newList = allList;
                         List<KeyValuePair<string, int>> RepeatedAnnList = new List<KeyValuePair<string, int>>();
                         //var annList = result.Table.Where(x => x.DissemDT > dt).ToList();
 
@@ -210,7 +284,6 @@ namespace PDFReader.Controllers
                 }
             }
         }
-
         public async Task insertAnnouncement(List<AnnouncementResult> list, List<KeyValuePair<string, int>> annList)
         {
             try
@@ -225,9 +298,9 @@ namespace PDFReader.Controllers
 
                 var list1 = list.OrderBy(x => x.News_submission_dt).ToList();
 
-                for (int i = 0; i < list1.Count; i = i + 200)
+                for (int i = 0; i < list1.Count; i = i + 250)
                 {
-                    var items = list1.Skip(i).Take(200);
+                    var items = list1.Skip(i).Take(250);
                     var anns = annList.Where(x => items.Select(y => y.NEWSID).Contains(x.Key));
 
                     using (var connection = new SqlConnection(Connection.MyConnection()))

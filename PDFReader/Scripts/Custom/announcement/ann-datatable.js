@@ -4,11 +4,11 @@ var buttonCommon = {
             body: function (data, row, column, node) {
 
                 var options = { hour12: false };
-                if (column === 4) {
+                if (column === 4) {                    
                     var dtSub = /\/Date\((\d*)\)\//.exec(data);
                     return new Date(+dtSub[1]).toLocaleString('en-in', options)
                 }
-                else if (column === 5) {
+                else if (column === 5) {                    
                     var dtSub = /\/Date\((\d*)\)\//.exec(data);
                     return new Date(+dtSub[1]).toLocaleString('en-in', options)
                 }
@@ -100,7 +100,7 @@ var annTable = function () {
                 }
             ],
             'iDisplayLength': 100,
-            dom: 'plifrtpi',
+            dom: 'plBifrtpi', //plifrtpi - lBfrtip
             buttons: [
                 $.extend(true, {}, buttonCommon, {
                     extend: 'csvHtml5',

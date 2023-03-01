@@ -519,8 +519,6 @@ namespace PDFReader
                     annCates.Rows.Add(item);
                 }
 
-                Stopwatch stopwatch = new Stopwatch();
-                stopwatch.Start();
                 var resultSet = connection.Query<AnnouncementModel>("sp_GetDashboardDetails", 
                     new {
                         @CatIds = annCates.AsTableValuedParameter("AnnType"),
@@ -534,8 +532,6 @@ namespace PDFReader
                         @length = length
                     }, commandType: CommandType.StoredProcedure);
 
-                stopwatch.Stop();
-                var xx = stopwatch.Elapsed.TotalSeconds;
                 var data = new AnnoucementGridData();
 
                 //data.recordsTotal = resultSet.Read<int>().First();
@@ -548,37 +544,43 @@ namespace PDFReader
 
         public static int GetDashboardCategoriesCnt(string catIds, string CompanyName, bool ShowAll, string dtRange, bool ShowFav = false, bool ShowRpt = false)
         {
-            var sDt = DateTime.Parse(dtRange.Split('|')[0]);
-            var eDt = DateTime.Parse(dtRange.Split('|')[1]);
-            var Ids = string.IsNullOrEmpty(catIds) ? new string[0] : catIds.Split(',');
-            var annCates = new DataTable();
-
-            annCates.Columns.Add("ANN_ID", typeof(string));
-
-            foreach (var item in Ids)
+            try
             {
-                annCates.Rows.Add(item);
+                var sDt = DateTime.Parse(dtRange.Split('|')[0]);
+                var eDt = DateTime.Parse(dtRange.Split('|')[1]);
+                var Ids = string.IsNullOrEmpty(catIds) ? new string[0] : catIds.Split(',');
+                var annCates = new DataTable();
+
+                annCates.Columns.Add("ANN_ID", typeof(string));
+
+                foreach (var item in Ids)
+                {
+                    annCates.Rows.Add(item);
+                }
+
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+
+                using (var connection = new SqlConnection(Connection.MyConnection()))
+                {
+                    connection.Open();
+                    var cnt = connection.ExecuteScalar<int>("sp_GetDashboardCategoriesCnt",
+                        new
+                        {
+                            @CatIds = annCates.AsTableValuedParameter("AnnType"),
+                            @dtStart = sDt,
+                            @dtEnd = eDt,
+                            @showAll = ShowAll,
+                            @showFav = ShowFav,
+                            @companyName = CompanyName,
+                            @showRpt = ShowRpt
+                        }, commandType: CommandType.StoredProcedure);
+
+                    return cnt;
+                }
             }
-
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-
-            using (var connection = new SqlConnection(Connection.MyConnection()))
-            {
-                connection.Open();
-                var cnt = connection.ExecuteScalar<int>("sp_GetDashboardCategoriesCnt",
-                    new
-                    {
-                        @CatIds = annCates.AsTableValuedParameter("AnnType"),
-                        @dtStart = sDt,
-                        @dtEnd = eDt,
-                        @showAll = ShowAll,
-                        @showFav = ShowFav,
-                        @companyName = CompanyName,
-                        @showRpt = ShowRpt
-                    }, commandType: CommandType.StoredProcedure);
-
-                return cnt;
+            catch (Exception ex) { 
+                return -1;
             }
         }
 
