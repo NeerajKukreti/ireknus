@@ -24,9 +24,15 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group fill">
-                                        @Html.TextBoxFor(Model => Model.COMPANY_ID, new { @class = "form-control", placeholder = "Enter Company Code", @required = "required" })
+                                        @if (Model.ACTION.Equals("1"))
+                                        {
+                                            @Html.TextBoxFor(Model => Model.COMPANY_ID, new { @class = "form-control", placeholder = "Enter Company Code", @required = "required"})
+                                        }
+                                        else
+                                        {
+                                            @Html.TextBoxFor(Model => Model.COMPANY_ID, new { @class = "form-control", placeholder = "Enter Company Code", @required = "required", @disabled = "disabled" })
+                                        }
                                         @Html.TextBoxFor(Model => Model.ACTION, new { @class = "hide_column", value = "1" })
-                                        @Html.TextBoxFor(Model => Model.WATCHLIST_ID, new { @class = "hide_column" })
                                     </div>
                                 </div>
                             </div>

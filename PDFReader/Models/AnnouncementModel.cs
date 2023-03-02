@@ -99,7 +99,6 @@ namespace PDFReader.Models
 
     public class WATCHLIST
     {
-        public int WATCHLIST_ID { get; set; }
         public string COMPANY_ID { get; set; }
     }
 

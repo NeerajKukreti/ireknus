@@ -32,7 +32,6 @@ namespace PDFReader.Controllers
             using (IDbConnection db = new SqlConnection(Connection.MyConnection()))
             {
                 DynamicParameters dp = new DynamicParameters();
-                dp.Add("WATCHLIST_ID", WatchlistModel.WATCHLIST_ID);
                 dp.Add("COMPANY_ID", WatchlistModel.COMPANY_ID);
                 dp.Add("COMPANY_NAME", WatchlistModel.COMPANY_NAME);
                 dp.Add("ACTION", WatchlistModel.ACTION);
@@ -54,7 +53,6 @@ namespace PDFReader.Controllers
             {
                 DynamicParameters dp = new DynamicParameters();
 
-                dp.Add("WATCHLIST_ID", 0);
                 dp.Add("COMPANY_ID", "");
                 dp.Add("COMPANY_NAME", "");
                 dp.Add("ACTION", 4);

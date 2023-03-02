@@ -4,7 +4,7 @@ var WatchlistTables = function () {
     var Watchlist = function () {
         table = $('#WatchlistTable');
 
-        //debugger;
+        
         // begin first table
         table.dataTable({
             //"autowidth": "true",
@@ -19,23 +19,23 @@ var WatchlistTables = function () {
                 {
                     "title": "COMPANY_ID", "data": "COMPANY_ID",
                     fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
-                        var labelcompanyid = "<label id='lbl_" + oData.WATCHLIST_ID + "' for='L" + oData.WATCHLIST_ID + "'>" + oData.COMPANY_ID + "</label>";
+                        var labelcompanyid = "<label id='lbl_" + oData.COMPANY_ID + "' for='L" + oData.COMPANY_ID + "'>" + oData.COMPANY_ID + "</label>";
                         $(nTd).html(labelcompanyid);
                     }
                 },
                 {
                     "title": "COMPANY_NAME", "data": "COMPANY_NAME",
                     fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
-                        var labelcompanyname = "<label id='lbl_cn" + oData.WATCHLIST_ID + "' for='Lcn" + oData.WATCHLIST_ID + "'>" + oData.COMPANY_NAME + "</label>";
+                        var labelcompanyname = "<label id='lbl_cn" + oData.COMPANY_ID + "' for='Lcn" + oData.COMPANY_ID + "'>" + oData.COMPANY_NAME + "</label>";
                         $(nTd).html(labelcompanyname);
                     }
                 },
                 {
-                    "title": "EDIT", "data": "WATCHLIST_ID",
+                    "title": "EDIT", "data": "COMPANY_ID",
                     fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
                         var conf = 'return confirm("Are you sure to delete this record?")';
-                        var editbtn = "&nbsp; <i data-id='" + oData.WATCHLIST_ID + "' id='btnedit_" + oData.WATCHLIST_ID + "' class='icon feather icon-edit f-w-600 f-16 m-r-15 text-c-green clsedit' ToolTip='Edit'></i>";
-                        var delbtn = "<i data-id='" + oData.WATCHLIST_ID + "' id='btndel_" + oData.WATCHLIST_ID + "' class='icon feather icon-trash-2 f-w-600 f-16 m-r-15 text-c-red clsdel' ToolTip='Delete' onclick='" + conf + "'></i>";
+                        var editbtn = "&nbsp; <i data-id='" + oData.COMPANY_ID + "' id='btnedit_" + oData.COMPANY_ID + "' class='icon feather icon-edit f-w-600 f-16 m-r-15 text-c-green clsedit' ToolTip='Edit'></i>";
+                        var delbtn = "<i data-id='" + oData.COMPANY_ID + "' id='btndel_" + oData.COMPANY_ID + "' class='icon feather icon-trash-2 f-w-600 f-16 m-r-15 text-c-red clsdel' ToolTip='Delete' onclick='" + conf + "'></i>";
                         $(nTd).html(editbtn + delbtn);
                     }
                 },
@@ -87,7 +87,7 @@ $(document).ready(function () {
     });
 
     $('#WatchlistTable tbody').on('click', '.clsdel', function () {
-        //debugger
+        
         var id = $(this).attr("data-id");
         
         $.ajax({
@@ -97,8 +97,7 @@ $(document).ready(function () {
             //processData: false,
             dataType: "json",
             data: {
-                WATCHLIST_ID: id,
-                COMPANY_ID: '',
+                COMPANY_ID: id,
                 COMPANY_NAME: '',
                 ACTION: '3'
             },
@@ -129,22 +128,21 @@ $(document).ready(function () {
     });
 
     $('#WatchlistTable tbody').on('click', '.clsedit', function () {
-        debugger
+        
         var watchlistid = $(this).attr("data-id");
         var companyid = $('#lbl_' + watchlistid).text();
         var companyname = $('#lbl_cn' + watchlistid).text();
-        $('#WATCHLIST_ID').val(watchlistid);
         $('#COMPANY_ID').val(companyid);
         $('#COMPANY_NAME').val(companyname);
         $('#ACTION').val('2');
+        $('#COMPANY_ID').attr('disabled', 'disabled');
 
         //alert('hi');
     });
 
     $(document).on('click', '#btnsubmit', function () {
-        debugger
+        
 
-        var watchlistid = $('#WATCHLIST_ID').val();
         var insertcompanyid = $('#COMPANY_ID').val();
         var companyname = $('#COMPANY_NAME').val();
         var txtaction = $('#ACTION').val();
@@ -163,7 +161,6 @@ $(document).ready(function () {
             //processData: false,
             dataType: "json",
             data: {
-                WATCHLIST_ID: watchlistid,
                 COMPANY_ID: insertcompanyid,
                 COMPANY_NAME: companyname,
                 ACTION: txtaction
@@ -180,6 +177,9 @@ $(document).ready(function () {
                 alert("Data Add/Edited Successfully");
                 WatchlistTables.reloadTable(); //reloads Exam datatable
                 //notify(nFrom, nAlign, nIcons, nType, nAnimIn, nAnimOut);
+
+                $('#ACTION').val('1');
+                $('#COMPANY_ID').removeAttr('disabled');
             },
             error: function (err) {
                 //ShowNotification("error", "Error occured", err.status + " " + err.statusText);
