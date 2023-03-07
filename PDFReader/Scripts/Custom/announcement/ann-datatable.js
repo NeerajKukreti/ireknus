@@ -31,7 +31,7 @@ var annTable = function () {
             ajax: {
                 url: getAnnounementUrl + "?catIds=" + catIds + "&showRepeated=" + $('#switch-showrpted').is(':checked') +
                     "&showFav=" + $('.showfav').is(':checked') + "&dtRange=" + dtRange + "&showAll=" + $('.ShowAll').is(':checked') +
-                    "&companyName=" + $('.companyList ').val(),
+                    "&companyName=" + $('.companyList ').val() + '&timeSlot=' + $('#selectTimeSlot').val(),
                 method: "GET",
                 datatype: "json",
                //beforeSend: function () { $.blockUI() },

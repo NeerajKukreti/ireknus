@@ -38,30 +38,7 @@
     <hr />
     <div class="row AnnouncementList">
         @Html.Partial("_AnnouncementList")
-        @*<style>
-                div.dataTables_scrollHeadInner thead {
-                    height: 10em;
-                }
-            </style>
-            <link rel="stylesheet" href="@Url.Content("~/Content/assets/css/plugins/dataTables.bootstrap4.min.css")">
-
-            <table id="tblAnn" class="table table-bordered">
-            </table>
-
-
-            <script src="@Url.Content("~/Content/assets/js/plugins/jquery.dataTables.min.js")"></script>
-            <script src="@Url.Content("~/Content/assets/js/plugins/dataTables.bootstrap4.min.js")"></script>
-
-            <script src="@Url.Content("~/Content/assets/js/plugins/buttons.colVis.min.js")"></script>
-            <script src="@Url.Content("~/Content/assets/js/plugins/buttons.print.min.js")"></script>
-            <script src="@Url.Content("~/Content/assets/js/plugins/pdfmake.min.js")"></script>
-            <script src="@Url.Content("~/Content/assets/js/plugins/jszip.min.js")"></script>
-            <script src="@Url.Content("~/Content/assets/js/plugins/dataTables.buttons.min.js")"></script>
-            <script src="@Url.Content("~/Content/assets/js/plugins/buttons.html5.min.js")"></script>
-            <script src="@Url.Content("~/Content/assets/js/plugins/buttons.bootstrap4.min.js")"></script>
-
-
-            <script src="~/Scripts/Custom/announcement/ann-datatable.js"></script>*@
+       
     </div>
 </div>
 
@@ -75,12 +52,13 @@
     dtRange = new Date(xx[0].trim()).toDateString() + "|" + new Date(xx[1].trim()).toDateString();
 
     var GetDashboardCategories = "@Url.Content("~/Announcement/GetDashboardCategories")";
+
     $.ajax({
         url: GetDashboardCategories + "?DateRange=" + dtRange +
             "&CompanyName=" + $('.companyList ').val() +
             "&ShowAll=" + $('.ShowAll').is(':checked') +
             "&ShowRepeated=" + $('#switch-showrpted').is(':checked') +
-            "&showFav=" + $('.showfav').is(':checked'),
+            "&showFav=" + $('.showfav').is(':checked') + "&timeSlot=" + $('#selectTimeSlot').val(),
         type: 'GET',
         beforeSend: function () { },
         success: function (res) {

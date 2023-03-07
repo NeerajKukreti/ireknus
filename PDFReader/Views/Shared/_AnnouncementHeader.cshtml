@@ -7,7 +7,7 @@
     <div class="collapse navbar-collapse">
 
         <a href="/Announcement"><img style="margin-left: 20px" height="53px" src="~/Content/assets/images/logo1.PNG" /></a>
-        <input class="form-control companyList basicAutoComplete" placeholder="Search companies" type="text" style="width: 400px" autocomplete="off">
+        <input class="form-control companyList basicAutoComplete" placeholder="Search companies" type="text" style="width: 200px" autocomplete="off">
         <label class="lblClearSearch" style="cursor: pointer; font-weight: 700;margin-top: 11px;color: #4680ff; display: none">x</label>
         <b class="vl">|</b>
         <label class="lblShowAll" style="color: #4680ff; font-weight: 600;">
@@ -20,6 +20,12 @@
         <b class="vl">|</b>
         <label class="mt-3 lblSelectDate" style="color: #4680ff;"><b>Select Date</b></label>
         <input style="width: 210px;display: inline-block;font-weight: 600;padding-top: 21px;" type="text" placeholder="Select date range" name="daterange" class="form-control dtCtrl" value="" />
+        <b class="vl">|</b>
+        <select id="selectTimeSlot">
+            <option value="1">Till 9 PM</option>
+            <option value="2">Between 9 PM to 11 PM</option>
+            <option value="3">Between 11 PM to Midnight</option>
+        </select>
         <b class="vl">|</b>
         <label class="lblShowFav" style="color: #4680ff; font-weight: 600;">
             <div class="switch switch-primary d-inline m-r-10">
@@ -48,58 +54,77 @@
         </ul>
     </div>
 </header>
-
+<link href="~/Content/assets/css/plugins/select2.min.css" rel="stylesheet" />
 <script src="~/Content/bootstrapautocomplete/dist/latest/bootstrap-autocomplete.js"></script>
-
+<script src="~/Content/assets/js/plugins/select2.full.min.js"></script>
 <script>
     var startDate;
     var endDate;
+    function resetTimeSlot() {
+        $('#selectTimeSlot').val(''); // Select the option with a value of 'US'
+        $('#selectTimeSlot').trigger('change');
+    }
 
-    $(document).ready(function() {
+    $(document).ready(function () {
+
+        $('#selectTimeSlot').select2({
+            placeholder: {
+                id: '-1', // the value of the option
+                text: 'Select Time Slot'
+            },
+            allowClear: true
+        });
+
+        $('#selectTimeSlot').val(''); // Select the option with a value of 'US'
+        $('#selectTimeSlot').trigger('change');  
+
         $('input[name="daterange"]').daterangepicker({
             opens: 'right'
         }, function (start, end, label) {
 
             startDate = new Date(start).toDateString();
             endDate = new Date(end).toDateString();
-                //alert(sDt)
-
         });
 
   
         $('input[name="daterange"]').on('apply.daterangepicker', function (ev, picker) {
             $('.showfav').prop('checked', false);
             $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
-
             var sDt = new Date(picker.startDate).toDateString();
             var eDt = new Date(picker.endDate).toDateString();
+
             startDate = sDt;
             endDate = eDt;
+            resetTimeSlot();
+            ShowView(sDt, eDt);
+        });
+
+        $('#selectTimeSlot').on('select2:select', function (e) {
+            var sDt = $('input[name="daterange"]').data('daterangepicker').startDate._d.toDateString();
+            var eDt = $('input[name="daterange"]').data('daterangepicker').endDate._d.toDateString();
+
+            ShowView(sDt, eDt, $(this).val());
+        });
+
+        function ShowView(sDt, eDt, timeSlot) {
 
             $.ajax({
                 url: getAnnouncementView + "?CompanyName=" + $('.companyList').val() +
                     "&ShowAll=" + $('.ShowAll').is(':checked') +
-                    "&DateRange=" + sDt + "|" + eDt + "&showFav=" + $('.showfav').is(':checked'),
+                    "&DateRange=" + sDt + "|" + eDt + "&showFav=" + $('.showfav').is(':checked') + '&timeSlot='+timeSlot,
                 type: 'GET',
                 beforeSend: function () {
                     $.blockUI();
                 },
                 success: function (data) {
-
                     $('.AnnouncementView').empty().html(data);
-                    //$('.AnnouncementView').html(res);
-                    //var cc = jQuery(".AnnouncementView").html();
-                    //jQuery(".AnnouncementView").empty().html(cc);
-                    //$('input[name="daterange"]').daterangepicker();
                 },
                 error: function () { },
                 complete: function () {
                     $.unblockUI();
                 }
             });
-        });
-
-
+        }
     });
 
     $('.basicAutoComplete').autoComplete({
@@ -130,7 +155,7 @@
     });
 
     $('.basicAutoComplete').on('autocomplete.select', function (evt, item) {
-       
+        resetTimeSlot();
 
         var xx = $('input[name="daterange"]').val().split("-")
         if (xx.length == 1)

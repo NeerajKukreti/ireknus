@@ -28,20 +28,21 @@ namespace PDFReader.Controllers
         }
 
         [OutputCache(Duration = 20, Location = OutputCacheLocation.Client, VaryByParam = "none")]
-        public async Task<ActionResult> GetAnnouncementView(string CompanyName, string DateRange, bool ShowAll = false, bool ShowRepeated = false, bool showFav = false)
+        public async Task<ActionResult> GetAnnouncementView(string CompanyName, string DateRange, bool ShowAll = false, 
+            bool ShowRepeated = false, bool showFav = false, int timeSlot = 0)
         {
-            var categoriesCount = DB.GetDashboardCategoriesCnt(null,CompanyName, ShowAll, DateRange, showFav, ShowRepeated);
-            //var categoriesCount = AnnouncementBL.GetCategoryCounts(CompanyName, ShowAll, DateRange, showFav, ShowRepeated).Result;
-            //categoriesCount.ShowRepeated = ShowRepeated;
+            var categoriesCount = DB.GetDashboardCategoriesCnt(null,CompanyName, ShowAll, DateRange, showFav, ShowRepeated, timeSlot);
+             
             ViewBag.ShowRepeated = ShowRepeated;
 
             return PartialView("_AnnouncementView", categoriesCount);
         }
 
         [OutputCache(Duration = 20, Location = OutputCacheLocation.Client, VaryByParam = "none")]
-        public async Task<ActionResult> GetDashboardCategories(string CompanyName, string DateRange, bool ShowAll = false, bool ShowRepeated = false, bool showFav = false)
+        public async Task<ActionResult> GetDashboardCategories(string CompanyName, string DateRange, bool ShowAll = false, 
+            bool ShowRepeated = false, bool showFav = false, int timeSlot = 0)
         {
-            var categoriesCount = AnnouncementBL.GetCategoryCounts(CompanyName, ShowAll, DateRange, showFav, ShowRepeated).Result;
+            var categoriesCount = AnnouncementBL.GetCategoryCounts(CompanyName, ShowAll, DateRange, showFav, ShowRepeated, timeSlot).Result;
             categoriesCount.ShowRepeated = ShowRepeated;
             ViewBag.ShowRepeated = ShowRepeated;
 
@@ -49,22 +50,18 @@ namespace PDFReader.Controllers
         }
 
         [OutputCache(Duration = 20, Location = OutputCacheLocation.Client, VaryByParam = "catIds")]
-        public ActionResult GetAnnouncements(string companyName, string catIds, bool showRepeated = false, string dtRange = "", bool showFav = false, bool showAll = false, int? start = null, int? length = null, int? draw = null)
+        public ActionResult GetAnnouncements(string companyName, string catIds, bool showRepeated = false, string dtRange = "", 
+            bool showFav = false, bool showAll = false, int? start = null, int? length = null, int? draw = null, int timeSlot = 0)
         {
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-            var announcements = DB.GetDashboardDetails(catIds, companyName, showAll, dtRange, showFav, start, length, showRepeated);
+            var announcements = DB.GetDashboardDetails(catIds, companyName, showAll, dtRange, showFav, start, length, showRepeated, timeSlot);
             
-            var xx = stopwatch.Elapsed.TotalSeconds;
             if (draw != null)
             announcements.draw = draw.Value;
 
             var jsonResult = Json(announcements, JsonRequestBehavior.AllowGet);
             jsonResult.MaxJsonLength = int.MaxValue;
-            stopwatch.Stop();
-            var xx1 = stopwatch.Elapsed.TotalSeconds;
+
             return jsonResult;
-            
         }
         [OutputCache(Duration = 20, Location = OutputCacheLocation.Client, VaryByParam = "none")]
 

@@ -3,7 +3,6 @@ $(document).ready(function () {
     function ShowAnnouncementCategoryWise() {
         var ids = $('input[type=checkbox]:checked').map(function (i, e)
         {
-            //if (!$(e).parent().hasClass('ann-disabled'))
             return $(e).parent().find('label').data('cat');
 
         }).get().join(',');
@@ -37,6 +36,7 @@ $(document).ready(function () {
     });
 
     $(document).on('click', '.ShowAll', function () {
+        resetTimeSlot();
         $('.showfav').prop('checked', false);
 
         var xx = $('input[name="daterange"]').val().split("-")
@@ -51,17 +51,13 @@ $(document).ready(function () {
     });
 
     $(document).on('click', '.showfav', function () {
-        
+        resetTimeSlot();
 
         var xx = $('input[name="daterange"]').val().split("-")
         var dtRange = new Date(xx[0].trim()).toDateString() + "|" + new Date(xx[1].trim()).toDateString();
 
         LoadAnnouncementView(dtRange, $('.ShowAll').is(':checked'), $('.companyList').val(), $('#switch-showrpted').is(':checked'), $('.showfav').is(':checked'));
 
-        //if ($('.showfav').is(':checked'))
-        //    $('.showfav').closest('label').find('b').text('Show All')
-        //else
-        //    $('.showfav').closest('label').find('b').text('Show Favourite')
     });
 
     $(document).on('click', '.lblClearSearch', function () {

@@ -499,7 +499,8 @@ namespace PDFReader
             }
         }
 
-        public static AnnoucementGridData GetDashboardDetails(string catIds, string CompanyName, bool ShowAll, string dtRange, bool ShowFav = false, int? start = null, int? length = null, bool showRpt = false)
+        public static AnnoucementGridData GetDashboardDetails(string catIds, string CompanyName, bool ShowAll, string dtRange, 
+            bool ShowFav = false, int? start = null, int? length = null, bool showRpt = false, int timeSlot = 0)
         {
 
             var sDt = DateTime.Parse(dtRange.Split('|')[0]);
@@ -529,20 +530,20 @@ namespace PDFReader
                         @companyName = CompanyName,
                         @showRpt = showRpt,
                         @start = start,
-                        @length = length
+                        @length = length,
+                        @timeSlot = timeSlot
                     }, commandType: CommandType.StoredProcedure);
 
                 var data = new AnnoucementGridData();
 
-                //data.recordsTotal = resultSet.Read<int>().First();
-                //data.recordsFiltered = data.recordsTotal;
                 data.data = resultSet;
 
                 return data;
             }
         }
 
-        public static int GetDashboardCategoriesCnt(string catIds, string CompanyName, bool ShowAll, string dtRange, bool ShowFav = false, bool ShowRpt = false)
+        public static int GetDashboardCategoriesCnt(string catIds, string CompanyName, bool ShowAll, string dtRange, bool ShowFav = false, 
+            bool ShowRpt = false, int timeSlot = 0)
         {
             try
             {
@@ -573,7 +574,8 @@ namespace PDFReader
                             @showAll = ShowAll,
                             @showFav = ShowFav,
                             @companyName = CompanyName,
-                            @showRpt = ShowRpt
+                            @showRpt = ShowRpt,
+                            @timeSlot = timeSlot
                         }, commandType: CommandType.StoredProcedure);
 
                     return cnt;
@@ -584,7 +586,8 @@ namespace PDFReader
             }
         }
 
-        public static AnnoucementViewModel GetDashboardCategories(string catIds, string CompanyName, bool ShowAll, string dtRange, bool ShowFav = false, bool ShowRpt = false)
+        public static AnnoucementViewModel GetDashboardCategories(string catIds, string CompanyName, bool ShowAll, string dtRange, bool ShowFav = false, 
+            bool ShowRpt = false, int timeSlot = 0)
         {
 
             var data = new AnnoucementViewModel();
@@ -615,7 +618,8 @@ namespace PDFReader
                         @dtEnd = eDt,
                         @showAll = ShowAll,
                         @showFav = ShowFav,
-                        @companyName = CompanyName
+                        @companyName = CompanyName,
+                        @timeSlot = timeSlot
                     }, commandType: CommandType.StoredProcedure);
 
                 if (ShowRpt)
