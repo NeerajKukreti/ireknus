@@ -12,6 +12,8 @@ namespace PDFReader.Model
         public DateTime InsertDate { get; set; }
         public string ProcessedDate { get; set; }
         public List<FetchedKeywords> FetchedKeywords { get; set; }
+
+        public int annid { get; set; }
     }
 
     public class FetchedKeywords

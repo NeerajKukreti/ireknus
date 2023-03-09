@@ -157,29 +157,17 @@ namespace PDFReader
             }
         }
 
-        public static void insertCompaniesData(List<Reports> list)
+        public static List<ReportModel> insertCompaniesData(string alertName)
         {
             using (var connection = new SqlConnection(Connection.MyConnection()))
             {
                 connection.Open();
 
-                var dt = new DataTable();
-                dt.Columns.Add("companyname");
-                dt.Columns.Add("url");
-                dt.Columns.Add("finyear");
-                dt.Columns.Add("annid");
-                dt.Columns.Add("submissiondate");
-
-                foreach (var item in list)
-                {
-                    dt.Rows.Add(item.CompanyName, item.URL, item.FinancialYear, item.AnnId, item.InsertDate.ToString("yyyy/MM/dd"));
-                }
-
-                var xx = connection.ExecuteAsync("sp_InsertCompanies",
+                return connection.Query<ReportModel>("sp_InsertCompanies",
                     new
                     {
-                        @companiesType = dt.AsTableValuedParameter("CompaniesType")
-                    }, commandType: CommandType.StoredProcedure).Result;
+                        @alertname = alertName
+                    }, commandType: CommandType.StoredProcedure).ToList();
             }
         }
 

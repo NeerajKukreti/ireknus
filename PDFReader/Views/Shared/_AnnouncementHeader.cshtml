@@ -106,6 +106,13 @@
             ShowView(sDt, eDt, $(this).val());
         });
 
+        $('#selectTimeSlot').on('select2:clear', function (e) {
+            var sDt = $('input[name="daterange"]').data('daterangepicker').startDate._d.toDateString();
+            var eDt = $('input[name="daterange"]').data('daterangepicker').endDate._d.toDateString();
+
+            ShowView(sDt, eDt, $(this).val());
+        });
+
         function ShowView(sDt, eDt, timeSlot) {
 
             $.ajax({

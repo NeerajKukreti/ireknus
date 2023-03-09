@@ -176,30 +176,8 @@ namespace PDFReader.Controllers
 
             alerts.ForEach(alert =>
             {
-                var categories = DB.GetCategoriesByName(alert.CATEGORY);
-
-                if (categories == null || !categories.Any()) return;
-
-                var date = DateTime.Now.AddDays(-1).Date;
-                var dtRange = $"{date}|{date}";
-                var announcementData = AnnouncementBL.GetCategoryCounts(string.Empty, alert.WATCHLIST, dtRange, false).Result;
-                var announcements = DB.GetAnnouncements(string.Join(",", announcementData.CategoryCounts.Where(x => !x.CATEGORY.Equals("Others")).Select(x => x.Ann_Id))).ToList();
-                List<Reports> reports = new List<Reports>();
-
-                announcements.ForEach(x =>
-                {
-                    reports.Add(new Reports
-                    {
-                        CompanyName = x.COMPANY_NAME,
-                        FinancialYear = alert.ALERT_NAME,
-                        URL = $"https://www.bseindia.com/xml-data/corpfiling/AttachLive/{x.ATTACHMENT}",
-                        AnnId = x.ANN_ID,
-                        InsertDate = x.NEWS_SUBMISSION_DATE
-                    });
-                });
-
-                DB.insertCompaniesData(reports);
-                var annReports = DB.GetReportsByAnnId(alert.ALERT_NAME, string.Join(",", reports.Select(x => x.AnnId))).ToList();
+                var reports = DB.insertCompaniesData(alert.ALERT_NAME);
+                var annReports = DB.GetReportsByAnnId(alert.ALERT_NAME, string.Join(",", reports.Select(x => x.annid))).ToList();
                 var keywords = DB.GetKeywordsBySetName(alert.KEYWORD_SET);
 
                 Parallel.ForEach(annReports, report =>
@@ -207,7 +185,7 @@ namespace PDFReader.Controllers
                     PDFSearch.Search(report.ID, report.URL, keywords.Select(x => x.KEYWORD).ToList());
                 });
 
-                var finalReport = DB.GetSearchedReportNyAnnId(alert.ALERT_NAME, string.Join(",", reports.Select(x => x.AnnId)));
+                var finalReport = DB.GetSearchedReportNyAnnId(alert.ALERT_NAME, string.Join(",", reports.Select(x => x.annid)));
 
                 if (finalReport.Count() > 0)
                     if (GenerateExcel(finalReport.ToList(), alert.ALERT_NAME))
@@ -375,33 +353,9 @@ namespace PDFReader.Controllers
             {
                 alerts.ForEach(alert =>
                 {
-                    var categories = DB.GetCategoriesByName(alert.CATEGORY);
-
-                    if (categories == null || !categories.Any()) return;
-
-                    var date = alertDate;
-                    var dtRange = $"{date}|{date}";
-                    var announcementData = AnnouncementBL.GetCategoryCounts(string.Empty, alert.WATCHLIST, dtRange, false).Result;
-                    var announcements = DB.GetAnnouncements(string.Join(",", announcementData.CategoryCounts.Where(x => !x.CATEGORY.Equals("Others")).Select(x => x.Ann_Id))).ToList();
-                    List<Reports> reports = new List<Reports>();
-
-                    announcements.ForEach(x =>
-                    {
-                        reports.Add(new Reports
-                        {
-                            CompanyName = x.COMPANY_NAME,
-                            FinancialYear = alert.ALERT_NAME,
-                            URL = $"https://www.bseindia.com/xml-data/corpfiling/AttachLive/{x.ATTACHMENT}",
-                            AnnId = x.ANN_ID,
-                            InsertDate = x.NEWS_SUBMISSION_DATE
-                        });
-                    });
-
-                    DB.insertCompaniesData(reports);
-                    var annReports = DB.GetReportsByAnnId(alert.ALERT_NAME, string.Join(",", reports.Select(x => x.AnnId))).ToList();
+                    var reports = DB.insertCompaniesData(alert.ALERT_NAME);
+                    var annReports = DB.GetReportsByAnnId(alert.ALERT_NAME, string.Join(",", reports.Select(x => x.annid))).ToList();
                     var keywords = DB.GetKeywordsBySetName(alert.KEYWORD_SET);
-
-
 
                     foreach (var report in annReports)
                     {
