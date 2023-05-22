@@ -28,18 +28,18 @@ namespace PDFReader.Controllers
         }
 
         [OutputCache(Duration = 20, Location = OutputCacheLocation.Client, VaryByParam = "none")]
-        public async Task<ActionResult> GetAnnouncementView(string CompanyName, string DateRange, bool ShowAll = false, 
+        public async Task<ActionResult> GetAnnouncementView(string CompanyName, string DateRange, bool ShowAll = false,
             bool ShowRepeated = false, bool showFav = false, int timeSlot = 0)
         {
-            var categoriesCount = DB.GetDashboardCategoriesCnt(null,CompanyName, ShowAll, DateRange, showFav, ShowRepeated, timeSlot);
-             
+            var categoriesCount = DB.GetDashboardCategoriesCnt(null, CompanyName, ShowAll, DateRange, showFav, ShowRepeated, timeSlot);
+
             ViewBag.ShowRepeated = ShowRepeated;
 
             return PartialView("_AnnouncementView", categoriesCount);
         }
 
         [OutputCache(Duration = 20, Location = OutputCacheLocation.Client, VaryByParam = "none")]
-        public async Task<ActionResult> GetDashboardCategories(string CompanyName, string DateRange, bool ShowAll = false, 
+        public async Task<ActionResult> GetDashboardCategories(string CompanyName, string DateRange, bool ShowAll = false,
             bool ShowRepeated = false, bool showFav = false, int timeSlot = 0)
         {
             var categoriesCount = AnnouncementBL.GetCategoryCounts(CompanyName, ShowAll, DateRange, showFav, ShowRepeated, timeSlot).Result;
@@ -50,13 +50,13 @@ namespace PDFReader.Controllers
         }
 
         [OutputCache(Duration = 20, Location = OutputCacheLocation.Client, VaryByParam = "catIds")]
-        public ActionResult GetAnnouncements(string companyName, string catIds, bool showRepeated = false, string dtRange = "", 
+        public ActionResult GetAnnouncements(string companyName, string catIds, bool showRepeated = false, string dtRange = "",
             bool showFav = false, bool showAll = false, int? start = null, int? length = null, int? draw = null, int timeSlot = 0)
         {
             var announcements = DB.GetDashboardDetails(catIds, companyName, showAll, dtRange, showFav, start, length, showRepeated, timeSlot);
-            
+
             if (draw != null)
-            announcements.draw = draw.Value;
+                announcements.draw = draw.Value;
 
             var jsonResult = Json(announcements, JsonRequestBehavior.AllowGet);
             jsonResult.MaxJsonLength = int.MaxValue;
@@ -169,31 +169,44 @@ namespace PDFReader.Controllers
         //    });
         //}
 
-        public void ExecuteAlertJob()
+        public void TestEmail()
+        {
+            SendMail1();
+        }
+        public ActionResult ExecuteAlertJob()
         {
             var alerts = DB.GetSettings().Where(x => x.ACTIVE).ToList();
-            string xx = "";
+            StringBuilder str = new StringBuilder();
 
             alerts.ForEach(alert =>
             {
                 var reports = DB.insertCompaniesData(alert.ALERT_NAME);
-                var annReports = DB.GetReportsByAnnId(alert.ALERT_NAME, string.Join(",", reports.Select(x => x.annid))).ToList();
-                var keywords = DB.GetKeywordsBySetName(alert.KEYWORD_SET);
-
-                Parallel.ForEach(annReports, report =>
+                str.Append($"Alert: {alert.ALERT_NAME}<br/>");
+                str.Append($"New data inserted into the annual report: {reports?.Count}<br/>");
+                if (reports != null && reports.Any())
                 {
-                    PDFSearch.Search(report.ID, report.URL, keywords.Select(x => x.KEYWORD).ToList());
-                });
+                    var annReports = DB.GetReportsByAnnId(alert.ALERT_NAME, string.Join(",", reports.Select(x => x.annid))).ToList();
+                    var keywords = DB.GetKeywordsBySetName(alert.KEYWORD_SET);
 
-                var finalReport = DB.GetSearchedReportNyAnnId(alert.ALERT_NAME, string.Join(",", reports.Select(x => x.annid)));
-
-                if (finalReport.Count() > 0)
-                    if (GenerateExcel(finalReport.ToList(), alert.ALERT_NAME))
+                    Parallel.ForEach(annReports, report =>
                     {
-                        SendMail(alert.ALERT_NAME, finalReport.ToList());
-                    }
+                        PDFSearch.Search(report.ID, report.URL, keywords.Select(x => x.KEYWORD).ToList());
+                    });
 
+                    var finalReport = DB.GetSearchedReportNyAnnId(alert.ALERT_NAME, string.Join(",", reports.Select(x => x.annid)));
+                    str.Append($"Data for Excel : {finalReport?.Count()}<br/>");
+
+                    if (finalReport.Count() > 0)
+                        if (GenerateExcel(finalReport.ToList(), alert.ALERT_NAME))
+                        {
+                            str.Append($"Excel generated<br/>");
+                            SendMail(alert.ALERT_NAME, finalReport.ToList(), ref str);
+                            str.Append($"Mail supposed to be sent<br/><br/><br/>");
+                        }
+                }
             });
+
+            return Content(str.ToString(), "text/html");
         }
 
         private bool GenerateExcel(List<KeywordResult> keywordResults, string FileName)
@@ -239,7 +252,7 @@ namespace PDFReader.Controllers
 
                     using (MemoryStream ms = new MemoryStream())
                     {
-                        using (FileStream file = new FileStream(Server.MapPath($"~/App_Data/ExcelDownload/{FileName}.xlsx"), FileMode.Create, System.IO.FileAccess.ReadWrite))
+                        using (FileStream file = new FileStream(Server.MapPath($"~/ExcelDownload/{FileName}.xlsx"), FileMode.Create, System.IO.FileAccess.ReadWrite))
                         {
                             wb.SaveAs(ms);
 
@@ -258,7 +271,7 @@ namespace PDFReader.Controllers
             }
         }
 
-        private void SendMail(string AttachmentName, List<KeywordResult> finalReport)
+        private void SendMail(string AttachmentName, List<KeywordResult> finalReport, ref StringBuilder str)
         {
             var to = ConfigurationManager.AppSettings["Mail-to"].ToString();
             var from = ConfigurationManager.AppSettings["Mail-from"].ToString();
@@ -273,6 +286,7 @@ namespace PDFReader.Controllers
                 Subject = $"{DateTime.Now.AddDays(-1).ToString("dd/MM/yyyy")} | {AttachmentName}",
                 Body = SetBodyContent(finalReport.ToList())
             };
+            str.Append($"Mail body<br/>");
 
             using (MailMessage mail = new MailMessage(from, objModelMail.To))
             {
@@ -281,11 +295,48 @@ namespace PDFReader.Controllers
                 mail.Body = objModelMail.Body;
 
 
-                var fileStream = new FileStream(Server.MapPath($"~/App_Data/ExcelDownload/{AttachmentName}.xlsx")
+                var fileStream = new FileStream(Server.MapPath($"~/ExcelDownload/{AttachmentName}.xlsx")
                     , FileMode.Open, FileAccess.ReadWrite);
                 {
                     mail.Attachments.Add(new Attachment(fileStream, $"{AttachmentName}_{DateTime.Now.AddDays(-1):dd/MM/yyyy}.xlsx"));
                 }
+                str.Append($"Mail: attachment attached<br/>");
+                SmtpClient smtp = new SmtpClient
+                {
+                    Host = "smtp.gmail.com",
+                    EnableSsl = true,
+                    UseDefaultCredentials = false
+                };
+
+                NetworkCredential networkCredential = new NetworkCredential(from, passcode);
+                smtp.Credentials = networkCredential;
+                smtp.Port = 587;
+                smtp.Send(mail);
+                str.Append($"Email triggered<br/>");
+            }
+        }
+
+        private void SendMail1()
+        {
+            var to = ConfigurationManager.AppSettings["Mail-to"].ToString();
+            var from = ConfigurationManager.AppSettings["Mail-from"].ToString();
+            var cc = ConfigurationManager.AppSettings["Mail-cc"].ToString();
+            var bcc = ConfigurationManager.AppSettings["Mail-bcc"].ToString();
+            var passcode = ConfigurationManager.AppSettings["Mail-passcode"].ToString();
+
+
+            MailModel objModelMail = new MailModel
+            {
+                To = to,
+                Subject = "Test subject",
+                Body = "test"
+            };
+
+            using (MailMessage mail = new MailMessage(from, objModelMail.To))
+            {
+                mail.Subject = objModelMail.Subject;
+                mail.IsBodyHtml = true;
+                mail.Body = objModelMail.Body;
 
                 SmtpClient smtp = new SmtpClient
                 {
@@ -300,7 +351,6 @@ namespace PDFReader.Controllers
                 smtp.Send(mail);
             }
         }
-
         private string SetBodyContent(List<KeywordResult> keywordResults)
         {
             StringBuilder sb = new StringBuilder();
