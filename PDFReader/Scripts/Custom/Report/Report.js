@@ -178,10 +178,14 @@ $(document).on('click', '.btnPageTextDownload', function () {
 
 $(document).on('click', '#chkComplexSearchEnable', function () {
     
-    if ($(this).is(":checked"))
+    if ($(this).is(":checked")) {
+        $("#oldBlock").hide();
         $(".complexsearchblock").show();
-    else
+    }
+    else {
         $(".complexsearchblock").hide();
+        $("#oldBlock").show();
+    }
 
 });
 
@@ -260,63 +264,32 @@ $(document).on('click', '#btnSearch', function () {
         return;
 
     /* Year */
-    var yearList1 = $("#txtYear").val();
-   
-    yearList = yearList1.split("|");
+    var yearList1 = $("#txtYear").val().replace(/\s+/g, " ").trim();
     var yearText = "";
 
     if (yearList1.length > 0) {
         var xx1 = t(yearList1, "FinancialYear");
         yearText = addColumn(xx1, "FinancialYear");
-
-        //yearList.forEach((x, i) => {
-        //    var value = x.trim();
-        //    var val = `FinancialYear = ${value} OR `;
-        //    yearText = yearText.concat(val);
-        //});
-
-        //yearText = yearText.replace(new RegExp('OR $'), '');
     }
-    /* Company */
 
-    var companyList1 = $("#txtCompany").val();
-    companyList = companyList1.split("|");
+    /* Company */
+    var companyList1 = $("#txtCompany").val().replace(/\s+/g, " ").trim();
     var companyText = "";
 
     if (companyList1.length > 0) {
-        
         var xx1 = t(companyList1, "CompanyName");
         companyText = addColumn(xx1, "CompanyName");
-        //companyList.forEach((x, i) => {
-        //    var value = x.trim();
-        //    var val = `CompanyName ${value.toLowerCase().includes("like") ? "" : "="} ${value} OR `;
-        //    companyText = companyText.concat(val);
-        //});
-
-        //companyText = companyText.replace(new RegExp('OR $'), '');
     }
-    /* Keyword */
 
-    var keyList1 = $("#txtKeyword").val();
-    
-    keyList = keyList1.split("|");
+    /* Keyword */
+    var keyList1 = $("#txtKeyword").val().replace(/\s+/g, " ").trim();
     var keyText = "";
 
-    if (keyList1.length > 0) {
-        debugger
+    if (keyList1.length > 0) {        
         var xx1 = t(keyList1, 'FoundKeywords');
         keyText = addColumn(xx1, "FoundKeywords");
-        //keyList.forEach((x, i) => {
-        //    var value = x.trim();
-        //    var val = `FoundKeywords ${value.toLowerCase().includes("like") ? "" : "="} ${value} OR `;
-        //    keyText = keyText.concat(val);
-        //});
-
-
-        //keyText = keyText.replace(new RegExp('OR $'), '');
     }
 
-    
 
     var finalText = "where ";
 
@@ -338,7 +311,7 @@ $(document).on('click', '#btnSearch', function () {
         else
             finalText = finalText.concat(` (${keyText})`);
     }
-    debugger;
+    
     //var finalText = `where (${yearText}) and (${companyText}) and (${keyText})`;
 
     if ($("#chkIncludeDate").is(":checked")) {

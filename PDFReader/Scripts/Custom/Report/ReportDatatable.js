@@ -13,10 +13,13 @@ var ReportTables = function () {
                 "url": searchedReport,
                 "data": { "year": year, "query": query, "queryEnabled": queryEnabled },
                 "type": "POST",
-                "datatype": "json"
+                "datatype": "json",
+                beforesend: function () {
+                        alert()
+                }
             },
             "columns": [
-                { "title": "RT", "data": "NEWS_SUBMISSION_DATE" },
+                { "title": "RT", "data": "NEWS_SUBMISSION_DATE", class: "width_20" },
                 { "title": "Company Name", "data": "CompanyName" },
                 {
                     "title": "Url", "data": "Url",
@@ -25,7 +28,7 @@ var ReportTables = function () {
                         $(nTd).html("<a href='" + oData.Url + "' target='_blank'>pdf page</a>");
                     }
                 },
-                { "title": "Year", "data": "FinancialYear" },
+                { "title": "Category", "data": "FinancialYear", class:"width_400" },
                 { "title": "Page Number", "data": "PDFPageNumber" },
                 { "title": "Keywords", "data": "FoundKeywords" },
                 { "title": "Total Pages", "data": "TotalPages" },
@@ -71,3 +74,14 @@ var ReportTables = function () {
         }
     };
 }();
+
+
+$('#ReportTable').on('processing.dt', function (e, settings, processing) {
+    if (processing) {
+        $.blockUI();
+    } else {
+        //abp.ui.clearBusy(e.currentTarget);
+        
+        $.unblockUI();
+    }
+});
