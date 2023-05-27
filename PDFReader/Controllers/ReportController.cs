@@ -6,6 +6,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Mvc;
 
 namespace PDFReader.Controllers
@@ -53,9 +54,10 @@ namespace PDFReader.Controllers
             return xx;
         }
 
-        public async Task<ActionResult> GetSearchedReport(string Year)
+        public async Task<ActionResult> GetSearchedReport(string Year, string query = "", bool queryEnabled = false)
         {
-            IEnumerable<KeywordResult> reportResult = DB.GetSearchedReport(Year);
+            query = HttpUtility.UrlDecode(query);
+            IEnumerable<KeywordResult> reportResult = DB.GetSearchedReport(Year, query, queryEnabled);
             Session["searchresult"] = reportResult;
             var xx = Json(data: reportResult, JsonRequestBehavior.AllowGet);
             xx.MaxJsonLength = int.MaxValue;
@@ -109,6 +111,12 @@ namespace PDFReader.Controllers
         public async Task DeleteCompany(string year)
         {
             DB.DeleteCompany(year);
+        }
+        public ActionResult GetAllCompanies()
+        {
+            var list = DB.GetAllCompanies().Take(100);
+            return Json(data:
+                list.Select(x => new { value = x.COMPANY_ID, text = x.COMPANY_NAME }).Distinct(), JsonRequestBehavior.AllowGet);
         }
 
         #region deep search

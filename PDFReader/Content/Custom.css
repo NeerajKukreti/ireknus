@@ -7,3 +7,11 @@
     cursor: pointer;
     color:#0351cc;
 }
+
+.addSearchControl {
+    cursor: pointer;
+    font-size: 35px;
+    color: blue;
+    position: relative;
+    top: 4px;
+}

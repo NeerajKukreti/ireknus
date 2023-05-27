@@ -1,14 +1,18 @@
 var ReportTables = function () {
     //TODO:: table-datatables-scroller.js use to fix scroller issue
     var table;
-    var Keyword = function (year, dtFrm, dtTo) {
+    var Keyword = function (year, query, queryEnabled) {
         table = $('#ReportTable').dataTable({
             retrieve: true,
             "autowidth": "true",
             "scrollX": true,
             "ajax": {
-                "url": searchedReport + "?year=" + year + "&dtFrm=" + dtFrm + "&dtTo=" + dtTo,
-                "type": "GET",
+                //"url": searchedReport + "?year=" + year + "&query=" + query + "&queryEnabled=" + queryEnabled,
+                //"POST": "GET",
+                //"datatype": "json"
+                "url": searchedReport,
+                "data": { "year": year, "query": query, "queryEnabled": queryEnabled },
+                "type": "POST",
                 "datatype": "json"
             },
             "columns": [
@@ -42,12 +46,12 @@ var ReportTables = function () {
 
     return {
         //main function to initiate the module
-        init: function (year, dtFrm, dtTo) {
+        init: function (year, query, includeDate) {
             if (!jQuery().dataTable) {
                 return;
             }
 
-            Keyword(year, dtFrm, dtTo);
+            Keyword(year, query, includeDate);
         },
         destroy: function () {
             if (table != null)

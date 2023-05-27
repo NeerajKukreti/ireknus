@@ -2,6 +2,17 @@
 
 <link rel="stylesheet" href="@Url.Content("~/Content/assets/css/plugins/dataTables.bootstrap4.min.css")">
 <link rel="stylesheet" href="@Url.Content("~/Content/assets/css/plugins/daterangepicker.css")">
+<link href="~/Content/Custom.css" rel="stylesheet" />
+
+<style>
+    .select2-dropdown {
+        width: 300px !important;
+    }
+    .select2-container {
+        width: 300px !important;
+    }
+
+</style>
 <!-- [ Main Content ] start -->
 <div class="row">
     <!-- [ sample-page ] start -->
@@ -13,7 +24,7 @@
 
             </div>
             <div class="card-body">
-                
+
                 <div class="row">
                     <div class="col-md-2">
                         <div class="form-group fill">
@@ -88,8 +99,33 @@
                 <div class="row">
                     <div class="col-md-12">
                         <label id="lblDtRange" style="float: right; display: none">
-                            <span style=" position: relative; top: 13px;">Select Date:</span> <input style="width: 210px; float: right" type="text" placeholder="Select date range" name="daterange" class="form-control dtCtrl" value="" />
+                            <span style=" position: relative; top: 13px;">Select Date:</span> 
+                            <input style="width: 210px; float: right" type="text" placeholder="Select date range" name="daterange" class="form-control dtCtrl" value="" />
                         </label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="">
+                            <label><input style=" position: relative; top: 2px" type="checkbox" class="form-check-label" id="chkComplexSearchEnable" /> Enable search</label>
+                            <label><input style=" position: relative; top: 2px" type="checkbox" class="form-check-label" id="chkIncludeDate" /> Inlcude date range</label>
+                        </div>
+                        <div class="complexsearchblock" style="display:none">
+                            <div class="companyblock" >
+                                <div>Financial Year</div>
+                                <input id="txtYear" type="text" value="like '%mittal%' or  'mittal analytics' and NOT like '%MAPL%'" style="width:500px" />
+                                <div>Company</div>
+                                <input id="txtCompany" type="text" value="'mittal analytics' or like '%mittal%' and NOT like '%MAPL%'" style="width:500px" />
+                                <div>Keywords</div>
+                                <input id="txtKeyword" type="text" value="like '%mittal%' and NOT like '%MAPL%' or 'mittal analytics'" style="width:500px" />
+
+                                <button id="btnSearch">Search</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
                         <table id="ReportTable" class="table table-striped table-bordered nowrap" style="width:100%"></table>
                         <table id="UpReportTable" class="table table-striped table-bordered nowrap" style="width:100%; display:none"></table>
                     </div>
@@ -137,6 +173,7 @@
     var DeleteCompany = "@Url.Content("~/Report/DeleteCompany")";
     var GetSkippedCount = "@Url.Content("~/Report/GetSkippedCount")";
     var GetUnproccesedRpt = "@Url.Content("~/Report/GetUnproccesedRpt")";
+    var GetAllCompanies = "@Url.Content("~/Report/GetAllCompanies")";
 
     $(document).ready(function () {
         $('input[name="daterange"]').daterangepicker({
@@ -147,12 +184,12 @@
         var popup = $('input[name="daterange"]').offset();
         var popupTop = popup.top - 40;
 
-    
+
 
         $('.daterangepicker ').hide();
 
         $('input[name="daterange"]').click(function () {
-            
+
             //$('.daterangepicker ').css({
             //    'top': popupTop
             //});
@@ -168,7 +205,7 @@
             eDt = new Date(eDt).toLocaleString('en-us');
             ReportTables.destroy();
             ReportTables.init($('#ddl_financialyear').val(), sDt, eDt);
-            
+
         });
     });
 </script>

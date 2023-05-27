@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using DocumentFormat.OpenXml.Bibliography;
 using PDFReader.Model;
 using PDFReader.Models;
 using System;
@@ -53,19 +54,27 @@ namespace PDFReader
             }
         }
 
-        public static IEnumerable<KeywordResult> GetSearchedReport(string FinancialYear)
+        public static IEnumerable<KeywordResult> GetSearchedReport(string FinancialYear, string query = "", bool queryEnabled = false)
         {
             //type 1 - processed, 2 - unprocessed, 3 - Contains Img, 4 - Non Img
             using (IDbConnection db = new SqlConnection(Connection.MyConnection()))
             {
-                return db.QueryAsync<KeywordResult>(
-                    $"sELECT PageText, ar.ID ReportId, ar.CompanyName, ar.Url " +
-                    ", ar.FinancialYear, fk.PDFPageNumber, fk.FoundKeywords, TotalPages, Skipped, ann.news_subject, FORMAT (ann.NEWS_SUBMISSION_DATE , 'dd/MM/yyyy HH::mm:ss', 'en-us') NEWS_SUBMISSION_DATE, ann.Company_Id " +
-                    "FROM dbo.tbl_AnnualReports ar " +
-                    $"INNER JOIN dbo.Tbl_FoundKeywords fk ON ar.ID = fk.ReportID  and ar.FinancialYear = '{FinancialYear}' " +
-                    "left join TBL_ANNOUNCEMENT ann on ann.ann_id = ar.annid " +
-                    "and processeddate is not null and isnull(isdeleted, 0) = 0 order by CompanyName",
-                   commandType: CommandType.Text).Result;
+
+                return  db.QueryAsync<KeywordResult>("sp_SearchReport",
+                       new
+                       {
+                           @year = FinancialYear,
+                           @query = query,
+                           @queryenabled = queryEnabled
+                       }, commandType: CommandType.StoredProcedure).Result;
+
+                //return db.QueryAsync<KeywordResult>(
+                //    $"sELECT PageText, ar.ID ReportId, ar.CompanyName, ar.Url " +
+                //    ", ar.FinancialYear, fk.PDFPageNumber, fk.FoundKeywords, TotalPages, Skipped,FORMAT (ar.NEWS_SUBMISSION_DATE , 'dd/MM/yyyy HH:mm:ss', 'en-us') NEWS_SUBMISSION_DATE " +
+                //    "FROM dbo.tbl_AnnualReports ar " +
+                //    $"INNER JOIN dbo.Tbl_FoundKeywords fk ON ar.ID = fk.ReportID  and ar.FinancialYear = '{FinancialYear}' " +
+                //    "and processeddate is not null and isnull(isdeleted, 0) = 0 order by CompanyName",
+                //   commandType: CommandType.Text).Result;
 
 
                 //For LocalHost Run
@@ -487,7 +496,7 @@ namespace PDFReader
             }
         }
 
-        public static AnnoucementGridData GetDashboardDetails(string catIds, string CompanyName, bool ShowAll, string dtRange, 
+        public static AnnoucementGridData GetDashboardDetails(string catIds, string CompanyName, bool ShowAll, string dtRange,
             bool ShowFav = false, int? start = null, int? length = null, bool showRpt = false, int timeSlot = 0)
         {
 
@@ -508,8 +517,9 @@ namespace PDFReader
                     annCates.Rows.Add(item);
                 }
 
-                var resultSet = connection.Query<AnnouncementModel>("sp_GetDashboardDetails", 
-                    new {
+                var resultSet = connection.Query<AnnouncementModel>("sp_GetDashboardDetails",
+                    new
+                    {
                         @CatIds = annCates.AsTableValuedParameter("AnnType"),
                         @dtStart = sDt,
                         @dtEnd = eDt,
@@ -530,7 +540,7 @@ namespace PDFReader
             }
         }
 
-        public static int GetDashboardCategoriesCnt(string catIds, string CompanyName, bool ShowAll, string dtRange, bool ShowFav = false, 
+        public static int GetDashboardCategoriesCnt(string catIds, string CompanyName, bool ShowAll, string dtRange, bool ShowFav = false,
             bool ShowRpt = false, int timeSlot = 0)
         {
             try
@@ -569,12 +579,13 @@ namespace PDFReader
                     return cnt;
                 }
             }
-            catch (Exception ex) { 
+            catch (Exception ex)
+            {
                 return -1;
             }
         }
 
-        public static AnnoucementViewModel GetDashboardCategories(string catIds, string CompanyName, bool ShowAll, string dtRange, bool ShowFav = false, 
+        public static AnnoucementViewModel GetDashboardCategories(string catIds, string CompanyName, bool ShowAll, string dtRange, bool ShowFav = false,
             bool ShowRpt = false, int timeSlot = 0)
         {
 
@@ -591,7 +602,7 @@ namespace PDFReader
             {
                 annCates.Rows.Add(item);
             }
-            
+
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 
@@ -624,6 +635,14 @@ namespace PDFReader
             using (IDbConnection db = new SqlConnection(Connection.MyConnection()))
             {
                 return db.Query<WatchlistModel>($"SELECT DISTINCT COMPANY_ID, COMPANY_NAME FROM TBL_ANNOUNCEMENT WHERE COMPANY_ID LIKE '{id}'+'%'", commandType: CommandType.Text);
+            }
+        }
+
+        public static IEnumerable<WatchlistModel> GetAllCompanies()
+        {
+            using (IDbConnection db = new SqlConnection(Connection.MyConnection()))
+            {
+                return db.Query<WatchlistModel>($"SELECT DISTINCT COMPANY_ID, COMPANY_NAME FROM TBL_ANNOUNCEMENT", commandType: CommandType.Text);
             }
         }
         #endregion

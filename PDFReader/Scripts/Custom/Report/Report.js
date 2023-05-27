@@ -2,6 +2,48 @@ $(document).ready(function () {
     $("#ddl_KeywordSet").select2({
         placeholder: "Select keyword set"
     });
+
+    $('.ddlCompany').select2({
+        placeholder: {
+            id: '-1', // the value of the option
+            text: 'Select Company'
+        },
+        width: 1050,
+        tags: true,
+        closeOnSelect: false,
+        query: function (query) {
+            var data = { results: [] };
+            for (var i = 0; i < fruits.length; i++) {
+                data.results.push({ "id": fruits[i] + "/" + counter, "text": fuits[i] });
+            }
+            counter += 1;
+            query.callback(data);
+        },
+        formatSelection: function (item) {
+            return item.text; // display apple, pear, ...
+        },
+        formatResult: function (item) {
+            return item.id; // display apple/1, pear/2, ... Return item.text to see apple, pear, ...
+        }
+    })
+
+
+    $.ajax({
+        type: "GET",
+        url: GetAllCompanies,
+        dataType: "json",
+        success: function (res) {
+            var div_data = "";
+            $.each(res, function (i, data) {
+
+                div_data = "<option value=" + data.value + ">" + data.text + "</option>";
+
+                $(div_data).appendTo('.ddlCompany');
+            });
+
+        }
+
+    });
 });
 
 function LoadCounts(year) {
@@ -44,7 +86,7 @@ $(document).on('change', '#ddl_financialyear', function () {
     if ($(this).val() != "Select") {
         $("#lblDtRange").show();
     }
-    else { $("#lblDtRange").hide();}
+    else { $("#lblDtRange").hide(); }
 
     LoadCounts($(this).val());
 });
@@ -62,7 +104,7 @@ $(document).on('click', '#btnExecuteSearch', function () {
     $.ajax({
         url: performSearch,
         type: 'GET',
-        data: { Year: $('#ddl_financialyear').val(), KeywordSetId: $("#ddl_KeywordSet").val().join()},
+        data: { Year: $('#ddl_financialyear').val(), KeywordSetId: $("#ddl_KeywordSet").val().join() },
         beforeSend: function () {
             $('#spinnertReportExecute').show();
         },
@@ -134,28 +176,182 @@ $(document).on('click', '.btnPageTextDownload', function () {
     document.body.removeChild(element);
 });
 
-//$(document).on('click', '.showrpt', function () {
-//    var year = $('#ddl_financialyear').val();
-//    var type = $(this).data('type');
+$(document).on('click', '#chkComplexSearchEnable', function () {
+    
+    if ($(this).is(":checked"))
+        $(".complexsearchblock").show();
+    else
+        $(".complexsearchblock").hide();
 
-//    //ReportTables.destroy();
-//    //UnReportTables.destroy();
+});
 
-//    if (type == 1) {
-//        $("#ReportTable_wrapper").show();
-//        $("#UpReportTable").hide();
-//        $("#UpReportTable_wrapper").hide();
-//        ReportTables.init($('#ddl_financialyear').val());
-//        //$('#ReportTable').DataTable().ajax.reload();
-//    }
-//    else {
-//        $("#ReportTable_wrapper").hide();
-//        $("#UpReportTable").show();
-//        $("#UpReportTable_wrapper").show();
+function addColumn(str, column) {
+    if (/^(like|not like)/i.test(str)) {
+        return `${column} ${str}`;
+    } else {
+        return `${column} = ${str}`;
+    }
+}
 
-//        //$('#UpReportTable').DataTable().ajax.url(GetUnproccesedRpt + "?year=" + year + "&type=" + type);
-//        //$('#UpReportTable').DataTable().draw();
-//        UpReportTables.destroy();
-//        UpReportTables.init("year=" + $('#ddl_financialyear').val() + "&type=" + type);
-//    }
-//});
+
+function transformQuery(query) {
+    
+
+    // Replace 'or like' with 'or column like'
+    query = query.replace(/\bor\s+like\b/gi, 'or column like');
+
+    // Replace 'or not like' with 'or column not like'
+    query = query.replace(/\bor\s+not\s+like\b/gi, 'or column not like');
+
+    // Replace 'and' with 'and column'
+    query = query.replace(/\band\b/gi, 'and column');
+
+    // Replace 'and like' with 'and column like'
+    query = query.replace(/\band\s+like\b/gi, 'and column like');
+
+    // Replace 'and not like' with 'and column not like'
+    query = query.replace(/\band\s+not\s+like\b/gi, 'and column not like');
+
+    // Replace 'or' with 'or column'
+    query = query.replace(/\bor\b/gi, 'or column =');
+
+    return query;
+}
+
+function t(str, columnName) {
+    var orflag = false;
+    var andflag = false;
+
+    if (str.toLowerCase().includes('and not like')) {
+        str = str.toLowerCase().replaceAll('and not like', `and ${columnName} not like`);
+        andflag = true;
+    }
+
+    if (str.toLowerCase().includes('and like')) {
+        str = str.toLowerCase().replaceAll('and like', `and ${columnName} like`);
+        andflag = true;
+    }
+
+    if (str.toLowerCase().includes('or like')) {
+        str = str.toLowerCase().replaceAll('or like', `or ${columnName} like`);
+        orflag = true;
+    }
+
+    if (str.toLowerCase().includes('or not like')) {
+        str = str.toLowerCase().replaceAll('or not like', `or ${columnName} not like`);
+        orflag = true;
+    }
+
+    if (!orflag) { 
+        if (str.toLowerCase().includes('or')) {
+            str = str.toLowerCase().replace(/\bor\b/gi,`or ${columnName} = `);
+        }
+    }
+
+    if (!andflag) {
+        if (str.toLowerCase().includes('and')) {
+            str = str.toLowerCase().replace(/\band\b/gi, `and ${columnName} = `);
+        }
+    }
+    return str;
+}
+$(document).on('click', '#btnSearch', function () {
+    if ($("#txtYear").val().length == 0 && $("#txtCompany").val().length == 0 && $("#txtKeyword").val().length == 0)
+        return;
+
+    /* Year */
+    var yearList1 = $("#txtYear").val();
+   
+    yearList = yearList1.split("|");
+    var yearText = "";
+
+    if (yearList1.length > 0) {
+        var xx1 = t(yearList1, "FinancialYear");
+        yearText = addColumn(xx1, "FinancialYear");
+
+        //yearList.forEach((x, i) => {
+        //    var value = x.trim();
+        //    var val = `FinancialYear = ${value} OR `;
+        //    yearText = yearText.concat(val);
+        //});
+
+        //yearText = yearText.replace(new RegExp('OR $'), '');
+    }
+    /* Company */
+
+    var companyList1 = $("#txtCompany").val();
+    companyList = companyList1.split("|");
+    var companyText = "";
+
+    if (companyList1.length > 0) {
+        
+        var xx1 = t(companyList1, "CompanyName");
+        companyText = addColumn(xx1, "CompanyName");
+        //companyList.forEach((x, i) => {
+        //    var value = x.trim();
+        //    var val = `CompanyName ${value.toLowerCase().includes("like") ? "" : "="} ${value} OR `;
+        //    companyText = companyText.concat(val);
+        //});
+
+        //companyText = companyText.replace(new RegExp('OR $'), '');
+    }
+    /* Keyword */
+
+    var keyList1 = $("#txtKeyword").val();
+    
+    keyList = keyList1.split("|");
+    var keyText = "";
+
+    if (keyList1.length > 0) {
+        debugger
+        var xx1 = t(keyList1, 'FoundKeywords');
+        keyText = addColumn(xx1, "FoundKeywords");
+        //keyList.forEach((x, i) => {
+        //    var value = x.trim();
+        //    var val = `FoundKeywords ${value.toLowerCase().includes("like") ? "" : "="} ${value} OR `;
+        //    keyText = keyText.concat(val);
+        //});
+
+
+        //keyText = keyText.replace(new RegExp('OR $'), '');
+    }
+
+    
+
+    var finalText = "where ";
+
+    if (yearText.length > 0)
+        finalText = finalText.concat(`(${yearText})`);
+
+    if (companyText.length > 0) {
+        if (yearText.length > 0)
+            finalText = finalText.concat(` and (${companyText})`);
+        else
+            finalText = finalText.concat(` (${companyText})`);
+    }
+
+    if (keyText.length > 0) {
+        if (companyText.length > 0)
+            finalText = finalText.concat(` and (${keyText})`);
+        else if (yearText.length > 0)
+            finalText = finalText.concat(` and (${keyText})`);
+        else
+            finalText = finalText.concat(` (${keyText})`);
+    }
+    debugger;
+    //var finalText = `where (${yearText}) and (${companyText}) and (${keyText})`;
+
+    if ($("#chkIncludeDate").is(":checked")) {
+        var dtFrm = (new Date($('.dtCtrl').data('daterangepicker').startDate._d)).toISOString();
+        var dtTo = (new Date($('.dtCtrl').data('daterangepicker').endDate._d)).toISOString();
+        dtFrm = moment(dtFrm).format('YYYY/MM/DD');
+        dtTo = moment(dtTo).format('YYYY/MM/DD');
+        finalText = finalText.concat(` and insertdate between '${dtFrm}' and '${dtTo}'`);
+    }
+
+    
+
+    ReportTables.destroy();
+    ReportTables.init($('#ddl_financialyear').val(), encodeURI(finalText), $("#chkComplexSearchEnable").is(":checked"));
+
+});
