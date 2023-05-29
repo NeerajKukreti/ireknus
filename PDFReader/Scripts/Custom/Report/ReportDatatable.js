@@ -11,12 +11,14 @@ var ReportTables = function () {
                 //"POST": "GET",
                 //"datatype": "json"
                 "url": searchedReport,
-                "data": { "year": year, "query": query, "queryEnabled": queryEnabled },
+                "data": function (d) {
+                    d.year = $('#ddl_financialyear').val();
+                    d.query = getQueryText();
+                    d.queryEnabled = $("#chkComplexSearchEnable").is(":checked");
+                },
+                //"data": { "year": year, "query": query, "queryEnabled": queryEnabled },
                 "type": "POST",
                 "datatype": "json",
-                beforesend: function () {
-                        alert()
-                }
             },
             "columns": [
                 { "title": "RT", "data": "NEWS_SUBMISSION_DATE", class: "width_20" },
@@ -75,7 +77,9 @@ var ReportTables = function () {
     };
 }();
 
-
+$(document).ready(function () {
+    ReportTables.init($('#ddl_financialyear').val(), encodeURI(finalText), $("#chkComplexSearchEnable").is(":checked"));
+});
 $('#ReportTable').on('processing.dt', function (e, settings, processing) {
     if (processing) {
         $.blockUI();

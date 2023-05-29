@@ -248,17 +248,32 @@ function t(str, columnName) {
 
     if (!orflag) { 
         if (str.toLowerCase().includes('or')) {
-            str = str.toLowerCase().replace(/\bor\b/gi,`or ${columnName} = `);
+            //str = str.toLowerCase().replace(/\bor\b/gi,`or ${columnName} = `);
+            str = str.toLowerCase().replace(/'[^']*'|\band\b/ig, function (match) {
+                if (match.toLowerCase() === 'or') {
+                    return `or ${columnName} = `;
+                } else {
+                    return match;
+                }
+            });
         }
     }
 
     if (!andflag) {
         if (str.toLowerCase().includes('and')) {
-            str = str.toLowerCase().replace(/\band\b/gi, `and ${columnName} = `);
+            /*str = str.toLowerCase().replace(/\band\b/gi, `and ${columnName} = `);*/
+            str = str.toLowerCase().replace(/'[^']*'|\band\b/ig, function (match) {
+                if (match.toLowerCase() === 'and') {
+                    return `and ${columnName} = `;
+                } else {
+                    return match;
+                }
+            });
         }
     }
     return str;
 }
+var finalText = "";
 $(document).on('click', '#btnSearch', function () {
     if ($("#txtYear").val().length == 0 && $("#txtCompany").val().length == 0 && $("#txtKeyword").val().length == 0)
         return;
@@ -290,8 +305,8 @@ $(document).on('click', '#btnSearch', function () {
         keyText = addColumn(xx1, "FoundKeywords");
     }
 
-
-    var finalText = "where ";
+    finalText = "";
+    finalText = "where ";
 
     if (yearText.length > 0)
         finalText = finalText.concat(`(${yearText})`);
@@ -322,9 +337,12 @@ $(document).on('click', '#btnSearch', function () {
         finalText = finalText.concat(` and insertdate between '${dtFrm}' and '${dtTo}'`);
     }
 
-    
-
-    ReportTables.destroy();
-    ReportTables.init($('#ddl_financialyear').val(), encodeURI(finalText), $("#chkComplexSearchEnable").is(":checked"));
+    //ReportTables.reloadTable();
+    //ReportTables.init($('#ddl_financialyear').val(), encodeURI(finalText), $("#chkComplexSearchEnable").is(":checked"));
+    $('#ReportTable').DataTable().ajax.reload();
 
 });
+
+function getQueryText(){
+    return finalText;
+}
