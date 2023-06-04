@@ -1,4 +1,17 @@
 $(document).ready(function () {
+
+    $("#ex_category").hide();
+    $("#ex_company").hide();
+
+
+    $("#ex_cat").click(function () {
+        $("#ex_category").toggle(1000);
+    });
+
+    $("#ex_com").click(function () {
+        $("#ex_company").toggle(1000);
+    });
+
     $("#ddl_KeywordSet").select2({
         placeholder: "Select keyword set"
     });
