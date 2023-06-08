@@ -15,7 +15,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>PDFReader</RootNamespace>
     <AssemblyName>PDFReader</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
     <Use64BitIISExpress />
@@ -169,6 +169,7 @@
       <HintPath>..\packages\System.ComponentModel.Annotations.4.7.0\lib\net461\System.ComponentModel.Annotations.dll</HintPath>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data.SqlClient, Version=4.6.1.2, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Data.SqlClient.4.8.2\lib\net461\System.Data.SqlClient.dll</HintPath>
     </Reference>
@@ -213,11 +214,8 @@
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Web.Abstractions" />
     <Reference Include="System.Web.Routing" />
     <Reference Include="System.Xml" />
@@ -262,6 +260,7 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="WebGrease">
       <Private>True</Private>
       <HintPath>..\packages\WebGrease.1.6.0\lib\WebGrease.dll</HintPath>
@@ -284,6 +283,8 @@
     <Compile Include="BL\AnnouncementBL.cs" />
     <Compile Include="BL\PDFSearch.cs" />
     <Compile Include="Controllers\CategoryController.cs" />
+    <Compile Include="Controllers\StateController.cs" />
+    <Compile Include="Controllers\CentralController.cs" />
     <Compile Include="Controllers\DashboardController.cs" />
     <Compile Include="Controllers\AnnouncementController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
@@ -299,6 +300,8 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\FileHandler.cs" />
+    <Compile Include="Models\StateModel.cs" />
+    <Compile Include="Models\CentralModel.cs" />
     <Compile Include="Models\Mail.cs" />
     <Compile Include="Models\AlertModel.cs" />
     <Compile Include="Models\AnnouncementResult.cs" />
@@ -628,6 +631,10 @@
     <Content Include="Scripts\Custom\alertreport\alertreport-datatable.js" />
     <Content Include="Scripts\Custom\announcement\announcement.js" />
     <Content Include="Scripts\Custom\announcement\ann-datatable.js" />
+    <Content Include="Scripts\Custom\State\State.js" />
+    <Content Include="Scripts\Custom\State\StateDatatable.js" />
+    <Content Include="Scripts\Custom\Central\Central.js" />
+    <Content Include="Scripts\Custom\Central\CentralDatatable.js" />
     <Content Include="Scripts\Custom\css\jquery.dataTables.min.css" />
     <Content Include="Scripts\Custom\gbl.js" />
     <Content Include="Scripts\Custom\jquery.dataTables.js" />
@@ -718,6 +725,8 @@
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Report\DeepSearch.cshtml" />
     <Content Include="Views\Shared\_DeepSearchLayout.cshtml" />
+    <Content Include="Views\Central\Central.cshtml" />
+    <Content Include="Views\State\State.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\ExcelDownload\" />
