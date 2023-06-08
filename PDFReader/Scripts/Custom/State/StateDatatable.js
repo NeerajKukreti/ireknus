@@ -32,7 +32,7 @@ var StateTables = function () {
                 {
                     "title": "Files", "data": "Files_Detail",
                     fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
-                        $(nTd).html(oData.Files_Detail + oData.Acknowlegment);
+                        $(nTd).html(oData.Files_Detail);
                     }
                 }
             ],

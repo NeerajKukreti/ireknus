@@ -53,12 +53,12 @@ namespace PDFReader.Controllers
                                 if (!string.IsNullOrWhiteSpace(filedetails))
                                 {
                                     string[] details = filedetails.Split('~');
-                                    str_file += "<a href='" + details[1] + "' target='_blank'>" + details[0] + "</a>,</br>";
+                                    str_file += "<a href='" + (1 < details.Length ? details[1] : details[0]) + "' target='_blank'>" + details[0] + "</a>,</br>";
                                 }
                             }
                         }
 
-                        state.Files_Detail= str_file;                        
+                        state.Files_Detail = str_file;
                     }
                     var test = Json(data, JsonRequestBehavior.AllowGet);
                     test.MaxJsonLength = int.MaxValue;
