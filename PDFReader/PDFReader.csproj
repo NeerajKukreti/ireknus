@@ -295,6 +295,7 @@
     <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\ReportController.cs" />
     <Compile Include="DAL\Connection.cs" />
+    <Compile Include="DAL\CentralDB.cs" />
     <Compile Include="DAL\DB.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

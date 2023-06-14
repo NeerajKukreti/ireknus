@@ -286,6 +286,7 @@ namespace PDFReader.Controllers
                 Subject = $"{DateTime.Now.AddDays(-1).ToString("dd/MM/yyyy")} | {AttachmentName}",
                 Body = SetBodyContent(finalReport.ToList())
             };
+
             str.Append($"Mail body<br/>");
 
             using (MailMessage mail = new MailMessage(from, objModelMail.To))
