@@ -146,6 +146,7 @@ namespace PDFReader.Controllers
                 sb.AppendLine($"{string.Format(spanL, "Proposal#: ")}{string.Format(spanR, x.Key)}");
                 sb.AppendLine($"{string.Format(spanR, "Previous log: ")}");
 
+                sb.AppendLine($"{string.Format(spanL, "Company: ")}{string.Format(spanR, proposals.FirstOrDefault()?.Company)}");
                 sb.AppendLine($"{string.Format(spanL, "MOEFCC_File_No: ")}{string.Format(spanR, proposals.FirstOrDefault()?.MOEFCC_File_No)}");
                 sb.AppendLine($"{string.Format(spanL, "Proposal_Status: ")}{string.Format(spanR, proposals.FirstOrDefault()?.Proposal_Status)}");
 
@@ -177,6 +178,7 @@ namespace PDFReader.Controllers
                 }
                 sb.AppendLine($"<br />{string.Format(spanR, "New log: ")}");
 
+                sb.AppendLine($"{string.Format(spanL, "Company: ")}{string.Format(spanR, proposals.LastOrDefault()?.Company)}");
                 sb.AppendLine($"{string.Format(spanL, "MOEFCC_File_No: ")}{string.Format(spanR, proposals.LastOrDefault()?.MOEFCC_File_No)}");
                 sb.AppendLine($"{string.Format(spanL, "Proposal_Status: ")}{string.Format(spanR, proposals.LastOrDefault()?.Proposal_Status)}");
 
