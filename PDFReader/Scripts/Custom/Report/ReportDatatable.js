@@ -7,16 +7,12 @@ var ReportTables = function () {
             "autowidth": "true",
             "scrollX": true,
             "ajax": {
-                //"url": searchedReport + "?year=" + year + "&query=" + query + "&queryEnabled=" + queryEnabled,
-                //"POST": "GET",
-                //"datatype": "json"
                 "url": searchedReport,
                 "data": function (d) {
                     d.year = $('#ddl_financialyear').val();
                     d.query = getQueryText();
                     d.queryEnabled = $("#chkComplexSearchEnable").is(":checked");
                 },
-                //"data": { "year": year, "query": query, "queryEnabled": queryEnabled },
                 "type": "POST",
                 "datatype": "json",
             },

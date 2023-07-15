@@ -40,8 +40,8 @@ namespace PDFReader.Controllers
             return View("Central", ob);
         }
 
-        [HttpGet]
-        public async Task<ActionResult> LoadCentralData()
+        [HttpPost]
+        public async Task<ActionResult> LoadCentralData(string query)
         {
             using (IDbConnection db = new SqlConnection(Connection.MyConnection()))
             {
@@ -54,8 +54,13 @@ namespace PDFReader.Controllers
                     dbo.parivesh_central.Category, dbo.parivesh_central.Company_or_Proponent, dbo.parivesh_central.Type_of_project, dbo.parivesh_central.Attached_Files, 
                     dbo.parivesh_central.Acknowlegment, dbo.parivesh_central.Pagination, dbo.parivesh_central.input_company_name, dbo.parivesh_central.subsidiary_name, dbo.parivesh_central.DateTimeStamp
                     FROM dbo.parivesh_central INNER JOIN
-                    dbo.VIEW_LATEST_CENTRAL ON dbo.parivesh_central.Record_ID = dbo.VIEW_LATEST_CENTRAL.Record_ID 
-                    order by dbo.parivesh_central.DateTimeStamp desc";
+                    dbo.VIEW_LATEST_CENTRAL ON dbo.parivesh_central.Record_ID = dbo.VIEW_LATEST_CENTRAL.Record_ID";
+
+                    if (!string.IsNullOrWhiteSpace(query))
+                    {
+                        str_query += " " + query;
+                    }
+                    str_query += " order by dbo.parivesh_central.DateTimeStamp desc";
 
                     List<CentralModel> data = new List<CentralModel>(await db.QueryAsync<CentralModel>(str_query, commandType: CommandType.Text));
                     foreach (var central in data)
@@ -210,7 +215,7 @@ namespace PDFReader.Controllers
                 sb.AppendLine("<hr>");
                 sb.AppendLine("<br />");
             });
-           
+
 
             return string.Format("<html><body>{0}</body></html>", sb.ToString());
         }

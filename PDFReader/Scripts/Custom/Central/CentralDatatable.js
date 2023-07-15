@@ -1,15 +1,18 @@
 var CentralTables = function () {
     //TODO:: table-datatables-scroller.js use to fix scroller issue
     var table;
-    var Keyword = function () {
-        debugger;
+    var Keyword = function (query) {
+        
         table = $('#CentralTable').dataTable({
             retrieve: true,
             "autowidth": "true",
             "scrollX": true,
             "ajax": {
                 "url": searchedCentral,
-                "type": "GET",
+                "data": function (d) {               
+                    d.query = getQueryText();
+                },
+                "type": "POST",
                 "datatype": "json"
             },
             "columns": [
@@ -67,12 +70,12 @@ var CentralTables = function () {
 
     return {
         //main function to initiate the module
-        init: function () {
+        init: function (query) {
             if (!jQuery().dataTable) {
                 return;
             }
 
-            Keyword();
+            Keyword(query);
         },
         destroy: function () {
             if (table != null)
