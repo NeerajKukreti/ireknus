@@ -12,6 +12,7 @@ using System.Web.UI;
 
 namespace PDFReader.Controllers
 {
+    
     public class StateController : Controller
     {
         // GET: Dashboard
@@ -26,9 +27,6 @@ namespace PDFReader.Controllers
             dt.Rows.Add(guid);
 
 
-            DataRow[] drList = dt.Select("WebGUID = '" + guid.ToString() + "'");
-            var xx = dt.Select("WebGUID = '" + guid.ToString() + "'");
-
             StateModel ob = new StateModel();
 
             return View("State", ob);
@@ -37,11 +35,13 @@ namespace PDFReader.Controllers
         [HttpGet]
         public async Task<ActionResult> LoadStateData()
         {
+            string spname = "SP_PARIVESH_STATE";
+            if (Request.QueryString["type"] != null) spname = "SP_PARIVESH_STATE_ALL";
             using (IDbConnection db = new SqlConnection(Connection.MyConnection()))
             {
                 try
                 {
-                    List<StateModel> data =new List<StateModel>(await db.QueryAsync<StateModel>("SP_PARIVESH_STATE", commandType: CommandType.StoredProcedure));
+                    List<StateModel> data =new List<StateModel>(await db.QueryAsync<StateModel>(spname, commandType: CommandType.StoredProcedure));
                     foreach(var state in data)
                     {
                         string str_file = "";
@@ -67,9 +67,9 @@ namespace PDFReader.Controllers
                 catch (Exception ee)
                 {
                     StateModel ob = new StateModel();
-                    return View("State", ob);
+                    return View("StateAll", ob);
                 }
             }
-        }
+        }        
     }
 }

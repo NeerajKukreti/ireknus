@@ -2,6 +2,7 @@
 
 <link rel="stylesheet" href="@Url.Content("~/Content/assets/css/plugins/dataTables.bootstrap4.min.css")">
 <link rel="stylesheet" href="@Url.Content("~/Content/assets/css/plugins/daterangepicker.css")">
+<link href="@Url.Content("~/Content/Custom.css")" rel="stylesheet" />
 <!-- [ Main Content ] start -->
 <div class="row">
     <!-- [ sample-page ] start -->
@@ -9,10 +10,39 @@
         <div class="card">
 
             <div class="card-header">
-                <h5>Parivesh Central Data</h5>
+                <h5>Central Data</h5>
 
             </div>
             <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 companyblock">
+                        <div class="form-group">
+                            <div>Project</div>
+                            <input id="txtProject" type="text" style="width:100%" />
+                        </div>
+                        <div class="form-group">
+                            <div>Company</div>
+                            <input id="txtCompany" type="text" style="width:100%" />
+                        </div>
+                        <button class="btn btn-outline-primary  btn-sm" id="btnSearch">Search</button>
+                    </div>
+                    <div class="col-md-6">
+                        <span class="LableText pcoded-badge badge badge-success" id="ex_com" style="color:white;">Query for Project/Company</span>
+                        <div class="card bg-light" id="ex_company">
+                            <div class="card-block">
+                                <h6 class="mt-1">For single project/company with exact search</h6>
+                                <p>'BLUE DART EXPRESS LTD.'</p>
+                                <h6 class="mt-1">For single project/company with like search</h6>
+                                <p>like '%BLUE DART%'</p>
+                                <h6 class="mt-1">For multiple project/company with like search</h6>
+                                <p>like '%BLUE DART%' or like '%GAIL%'</p>
+                                <p>like '%BLUE DART%' or like '%GAIL%' or like '%emami%'</p>
+                                <h6 class="mt-1">For multiple project/company with not like search</h6>
+                                <p>like '%BLUE DART%' or like '%GAIL%' and not like '%emami%'</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-md-12">
                         <table id="CentralTable" class="table table-striped table-bordered nowrap" style="width:100%"></table>
