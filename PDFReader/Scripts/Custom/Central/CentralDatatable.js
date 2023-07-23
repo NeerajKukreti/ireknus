@@ -41,24 +41,6 @@ var CentralTables = function () {
                 },
                 { "title": "Input", "data": "input_company_name" },
                 { "title": "Subsidiary", "data": "subsidiary_name" }
-                
-                //{
-                //    "title": "Url", "data": "Url",
-                //    fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
-                //        oData.Url = oData.Url + " ";
-                //        $(nTd).html("<a href='" + oData.Url + "' target='_blank'>pdf page</a>");
-                //    }
-                //},
-                //{ "title": "Year", "data": "FinancialYear" },
-                //{ "title": "Page Number", "data": "PDFPageNumber" },
-                //{ "title": "Keywords", "data": "FoundKeywords" },
-                //{ "title": "Total Pages", "data": "TotalPages" },
-                //{
-                //    "title": "", "data": "TotalPages",
-                //    fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
-                //        oData.Url = oData.Url + " ";
-                //        $(nTd).html("<a href='/Central/advancesearch?Centralid=" + oData.CentralId + "' target='_blank'><i class='feather icon-search'></i></a>");
-                //    } }
             ],
             "sAjaxDataProp": "",
             dom: 'lBfrtip',

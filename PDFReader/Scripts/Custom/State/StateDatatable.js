@@ -9,7 +9,10 @@ var StateTables = function () {
             "scrollX": true,
             "ajax": {
                 "url": searchedState,
-                "type": "GET",
+                "data": function (d) {
+                    d.query = getQueryText();
+                },
+                "type": "POST",
                 "datatype": "json"
             },
             "columns": [

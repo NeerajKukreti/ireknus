@@ -6,7 +6,7 @@ $(document).ready(function () {
     $("#ex_com").click(function () {
         $("#ex_company").toggle(1000);
     });
-    debugger;
+
     CentralTables.init("");
 
     function t(str, columnName) {

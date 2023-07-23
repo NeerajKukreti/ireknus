@@ -32,8 +32,8 @@ namespace PDFReader.Controllers
             return View("State", ob);
         }
 
-        [HttpGet]
-        public async Task<ActionResult> LoadStateData()
+        [HttpPost]
+        public async Task<ActionResult> LoadStateData(string query)
         {
             string spname = "SP_PARIVESH_STATE";
             if (Request.QueryString["type"] != null) spname = "SP_PARIVESH_STATE_ALL";
@@ -41,7 +41,7 @@ namespace PDFReader.Controllers
             {
                 try
                 {
-                    List<StateModel> data =new List<StateModel>(await db.QueryAsync<StateModel>(spname, commandType: CommandType.StoredProcedure));
+                    List<StateModel> data =new List<StateModel>(await db.QueryAsync<StateModel>(spname, new { @query = query }, commandType: CommandType.StoredProcedure));
                     foreach(var state in data)
                     {
                         string str_file = "";
