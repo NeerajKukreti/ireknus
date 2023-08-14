@@ -78,8 +78,7 @@ namespace PDFReader.Helpers
 
                     var uploadPath = ConfigurationManager.AppSettings["UploadPath"].ToString();
 
-                    // Get the complete folder path and store the file inside it.
-                    var guidId = Guid.NewGuid();
+                    // Get the complete folder path and store the file inside it.                 
                     fname = Path.Combine(HttpContext.Current.Server.MapPath(uploadPath), FileFrom + Path.GetExtension(file.FileName));
 
                     file.SaveAs(fname);
@@ -95,6 +94,47 @@ namespace PDFReader.Helpers
             }
 
             return "";
+        }
+
+        public static bool UploadHARFile(HttpRequestBase Request)
+        {
+            string fname;
+
+            if (Request.Files.Count > 0)
+            {
+                try
+                {
+                    //  Get all files from Request object
+                    HttpFileCollectionBase files = Request.Files;
+
+                    HttpPostedFileBase file = files[0];
+
+                    // Checking for Internet Explorer
+                    if (Request.Browser.Browser.ToUpper() == "IE" || Request.Browser.Browser.ToUpper() == "INTERNETEXPLORER")
+                    {
+                        string[] testfiles = file.FileName.Split(new char[] { '\\' });
+                        fname = testfiles[testfiles.Length - 1];
+                    }
+                    else
+                    {
+                        fname = file.FileName;
+                    }
+
+                    var uploadPath = ConfigurationManager.AppSettings["UploadPath"].ToString();
+
+                    // Get the complete folder path and store the file inside it.                 
+                    fname = Path
+                        .Combine(HttpContext.Current.Server.MapPath(uploadPath), "annoucements" + Path.GetExtension(file.FileName));
+
+                    file.SaveAs(fname);
+
+                }
+                catch (Exception ex)
+                {
+                    return false;
+                }
+            }
+            return (true);
         }
     }
 }

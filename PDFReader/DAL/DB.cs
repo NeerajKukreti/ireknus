@@ -46,6 +46,14 @@ namespace PDFReader
 
         }
 
+        public static DateTime GetLastAnnDateTime()
+        {
+            using (IDbConnection db = new SqlConnection(Connection.MyConnection()))
+            {
+                return db.ExecuteScalar<DateTime>($"select top(1) DT_TM from TBL_ANNOUNCEMENT order by NEWS_SUBMISSION_DATE desc", commandType: CommandType.Text);
+            }
+        }
+
         public static async Task<IEnumerable<string>> GetFinancialYears()
         {
             using (IDbConnection db = new SqlConnection(Connection.MyConnection()))

@@ -1,0 +1,81 @@
+﻿@model PDFReader.Models.WatchlistModel
+
+@{ ViewBag.Title = "Upload announcement"; }
+
+<!-- data tables css -->
+<link rel="stylesheet" href="@Url.Content("~/Content/assets/css/plugins/dataTables.bootstrap4.min.css")">
+<link href="@Url.Content("~/Content/Custom.css")" rel="stylesheet" />
+
+<!-- [ Main Content ] start -->
+<form id="frm_har">
+    <div class="row">
+        <!-- [ sample-page ] start -->
+        <div class="col-sm-12">
+            <div class="card">
+
+                <div class="card-header">
+                    <h5>Upload HAR file</h5>
+
+                </div>
+                <div class="card-body">
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <input type="file" id="fileupload" />                            
+                            <input class="btn btn-primary" type="button" id="btnUpload" value="Upload" />
+                        </div>
+                    </div>
+                  
+                </div>
+            </div>
+        </div>
+        <!-- [ sample-page ] end -->
+    </div>
+</form>
+<!-- [ Main Content ] end -->
+<!-- datatable Js -->
+
+<script src="@Url.Content("~/Content/assets/js/plugins/jquery.dataTables.min.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/plugins/dataTables.bootstrap4.min.js")"></script>
+<script src="@Url.Content("~/Content/assets/js/pages/data-basic-custom.js")"></script>
+
+
+<script>
+
+
+    $(document).ready(function () {
+        $('#btnUpload').click(function () {
+
+            // Checking whether FormData is available in browser  
+            if (window.FormData !== undefined) {
+
+                var fileUpload = $("#fileupload").get(0);
+                var files = fileUpload.files;
+
+                // Create FormData object  
+                var fileData = new FormData();
+
+                // Looping over all files and add it to FormData object  
+                for (var i = 0; i < files.length; i++) {
+                    fileData.append(files[i].name, files[i]);
+                }
+
+                $.ajax({
+                    url: '/watchlist/LoadAnnFromHARFile',
+                    type: "POST",
+                    contentType: false, // Not to set any content header  
+                    processData: false, // Not to process data  
+                    data: fileData,
+                    success: function (result) {
+                        alert("File uploaded \n" + result + " records inserted");
+                    },
+                    error: function (err) {
+                        alert(err.statusText);
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        });
+    });  
+</script>

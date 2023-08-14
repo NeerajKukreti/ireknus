@@ -39,7 +39,7 @@ namespace PDFReader.Models
         public int PDFFLAG { get; set; }
         public string NSURL { get; set; }
         public string SLONGNAME { get; set; }
-        public int AGENDA_ID { get; set; }
+       //public int? AGENDA_ID { get; set; }
         public int TotalPageCnt { get; set; }
         public DateTime? News_submission_dt { get; set; }
         public DateTime? DissemDT { get; set; }

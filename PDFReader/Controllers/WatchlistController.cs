@@ -5,12 +5,14 @@ using PDFReader.Helpers;
 using PDFReader.Models;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using System.Web.Hosting;
 using System.Web.Mvc;
 
 namespace PDFReader.Controllers
@@ -232,7 +234,8 @@ namespace PDFReader.Controllers
                 client.Headers.Add("Content-Type:application/json"); //Content-Type  
                 client.Headers.Add("Accept:application/json");
                 var jsonresult = client.DownloadString
-                   ($"https://api.bseindia.com/BseIndiaAPI/api/AnnGetData/w?strCat=-1&strPrevDate={dtFrom}&strScrip=&strSearch=P&strToDate={dtTo}&strType=C"); //URI  
+                   //($"https://api.bseindia.com/BseIndiaAPI/api/AnnGetData/w?strCat=-1&strPrevDate={dtFrom}&strScrip=&strSearch=P&strToDate={dtTo}&strType=C"); //URI  
+                   ($"https://api.bseindia.com/BseIndiaAPI/api/AnnSubCategoryGetData/w?strCat=-1&strPrevDate={dtFrom}&strScrip=&strSearch=P&strToDate={dtTo}&strType=C"); //URI  
 
                 try
                 {
@@ -251,7 +254,7 @@ namespace PDFReader.Controllers
                         for (int i = 2; i <= noOfApiCalls; i++)
                         {
                             var jsonresultToAppend = client.DownloadString
-                        ($"https://api.bseindia.com/BseIndiaAPI/api/AnnGetData/w?pageno={i}&strCat=-1&strPrevDate={dtFrom}&strScrip=&strSearch=P&strToDate={dtTo}&strType=C"); //URI 
+                        ($"https://api.bseindia.com/BseIndiaAPI/api/AnnSubCategoryGetData/w?pageno={i}&strCat=-1&strPrevDate={dtFrom}&strScrip=&strSearch=P&strToDate={dtTo}&strType=C"); //URI 
 
                             var resultToAppend = JsonConvert.DeserializeObject<Root>(jsonresultToAppend);
                             allList.AddRange(resultToAppend.Table);
@@ -281,6 +284,43 @@ namespace PDFReader.Controllers
 
                 }
             }
+        }
+
+        public async Task<ActionResult> UploadAnnouncement()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<int> LoadAnnFromHARFile()
+        {
+            FileHandler.UploadHARFile(Request);
+            string path = HostingEnvironment.MapPath(ConfigurationManager.AppSettings["UploadPath"] + "/annoucements.har");
+            var jsonData = HarHandler.GetJsonFromHARFile(path);
+            var dt = DB.GetLastAnnDateTime();
+            
+            try
+            {
+                var result = JsonConvert.DeserializeObject<Root>(jsonData);
+                var newList = result.Table.Where(x => x.DT_TM > dt).ToList();
+
+                if (newList.Any() && newList.Any())
+                {
+                    for (int i = 0; i < newList.Count; i = +100)
+                    {
+                        var items = newList.Skip(i).Take(100);
+                        List<KeyValuePair<string, int>> RepeatedAnnList = new List<KeyValuePair<string, int>>();
+                        AnnouncementBL.PerformSearch(DB.GetCategories().ToList(), newList, RepeatedAnnList);
+                        await insertAnnouncement(newList, RepeatedAnnList);
+                    }
+                }
+                return newList.Count;
+
+            }
+            catch (Exception ex) {
+                var err = ex;
+                return 0;
+            }   
         }
         public async Task insertAnnouncement(List<AnnouncementResult> list, List<KeyValuePair<string, int>> annList)
         {
@@ -328,7 +368,7 @@ namespace PDFReader.Controllers
                         foreach (var item in items)
                         {
                             dt.Rows.Add(item.NEWSID, item.SLONGNAME, item.SCRIP_CD, item.NEWSSUB, item.DT_TM, item.NEWS_DT, item.HEADLINE, item.MORE, item.ANNOUNCEMENT_TYPE, item.QUARTER_ID,
-                                        item.ATTACHMENTNAME, item.CATEGORYNAME, item.NSURL, item.AGENDA_ID, item.News_submission_dt, item.DissemDT, item.TimeDiff);
+                                        item.ATTACHMENTNAME, item.CATEGORYNAME, item.NSURL, 0, item.News_submission_dt, item.DissemDT, item.TimeDiff);
                         }
 
                         var annCates = new DataTable();
