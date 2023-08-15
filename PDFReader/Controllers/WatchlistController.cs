@@ -306,7 +306,7 @@ namespace PDFReader.Controllers
 
                 if (newList.Any() && newList.Any())
                 {
-                    for (int i = 0; i < newList.Count; i = +100)
+                    for (int i = 0; i < newList.Count; i += 100)
                     {
                         var items = newList.Skip(i).Take(100);
                         List<KeyValuePair<string, int>> RepeatedAnnList = new List<KeyValuePair<string, int>>();
