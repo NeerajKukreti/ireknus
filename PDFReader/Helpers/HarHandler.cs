@@ -1,9 +1,6 @@
 ﻿using HarSharp;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace PDFReader.Helpers
 {
@@ -24,7 +21,7 @@ namespace PDFReader.Helpers
 
                 foreach (var entry in har.Log.Entries)
                 {
-                    if (entry.Response.Content.MimeType == "application/json")
+                    if (entry.Response.Content.MimeType == "application/json" && !entry.Response.Content.Text.Contains("indxnm"))
                     {
                         Console.WriteLine(entry.Response.Content.Text);
                         strTemp = null;

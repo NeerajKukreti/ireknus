@@ -89,7 +89,7 @@
     </Reference>
     <Reference Include="HarSharp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\HarSharp.dll</HintPath>
+      <HintPath>..\..\..\..\Software\HarSharp.dll</HintPath>
     </Reference>
     <Reference Include="HtmlAgilityPack, Version=1.11.29.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
       <HintPath>..\packages\HtmlAgilityPack.1.11.29\lib\Net45\HtmlAgilityPack.dll</HintPath>
