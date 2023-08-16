@@ -11,45 +11,47 @@ namespace PDFReader.Helpers
             {
                 string fileName = $"{filePath}";
 
-                StreamWriter writer = new StreamWriter(fileName.ToString().Replace(".har", ".txt"));
-
-                var har = HarConvert.DeserializeFromFile(fileName);
-
-                String strFinal = null;
-                String strTemp = null;
-                String[] strTempArr;
-
-                foreach (var entry in har.Log.Entries)
+                using (StreamWriter writer = new StreamWriter(fileName.ToString().Replace(".har", ".txt")))
                 {
-                    if (entry.Response.Content.MimeType == "application/json" && !entry.Response.Content.Text.Contains("indxnm"))
+                    var har = HarConvert.DeserializeFromFile(fileName);
+
+                    String strFinal = null;
+                    String strTemp = null;
+                    String[] strTempArr;
+
+                    foreach (var entry in har.Log.Entries)
                     {
-                        if(!entry.Response.Content.Text.Contains("h.key"))
+                        if (entry.Response.Content.MimeType == "application/json" && !entry.Response.Content.Text.Contains("indxnm"))
                         {
-                            Console.WriteLine(entry.Response.Content.Text);
-                            strTemp = null;
-                            strTemp = entry.Response.Content.Text;
+                            if (!entry.Response.Content.Text.Contains("h.key"))
+                            {
+                                Console.WriteLine(entry.Response.Content.Text);
+                                strTemp = null;
+                                strTemp = entry.Response.Content.Text;
 
-                            strTemp = strTemp.Replace("{\"Table\":[", "");
+                                strTemp = strTemp.Replace("{\"Table\":[", "");
 
-                            string[] stringSeparators = new string[] { "}]," };
+                                string[] stringSeparators = new string[] { "}]," };
 
-                            strTempArr = strTemp.Split(stringSeparators, StringSplitOptions.RemoveEmptyEntries);
+                                strTempArr = strTemp.Split(stringSeparators, StringSplitOptions.RemoveEmptyEntries);
 
-                            strFinal = strFinal + strTempArr[0] + "},";
-                        }                 
+                                strFinal = strFinal + strTempArr[0] + "},";
+                            }
+                        }
+
                     }
 
+                    if (strFinal != null)
+                    {
+                        strFinal = strFinal.Remove(strFinal.Length - 1, 1);
+                        strFinal = "{\"Table\":[" + strFinal + "]}";
+                    }
+                    writer.Flush();
+                    return strFinal;
                 }
-
-                if(strFinal != null) 
-                {
-                    strFinal = strFinal.Remove(strFinal.Length - 1, 1);
-                    strFinal = "{\"Table\":[" + strFinal + "]}";
-                }
-                writer.Flush();
-                return strFinal;
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 return "";
             }
         }
