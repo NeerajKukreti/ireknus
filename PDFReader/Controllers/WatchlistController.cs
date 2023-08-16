@@ -303,6 +303,7 @@ namespace PDFReader.Controllers
             {
                 var result = JsonConvert.DeserializeObject<Root>(jsonData);
                 var newList = result?.Table.Where(x => x.DT_TM > dt).Distinct().ToList();
+                newList = result.Table.GroupBy(x => x.NEWSID).Select(x => x.FirstOrDefault()).ToList();
 
                 if (newList.Any())
                 {
