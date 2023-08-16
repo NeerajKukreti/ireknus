@@ -295,26 +295,26 @@ namespace PDFReader.Controllers
         public async Task<int> LoadAnnFromHARFile()
         {
             FileHandler.UploadHARFile(Request);
-            string path = HostingEnvironment.MapPath(ConfigurationManager.AppSettings["UploadPath"] + "/annoucements.har");
+            string path = HostingEnvironment.MapPath(ConfigurationManager.AppSettings["UploadPath"] + "/"+DateTime.Now.ToString("ddMMyyyyhhmmss")+".har");
             var jsonData = HarHandler.GetJsonFromHARFile(path);
             var dt = DB.GetLastAnnDateTime();
 
             try
             {
                 var result = JsonConvert.DeserializeObject<Root>(jsonData);
-                var newList = result.Table.Where(x => x.DT_TM > dt).ToList();
+                var newList = result?.Table.Where(x => x.DT_TM > dt).ToList();
 
-                if (newList.Any() && newList.Any())
-                {
-                    for (int i = 0; i < newList.Count; i += 100)
-                    {
-                        var items = newList.Skip(i).Take(100).ToList();
-                        List<KeyValuePair<string, int>> RepeatedAnnList = new List<KeyValuePair<string, int>>();
-                        AnnouncementBL.PerformSearch(DB.GetCategories().ToList(), newList, RepeatedAnnList);
-                        await insertAnnouncement(items, RepeatedAnnList);
-                    }
-                }
-                return newList.Count;
+                //if (newList.Any())
+                //{
+                //    for (int i = 0; i < newList.Count; i += 100)
+                //    {
+                //        var items = newList.Skip(i).Take(100).ToList();
+                //        List<KeyValuePair<string, int>> RepeatedAnnList = new List<KeyValuePair<string, int>>();
+                //        AnnouncementBL.PerformSearch(DB.GetCategories().ToList(), newList, RepeatedAnnList);
+                //        await insertAnnouncement(items, RepeatedAnnList);
+                //    }
+                //}
+                return (newList!=null?newList.Count:0);
 
             }
             catch (Exception ex)

@@ -23,28 +23,30 @@ namespace PDFReader.Helpers
                 {
                     if (entry.Response.Content.MimeType == "application/json" && !entry.Response.Content.Text.Contains("indxnm"))
                     {
-                        Console.WriteLine(entry.Response.Content.Text);
-                        strTemp = null;
-                        strTemp = entry.Response.Content.Text;
+                        if(!entry.Response.Content.Text.Contains("h.key"))
+                        {
+                            Console.WriteLine(entry.Response.Content.Text);
+                            strTemp = null;
+                            strTemp = entry.Response.Content.Text;
 
-                        strTemp = strTemp.Replace("{\"Table\":[", "");
+                            strTemp = strTemp.Replace("{\"Table\":[", "");
 
-                        string[] stringSeparators = new string[] { "}]," };
+                            string[] stringSeparators = new string[] { "}]," };
 
-                        strTempArr = strTemp.Split(stringSeparators, StringSplitOptions.RemoveEmptyEntries);
+                            strTempArr = strTemp.Split(stringSeparators, StringSplitOptions.RemoveEmptyEntries);
 
-                        strFinal = strFinal + strTempArr[0] + "},";
-
+                            strFinal = strFinal + strTempArr[0] + "},";
+                        }                 
                     }
 
                 }
 
-                strFinal = strFinal.Remove(strFinal.Length - 1, 1);
-
-                strFinal = "{\"Table\":[" + strFinal + "]}";
-
+                if(strFinal != null) 
+                {
+                    strFinal = strFinal.Remove(strFinal.Length - 1, 1);
+                    strFinal = "{\"Table\":[" + strFinal + "]}";
+                }
                 writer.Flush();
-
                 return strFinal;
             }
             catch (Exception ex) {

@@ -68,6 +68,7 @@
                     data: fileData,
                     success: function (result) {
                         alert("File uploaded \n" + result + " records inserted");
+                        location.reload();
                     },
                     error: function (err) {
                         alert(err.statusText);
