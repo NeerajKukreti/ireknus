@@ -21,22 +21,21 @@ namespace PDFReader.Helpers
 
                     foreach (var entry in har.Log.Entries)
                     {
-                        if (entry.Response.Content.MimeType == "application/json" && !entry.Response.Content.Text.Contains("indxnm"))
+                        if (entry.Response.Content.MimeType == "application/json" &&
+                            !entry.Response.Content.Text.Contains("indxnm") &&
+                            !entry.Response.Content.Text.Contains("h.key") &&
+                            !entry.Response.Content.Text.Contains("site_domain"))
                         {
-                            if (!entry.Response.Content.Text.Contains("h.key"))
-                            {
-                                Console.WriteLine(entry.Response.Content.Text);
-                                strTemp = null;
-                                strTemp = entry.Response.Content.Text;
+                            strTemp = null;
+                            strTemp = entry.Response.Content.Text;
 
-                                strTemp = strTemp.Replace("{\"Table\":[", "");
+                            strTemp = strTemp.Replace("{\"Table\":[", "");
 
-                                string[] stringSeparators = new string[] { "}]," };
+                            string[] stringSeparators = new string[] { "}]," };
 
-                                strTempArr = strTemp.Split(stringSeparators, StringSplitOptions.RemoveEmptyEntries);
+                            strTempArr = strTemp.Split(stringSeparators, StringSplitOptions.RemoveEmptyEntries);
 
-                                strFinal = strFinal + strTempArr[0] + "},";
-                            }
+                            strFinal = strFinal + strTempArr[0] + "},";
                         }
 
                     }

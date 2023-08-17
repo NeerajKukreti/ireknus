@@ -25,9 +25,11 @@
                             <input class="btn btn-primary" type="button" id="btnUpload" value="Upload" />
                         </div>
                     </div>
-                  
-                </div>
-            </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <img src="~/Content/Images/waitingimage.gif" class="imgprocess" />
+                        </div>
+                    </div>
         </div>
         <!-- [ sample-page ] end -->
     </div>
@@ -44,8 +46,11 @@
 
 
     $(document).ready(function () {
-        $('#btnUpload').click(function () {
+        $('.imgprocess').hide();
 
+
+        $('#btnUpload').click(function () {
+            $('.imgprocess').show();
             // Checking whether FormData is available in browser  
             if (window.FormData !== undefined) {
 
@@ -69,9 +74,11 @@
                     success: function (result) {
                         alert("File uploaded \n" + result + " records inserted");
                         location.reload();
+                        $('.imgprocess').hide();
                     },
                     error: function (err) {
                         alert(err.statusText);
+                        $('.imgprocess').hide();
                     }
                 });
             } else {
