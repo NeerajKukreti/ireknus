@@ -26,7 +26,8 @@
                                 <div class="col-md-3">
                                     <div class="form-group fill">
                                         <div class="form-group fill">
-                                            @Html.DropDownListFor(model => model.ALERT_ID, new List<SelectListItem>(Model.AlertList), "All Alert", new { @class = "form-control", placeholder = "Alert Name" })
+                                            @Html.DropDownListFor(model => model.ALERT_ID, new List<SelectListItem>(Model.AlertList), "All Alert", 
+                                           new { @style= "position: relative;top: 18px",@class = "form-control", placeholder = "Alert Name" })
                                         </div>
                                     </div>
                                 </div>
@@ -39,9 +40,13 @@
                                         </label>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
-                                    <div class="form-group fill">
-                                        <div class="btn btn-outline-primary btn-sm" data-type="success" data-from="top" data-align="right" id="btnsubmit">Search</div>
+                                <div class="col-md-5">
+                                    <div class="form-group fill" style="display: inline-block">
+                                        <div style=" position: relative; top: 28px" class="btn btn-outline-primary btn-sm" data-type="success" data-from="top" data-align="right" id="btnsubmit">Search</div>
+                                        
+                                    </div>
+                                    <div class="form-group fill" style="display: inline-block">
+                                        <div style=";position: relative; top: 28px" class="btn btn-outline-primary btn-sm" data-type="success" data-from="top" data-align="right" id="btnSendAlert">Send Alert</div>
                                     </div>
                                 </div>
                             </div>
@@ -80,5 +85,6 @@
 <script>
 
     var alertReportListUrl = "@Url.Content("~/Announcement/GetAlertReportList")";
+    var alertJob = "@Url.Content("~/Announcement/ExecuteAlertJob")";
 
 </script>

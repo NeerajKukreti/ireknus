@@ -126,28 +126,57 @@ var annTable = function () {
     };
 }();
 
-$(document).on('click', '#btnsubmit', function () {
-    debugger;
-    var aname = $('#ALERT_ID option:selected').text();
-    var adate = $('#dtAlertRpt').val();
 
-    if (adate == "") {
-        alert('Please Select Date');
-    }
-    else {
-        annTable.destroy();
-        annTable.init(aname, adate);
-    }
-
-});
 
 $(document).ready(function () {
     n = new Date();
     y = n.getFullYear();
     m = n.getMonth() + 1;
     d = n.getDate();
-    //debugger;
+
     $("#dtAlertRpt").val(y + "-" + m + "-" + d);
-       
-    //annTable.init("","");
+
+    $(document).on('click', '#btnsubmit', function () {
+        
+        var aname = $('#ALERT_ID option:selected').text();
+        var adate = $('#dtAlertRpt').val();
+
+        if (adate == "") {
+            alert('Please Select Date');
+        }
+        else {
+            annTable.destroy();
+            annTable.init(aname, adate);
+        }
+
+    });
+
+    $(document).on('click', '#btnSendAlert', function () {
+
+        var rptId = $("#ALERT_ID").val() == "" ? 0 : $("#ALERT_ID").val();
+        var adate = $('#dtAlertRpt').val();
+
+        if (adate == "") {
+            alert('Please Select Date');
+            return;
+        }
+
+        $.ajax({
+            url: alertJob + '?rptId=' + rptId + '&dt=' + adate,
+            type: 'GET',
+            beforeSend: function () {
+                $.blockUI()
+            },
+            success: function () {
+
+            },
+            complete: function () { $.unblockUI() },
+        })
+    });
+    $(document).on('change', '#dtAlertRpt', function () {
+        $("#btnSendAlert").removeClass('disable');
+        $("#btnSendAlert").removeAttr('disable');
+
+    });
+    
 });
