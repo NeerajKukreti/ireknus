@@ -117,7 +117,7 @@ namespace PDFReader.Controllers
             MailModel objModelMail = new MailModel
             {
                 To = to,
-                Subject = $"Proposal Alert | {DateTime.Now.AddDays(0).ToString("dd/MM/yyyy")}",
+                Subject = $"Central Proposal Alert | {DateTime.Now.AddDays(0).ToString("dd/MM/yyyy")}",
                 Body = SetBodyContent(list)
             };
 
