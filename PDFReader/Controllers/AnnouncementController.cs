@@ -124,7 +124,7 @@ namespace PDFReader.Controllers
         {
             SendMail1();
         }
-        public ActionResult ExecuteAlertJob(int rptId,DateTime? dt = null)
+        public ActionResult ExecuteAlertJob(int rptId = 0,DateTime? dt = null)
         {
             var alerts = DB.GetSettings()
                 .Where(x => x.ACTIVE && (rptId == 0 || x.ALERT_ID == rptId)).ToList();
