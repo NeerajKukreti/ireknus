@@ -275,7 +275,7 @@ namespace PDFReader.Controllers
 
         private void SendMail1()
         {
-            var to = ConfigurationManager.AppSettings["Mail-to"].ToString();
+            var to = "neerajkukreti.89@gmail.com,rajkumar.patro89@gmail.com";
             var from = ConfigurationManager.AppSettings["Mail-from"].ToString();
             var cc = ConfigurationManager.AppSettings["Mail-cc"].ToString();
             var bcc = ConfigurationManager.AppSettings["Mail-bcc"].ToString();
