@@ -143,7 +143,10 @@ namespace PDFReader.Controllers
                     foreach (var date in impDates.Split(','))
                     {
                         var datePart = date.Split(':');
-                        sb.AppendLine($"{string.Format(spanL, datePart[0].Trim())}: {string.Format(spanR, datePart[1].Trim())}");
+                        if (datePart.Length == 1)
+                            sb.AppendLine($"Date: {string.Format(spanR, datePart[0].Trim())}");
+                        else if (datePart.Length == 2)
+                            sb.AppendLine($"{string.Format(spanL, datePart[0].Trim())}: {string.Format(spanR, datePart[1].Trim())}");
                     }
                 }
 
@@ -175,7 +178,11 @@ namespace PDFReader.Controllers
                     foreach (var date in impDates.Split(','))
                     {
                         var datePart = date.Split(':');
-                        sb.AppendLine($"{string.Format(spanL, datePart[0].Trim())}: {string.Format(spanR, datePart[1].Trim())}");
+
+                        if(datePart.Length == 1)
+                            sb.AppendLine($"Date: {string.Format(spanR, datePart[0].Trim())}");
+                        else if (datePart.Length == 2)
+                            sb.AppendLine($"{string.Format(spanL, datePart[0].Trim())}: {string.Format(spanR, datePart[1].Trim())}");
                     }
                 }
 
