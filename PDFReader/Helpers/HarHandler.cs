@@ -24,7 +24,9 @@ namespace PDFReader.Helpers
                         if (entry.Response.Content.MimeType == "application/json" &&
                             !entry.Response.Content.Text.Contains("indxnm") &&
                             !entry.Response.Content.Text.Contains("h.key") &&
-                            !entry.Response.Content.Text.Contains("site_domain"))
+                            !entry.Response.Content.Text.Contains("site_domain")&&
+                            !entry.Response.Content.Text.Contains("beacon_url")&&
+                            entry.Response.Content.Text.Contains("Table"))
                         {
                             strTemp = null;
                             strTemp = entry.Response.Content.Text;
