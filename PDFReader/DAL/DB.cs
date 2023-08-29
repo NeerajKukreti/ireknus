@@ -149,7 +149,7 @@ namespace PDFReader
                      $"INNER JOIN dbo.Tbl_FoundKeywords fk ON ar.ID = fk.ReportID  and ar.FinancialYear = '{FinancialYear}' " +
                      "left join TBL_ANNOUNCEMENT ann on ann.ann_id = ar.annid " +
                      "order by CompanyName",
-                    commandType: CommandType.Text).Result;
+                    commandType: CommandType.Text, commandTimeout: 120).Result;
             }
         }
         public static IEnumerable<ReportModel> GetReports(string year, DateTime date)
@@ -174,7 +174,7 @@ namespace PDFReader
             }
         }
 
-        public static List<ReportModel> insertCompaniesData(string alertName)
+        public static List<ReportModel> insertCompaniesData(string alertName, DateTime? dt = null)
         {
             using (var connection = new SqlConnection(Connection.MyConnection()))
             {
@@ -183,8 +183,9 @@ namespace PDFReader
                 return connection.Query<ReportModel>("sp_InsertCompanies",
                     new
                     {
-                        @alertname = alertName
-                    }, commandType: CommandType.StoredProcedure).ToList();
+                        @alertname = alertName,
+                        @date = dt
+                    }, commandType: CommandType.StoredProcedure, commandTimeout: 120).ToList();
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Drawing.Charts;
+using Microsoft.Ajax.Utilities;
 using PDFReader.Model;
 using PDFReader.Models;
 using System;
@@ -119,70 +120,23 @@ namespace PDFReader.Controllers
         #endregion
 
         #region announcement alert
-
-        //public void ExecuteAlertJob(string alertList, DateTime Searcheddate) {
-        //    var list = alertList.Split(',');
-
-        //    var alerts = DB.GetSettings().Where(x=> list.Contains(x.CATEGORY)).ToList();
-
-        //    alerts.ForEach(alert =>
-        //    {
-        //        var categories = DB.GetCategoriesByName(alert.CATEGORY);
-
-        //        if (categories == null || !categories.Any()) return;
-
-        //        var date = DateTime.Now.AddDays(-2).Date;
-
-        //        var dtRange = $"{date}|{date}";
-        //        var announcementData = AnnouncementBL.GetCategoryCounts(string.Empty, alert.WATCHLIST, dtRange, categories.ToList()).Result;
-        //        var announcements = DB.GetAnnouncements(string.Join(",", announcementData.CategoryCounts.Where(x => !x.CATEGORY.Equals("Others")).Select(x => x.Ann_Id))).ToList();
-        //        List<Reports> reports = new List<Reports>();
-
-        //        announcements.ForEach(x =>
-        //        {
-        //            reports.Add(new Reports
-        //            {
-        //                CompanyName = x.COMPANY_NAME,
-        //                FinancialYear = alert.ALERT_NAME,
-        //                URL = $"https://www.bseindia.com/xml-data/corpfiling/AttachLive/{x.ATTACHMENT}",
-        //                AnnId = x.ANN_ID
-        //            });
-        //        });
-
-        //        DB.insertCompaniesData(reports, date);
-        //        var annReports = DB.GetReports(alert.ALERT_NAME, date).ToList();
-        //        var keywords = DB.GetKeywordsBySetName(alert.KEYWORD_SET);
-
-        //        Parallel.ForEach(annReports, report =>
-        //        {
-        //            PDFSearch.Search(report.ID, report.URL, keywords.Select(x => x.KEYWORD).ToList());
-        //        });
-
-        //        var finalReport = DB.GetSearchedReport(alert.ALERT_NAME, DateTime.Now, DateTime.Now);
-
-        //        if (finalReport.Count() > 0)
-        //            if (GenerateExcel(finalReport.ToList(), alert.ALERT_NAME))
-        //            {
-        //                SendMail(alert.ALERT_NAME, finalReport.ToList());
-        //            }
-
-        //    });
-        //}
-
         public void TestEmail()
         {
             SendMail1();
         }
-        public ActionResult ExecuteAlertJob()
+        public ActionResult ExecuteAlertJob(int rptId = 0,DateTime? dt = null)
         {
-            var alerts = DB.GetSettings().Where(x => x.ACTIVE).ToList();
+            var alerts = DB.GetSettings()
+                .Where(x => x.ACTIVE && (rptId == 0 || x.ALERT_ID == rptId)).ToList();
+       
             StringBuilder str = new StringBuilder();
 
             alerts.ForEach(alert =>
             {
-                var reports = DB.insertCompaniesData(alert.ALERT_NAME);
+                var reports = DB.insertCompaniesData(alert.ALERT_NAME, dt);
                 str.Append($"Alert: {alert.ALERT_NAME}<br/>");
                 str.Append($"New data inserted into the annual report: {reports?.Count}<br/>");
+
                 if (reports != null && reports.Any())
                 {
                     var annReports = DB.GetReportsByAnnId(alert.ALERT_NAME, string.Join(",", reports.Select(x => x.annid))).ToList();
@@ -197,12 +151,14 @@ namespace PDFReader.Controllers
                     str.Append($"Data for Excel : {finalReport?.Count()}<br/>");
 
                     if (finalReport.Count() > 0)
+                    {
                         if (GenerateExcel(finalReport.ToList(), alert.ALERT_NAME))
                         {
                             str.Append($"Excel generated<br/>");
-                            SendMail(alert.ALERT_NAME, finalReport.ToList(), ref str);
+                            SendMail(alert.ALERT_NAME, finalReport.ToList(), ref str, dt);
                             str.Append($"Mail supposed to be sent<br/><br/><br/>");
                         }
+                    }
                 }
             });
 
@@ -271,7 +227,7 @@ namespace PDFReader.Controllers
             }
         }
 
-        private void SendMail(string AttachmentName, List<KeywordResult> finalReport, ref StringBuilder str)
+        private void SendMail(string AttachmentName, List<KeywordResult> finalReport, ref StringBuilder str, DateTime? dt = null)
         {
             var to = ConfigurationManager.AppSettings["Mail-to"].ToString();
             var from = ConfigurationManager.AppSettings["Mail-from"].ToString();
@@ -283,7 +239,7 @@ namespace PDFReader.Controllers
             MailModel objModelMail = new MailModel
             {
                 To = to,
-                Subject = $"{DateTime.Now.AddDays(-1).ToString("dd/MM/yyyy")} | {AttachmentName}",
+                Subject = $"{(dt == null ? DateTime.Now.AddDays(-1).ToString("dd/MM/yyyy") : dt.Value.ToString("dd / MM / yyyy"))} | {AttachmentName}",
                 Body = SetBodyContent(finalReport.ToList())
             };
 
@@ -319,7 +275,7 @@ namespace PDFReader.Controllers
 
         private void SendMail1()
         {
-            var to = ConfigurationManager.AppSettings["Mail-to"].ToString();
+            var to = "neerajkukreti.89@gmail.com,rajkumar.patro89@gmail.com";
             var from = ConfigurationManager.AppSettings["Mail-from"].ToString();
             var cc = ConfigurationManager.AppSettings["Mail-cc"].ToString();
             var bcc = ConfigurationManager.AppSettings["Mail-bcc"].ToString();
@@ -380,7 +336,7 @@ namespace PDFReader.Controllers
             ob.AlertList = alertlist.Select(x =>
             new SelectListItem
             {
-                Text = x.ALERT_NAME.ToString(),
+                Text = x.ALERT_NAME,
                 Value = x.ALERT_ID.ToString()
             }).ToList();
             return View("_AlertReportList", ob);

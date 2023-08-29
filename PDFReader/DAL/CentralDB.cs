@@ -32,4 +32,24 @@ namespace PDFReader
 
         #endregion
     }
+
+    public class StateDB
+    {
+        #region Central Alert
+        public async static Task<List<StateModel>> CheckandLogNewChanges()
+        {
+            using (var connection = new SqlConnection(Connection.MyConnection()))
+            {
+                connection.Open();
+
+                var resultSet = connection
+                    .QueryAsync<StateModel>("_sp_StateAlert",
+                    null, commandType: CommandType.StoredProcedure).Result;
+
+                return resultSet.ToList();
+            }
+        }
+
+        #endregion
+    }
 }
