@@ -136,8 +136,10 @@ namespace PDFReader
             }
         }
 
-        public static IEnumerable<KeywordResult> GetSearchedReportNyAnnId(string FinancialYear, string annIds)
+        public static IEnumerable<KeywordResult> GetSearchedReportNyAnnId(string FinancialYear, DateTime dt)
         {
+            string to = dt.ToString("yyyy/MM/dd");
+
             //type 1 - processed, 2 - unprocessed, 3 - Contains Img, 4 - Non Img
             using (IDbConnection db = new SqlConnection(Connection.MyConnection()))
             {
@@ -145,9 +147,10 @@ namespace PDFReader
                      $"sELECT PageText, ar.ID ReportId, ar.CompanyName, ar.Url " +
                      ", ar.FinancialYear, fk.PDFPageNumber, fk.FoundKeywords, TotalPages, Skipped, ann.news_subject, ann.NEWS_SUBMISSION_DATE, ann.Company_Id " +
                      "FROM dbo.tbl_AnnualReports ar " +
-                     $"inner join Split_Strings('{annIds}',',') t on t.item = ar.annid " +
+                     //$"inner join Split_Strings('{annIds}',',') t on t.item = ar.annid " +
                      $"INNER JOIN dbo.Tbl_FoundKeywords fk ON ar.ID = fk.ReportID  and ar.FinancialYear = '{FinancialYear}' " +
                      "left join TBL_ANNOUNCEMENT ann on ann.ann_id = ar.annid " +
+                     $"where convert(date,ar.NEWS_SUBMISSION_DATE) = convert(date,'{to}')" +
                      "order by CompanyName",
                     commandType: CommandType.Text, commandTimeout: 120).Result;
             }

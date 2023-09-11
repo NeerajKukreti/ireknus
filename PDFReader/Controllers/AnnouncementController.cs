@@ -147,17 +147,19 @@ namespace PDFReader.Controllers
                         PDFSearch.Search(report.ID, report.URL, keywords.Select(x => x.KEYWORD).ToList());
                     });
 
-                    var finalReport = DB.GetSearchedReportNyAnnId(alert.ALERT_NAME, string.Join(",", reports.Select(x => x.annid)));
-                    str.Append($"Data for Excel : {finalReport?.Count()}<br/>");
+                    //var finalReport = DB.GetSearchedReportNyAnnId(alert.ALERT_NAME, string.Join(",", reports.Select(x => x.annid)));
+                }
 
-                    if (finalReport.Count() > 0)
+                var finalReport = DB.GetSearchedReportNyAnnId(alert.ALERT_NAME, dt.Value);
+                str.Append($"Data for Excel : {finalReport?.Count()}<br/>");
+
+                if (finalReport.Count() > 0)
+                {
+                    if (GenerateExcel(finalReport.ToList(), alert.ALERT_NAME))
                     {
-                        if (GenerateExcel(finalReport.ToList(), alert.ALERT_NAME))
-                        {
-                            str.Append($"Excel generated<br/>");
-                            SendMail(alert.ALERT_NAME, finalReport.ToList(), ref str, dt);
-                            str.Append($"Mail supposed to be sent<br/><br/><br/>");
-                        }
+                        str.Append($"Excel generated<br/>");
+                        SendMail(alert.ALERT_NAME, finalReport.ToList(), ref str, dt);
+                        str.Append($"Mail supposed to be sent<br/><br/><br/>");
                     }
                 }
             });
