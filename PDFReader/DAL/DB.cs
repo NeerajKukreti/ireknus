@@ -542,7 +542,7 @@ namespace PDFReader
                         @start = start,
                         @length = length,
                         @timeSlot = timeSlot
-                    }, commandType: CommandType.StoredProcedure);
+                    },commandTimeout: 200, commandType: CommandType.StoredProcedure);
 
                 var data = new AnnoucementGridData();
 

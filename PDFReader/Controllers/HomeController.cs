@@ -15,6 +15,7 @@ namespace PDFReader.Controllers
     public class HomeController : Controller
     {
 
+        [Authorize]
         public async Task<ActionResult> Index()
         {
 

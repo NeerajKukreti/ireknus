@@ -8,6 +8,7 @@ using System.Web.Mvc;
 
 namespace PDFReader.Controllers
 {
+    [Authorize]
     public class KeywordSetController : Controller
     {
         public ActionResult Index()

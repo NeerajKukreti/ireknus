@@ -17,6 +17,7 @@ using System.Web.Mvc;
 
 namespace PDFReader.Controllers
 {
+    [Authorize]
     public class WatchlistController : Controller
     {
         // GET: Watchlist

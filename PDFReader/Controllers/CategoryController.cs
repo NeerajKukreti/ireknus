@@ -9,10 +9,10 @@ using System.Web.Mvc;
 
 namespace PDFReader.Controllers
 {
+    [Authorize]
     public class CategoryController : Controller
     {
-        // GET: Category
-        [Authorize]
+      
         public ActionResult Index()
         {
             AnnouncementCategoryModel ob = new AnnouncementCategoryModel();

@@ -11,6 +11,7 @@ using System.Web.Mvc;
 
 namespace PDFReader.Controllers
 {
+    [Authorize]
     public class ReportController : Controller
     {
         // GET: Dashboard

@@ -18,6 +18,7 @@ using System.Web.UI;
 
 namespace PDFReader.Controllers
 {
+    [Authorize]
     public class CentralController : Controller
     {
         // GET: Dashboard

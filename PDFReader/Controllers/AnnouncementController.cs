@@ -19,6 +19,7 @@ using System.Web.UI;
 
 namespace PDFReader.Controllers
 {
+    [Authorize]
     public class AnnouncementController : Controller
     {
         #region announcement

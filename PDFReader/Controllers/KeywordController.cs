@@ -13,6 +13,7 @@ using System.Web.Mvc;
 
 namespace PDFReader.Controllers
 {
+    [Authorize]
     public class KeywordController : Controller
     {
         public ActionResult Index()
