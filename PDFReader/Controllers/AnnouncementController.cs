@@ -133,7 +133,7 @@ namespace PDFReader.Controllers
 
             alerts.ForEach(alert =>
             {
-                var reports = DB.insertCompaniesData(alert.ALERT_NAME, dt);
+                var reports = DB.insertCompaniesData(alert.ALERT_NAME, dt); 
                 str.Append($"Alert: {alert.ALERT_NAME}<br/>");
                 str.Append($"New data inserted into the annual report: {reports?.Count}<br/>");
 
@@ -150,7 +150,9 @@ namespace PDFReader.Controllers
                     //var finalReport = DB.GetSearchedReportNyAnnId(alert.ALERT_NAME, string.Join(",", reports.Select(x => x.annid)));
                 }
 
-                var finalReport = DB.GetSearchedReportNyAnnId(alert.ALERT_NAME, dt.Value);
+                var finalReport = DB
+                .GetSearchedReportNyAnnId(alert.ALERT_NAME, dt == null ? DateTime.Now.AddDays(-1) : dt.Value);
+
                 str.Append($"Data for Excel : {finalReport?.Count()}<br/>");
 
                 if (finalReport.Count() > 0)
