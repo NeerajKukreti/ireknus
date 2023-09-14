@@ -125,6 +125,8 @@ namespace PDFReader.Controllers
         {
             SendMail1();
         }
+
+        [AllowAnonymous]
         public ActionResult ExecuteAlertJob(int rptId = 0,DateTime? dt = null)
         {
             var alerts = DB.GetSettings()

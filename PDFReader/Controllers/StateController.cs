@@ -75,6 +75,7 @@ namespace PDFReader.Controllers
             }
         }
 
+        [AllowAnonymous]
         public void StateAlert()
         {
             var data = StateDB.CheckandLogNewChanges().Result;

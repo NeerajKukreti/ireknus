@@ -97,6 +97,7 @@ namespace PDFReader.Controllers
             }
         }
 
+        [AllowAnonymous]
         public void CentralAlert()
         {
             var data = CentralDB.CheckandLogNewChanges().Result;
