@@ -3,6 +3,7 @@ var ReportTables = function () {
     var table;
     var Keyword = function (year, query, queryEnabled) {
         table = $('#ReportTable').dataTable({
+            "bSort": false,
             retrieve: true,
             "autowidth": "true",
             "scrollX": true,
