@@ -1,9 +1,12 @@
+$.fn.dataTable.moment('DD/MM/YYYY HH:mm:ss'); // Change the date format according to your needs
+
 var ReportTables = function () {
     //TODO:: table-datatables-scroller.js use to fix scroller issue
     var table;
     var Keyword = function (year, query, queryEnabled) {
         table = $('#ReportTable').dataTable({
-            "bSort": false,
+            //"bSort": false,
+            "order": [[0, "desc"]], 
             retrieve: true,
             "autowidth": "true",
             "scrollX": true,
@@ -18,7 +21,19 @@ var ReportTables = function () {
                 "datatype": "json",
             },
             "columns": [
-                { "title": "RT", "data": "NEWS_SUBMISSION_DATE", class: "width_20" },
+                {
+                    "title": "RT", "data": "NEWS_SUBMISSION_DATE", class: "width_20",
+                    render: function (data, type, row) {
+                        if (type === 'sort') {
+                            return data;  // Use original data for sorting
+                        }
+                        const format = 'DD-MM-YYYY HH:mm:ss';
+                        const date = moment(data, 'DD/MM/YYYY HH:mm:ss');
+
+                        //return date.format(format)
+                        return data;
+                    }
+                },
                 { "title": "Company Name", "data": "CompanyName" },
                 {
                     "title": "Url", "data": "Url",
@@ -27,7 +42,7 @@ var ReportTables = function () {
                         $(nTd).html("<a href='" + oData.Url + "' target='_blank'>pdf page</a>");
                     }
                 },
-                { "title": "Category", "data": "FinancialYear", class:"width_400" },
+                { "title": "Category", "data": "FinancialYear", class: "width_400" },
                 { "title": "Page Number", "data": "PDFPageNumber" },
                 { "title": "Keywords", "data": "FoundKeywords" },
                 { "title": "Total Pages", "data": "TotalPages" },
@@ -36,7 +51,8 @@ var ReportTables = function () {
                     fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
                         oData.Url = oData.Url + " ";
                         $(nTd).html("<a href='/report/advancesearch?reportid=" + oData.ReportId + "' target='_blank'><i class='feather icon-search'></i></a>");
-                    } }
+                    }
+                }
             ],
             "sAjaxDataProp": "",
             dom: 'lBfrtip',
@@ -82,7 +98,7 @@ $('#ReportTable').on('processing.dt', function (e, settings, processing) {
         $.blockUI();
     } else {
         //abp.ui.clearBusy(e.currentTarget);
-        
+
         $.unblockUI();
     }
 });
