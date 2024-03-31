@@ -657,6 +657,17 @@ namespace PDFReader
                 return db.Query<WatchlistModel>($"SELECT DISTINCT COMPANY_ID, COMPANY_NAME FROM TBL_ANNOUNCEMENT", commandType: CommandType.Text);
             }
         }
+
+        public static void DeleteAnnouncement(DateTime date) {
+            using (IDbConnection db = new SqlConnection(Connection.MyConnection()))
+            {
+                db.Query($"sp_DeleteAnnouncement",
+                    new {
+                        date
+                    },
+                    commandType: CommandType.StoredProcedure);
+            }
+        }
         #endregion
     }
 }

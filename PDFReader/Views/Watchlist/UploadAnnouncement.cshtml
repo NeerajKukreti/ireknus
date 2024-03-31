@@ -20,9 +20,17 @@
                 <div class="card-body">
 
                     <div class="row">
-                        <div class="col-md-12">
-                            <input type="file" id="fileupload" />                            
-                            <input class="btn btn-primary" type="button" id="btnUpload" value="Upload" />
+                        <div class="col-md-3">
+                            <input type="file" id="fileupload" />
+                            <input class="btn btn-sm btn-primary" type="button" id="btnUpload" value="Upload" />
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group fill" style="position: relative; top: -11px;">
+                                <input class="form-control datepicker" type="date" id="dtAlertRpt" name="dtAlertRpt">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div id="btnDelAnn" class="btn btn-sm btn-primary">Delete announcement</div>
                         </div>
                     </div>
                     <div class="row">
@@ -30,9 +38,10 @@
                             <img src="~/Content/Images/waitingimage.gif" class="imgprocess" />
                         </div>
                     </div>
-        </div>
-        <!-- [ sample-page ] end -->
-    </div>
+
+                </div>
+                <!-- [ sample-page ] end -->
+            </div>
 </form>
 <!-- [ Main Content ] end -->
 <!-- datatable Js -->
@@ -51,16 +60,16 @@
 
         $('#btnUpload').click(function () {
             $('.imgprocess').show();
-            // Checking whether FormData is available in browser  
+            // Checking whether FormData is available in browser
             if (window.FormData !== undefined) {
 
                 var fileUpload = $("#fileupload").get(0);
                 var files = fileUpload.files;
 
-                // Create FormData object  
+                // Create FormData object
                 var fileData = new FormData();
 
-                // Looping over all files and add it to FormData object  
+                // Looping over all files and add it to FormData object
                 for (var i = 0; i < files.length; i++) {
                     fileData.append(files[i].name, files[i]);
                 }
@@ -68,8 +77,8 @@
                 $.ajax({
                     url: '/watchlist/LoadAnnFromHARFile',
                     type: "POST",
-                    contentType: false, // Not to set any content header  
-                    processData: false, // Not to process data  
+                    contentType: false, // Not to set any content header
+                    processData: false, // Not to process data
                     data: fileData,
                     success: function (result) {
                         alert("File uploaded \n" + result + " records inserted");
@@ -85,5 +94,31 @@
                 alert("FormData is not supported.");
             }
         });
-    });  
+
+        $('#btnDelAnn').click(function () {
+           
+            var adate = $('#dtAlertRpt').val();
+
+            if ($('#dtAlertRpt').val() == '') {
+                alert('select date first');
+                return;
+            }
+
+            $('.imgprocess').show();
+
+            $.ajax({
+                url: '/watchlist/DeleteAnnouncement?date=' + adate,
+                type: "GET",
+
+                success: function (result) {
+                    $('.imgprocess').hide();
+                },
+                error: function (err) {
+                    alert(err.statusText);
+                    $('.imgprocess').hide();
+                }
+            });
+
+        });
+    });
 </script>

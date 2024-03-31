@@ -397,5 +397,9 @@ namespace PDFReader.Controllers
             }
 
         }
+
+        public async Task DeleteAnnouncement(DateTime date) { 
+            DB.DeleteAnnouncement(date);
+        }
     }
 }

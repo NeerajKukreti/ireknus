@@ -367,7 +367,7 @@ namespace PDFReader.Controllers
             {
                 alerts.ForEach(alert =>
                 {
-                    var reports = DB.insertCompaniesData(alert.ALERT_NAME);
+                    var reports = DB.insertCompaniesData(alert.ALERT_NAME, alertDate);
                     var annReports = DB.GetReportsByAnnId(alert.ALERT_NAME, string.Join(",", reports.Select(x => x.annid))).ToList();
                     var keywords = DB.GetKeywordsBySetName(alert.KEYWORD_SET);
 
