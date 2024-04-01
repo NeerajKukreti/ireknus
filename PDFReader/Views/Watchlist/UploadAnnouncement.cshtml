@@ -20,16 +20,17 @@
                 <div class="card-body">
 
                     <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-md-6">
                             <input type="file" id="fileupload" />
                             <input class="btn btn-sm btn-primary" type="button" id="btnUpload" value="Upload" />
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-4">
                             <div class="form-group fill" style="position: relative; top: -11px;">
+                                To delete record please select a date
                                 <input class="form-control datepicker" type="date" id="dtAlertRpt" name="dtAlertRpt">
                             </div>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-2"><br />
                             <div id="btnDelAnn" class="btn btn-sm btn-primary">Delete announcement</div>
                         </div>
                     </div>
@@ -112,6 +113,7 @@
 
                 success: function (result) {
                     $('.imgprocess').hide();
+                    alert("Records deleted successfully of selected date");
                 },
                 error: function (err) {
                     alert(err.statusText);

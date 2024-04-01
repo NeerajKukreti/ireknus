@@ -298,12 +298,13 @@ namespace PDFReader.Controllers
             FileHandler.UploadHARFile(Request);
             string path = HostingEnvironment.MapPath(ConfigurationManager.AppSettings["UploadPath"] + "/annoucements.har");
             var jsonData = HarHandler.GetJsonFromHARFile(path);
-            var dt = DB.GetLastAnnDateTime();
+            //var dt = DB.GetLastAnnDateTime();
 
             try
             {
                 var result = JsonConvert.DeserializeObject<Root>(jsonData);
-                var newList = result?.Table.Where(x => x.DT_TM > dt).Distinct().ToList();
+                //var newList = result?.Table.Where(x => x.DT_TM > dt).Distinct().ToList();
+                var newList = result?.Table.Distinct().ToList();
                 newList = newList.GroupBy(x => x.NEWSID).Select(x => x.FirstOrDefault()).ToList();
 
                 if (newList.Any())
