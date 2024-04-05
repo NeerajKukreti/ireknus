@@ -127,16 +127,16 @@ namespace PDFReader.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult ExecuteAlertJob(int rptId = 0,DateTime? dt = null)
+        public ActionResult ExecuteAlertJob(int rptId = 0, DateTime? dt = null)
         {
             var alerts = DB.GetSettings()
                 .Where(x => x.ACTIVE && (rptId == 0 || x.ALERT_ID == rptId)).ToList();
-       
+
             StringBuilder str = new StringBuilder();
 
             alerts.ForEach(alert =>
             {
-                var reports = DB.insertCompaniesData(alert.ALERT_NAME, dt); 
+                var reports = DB.insertCompaniesData(alert.ALERT_NAME, dt);
                 str.Append($"Alert: {alert.ALERT_NAME}<br/>");
                 str.Append($"New data inserted into the annual report: {reports?.Count}<br/>");
 
@@ -349,13 +349,13 @@ namespace PDFReader.Controllers
             return View("_AlertReportList", ob);
         }
 
-
         public void AlertInsert(string alertName, DateTime alertDate)
         {
             var alerts = new List<AlertModel>();
+
             if (alertName == "All Alert")
             {
-                alerts = DB.GetSettings().ToList();
+                alerts = DB.GetSettings().Where(x => x.ACTIVE).ToList();
             }
             else
             {
