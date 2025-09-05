@@ -668,6 +668,19 @@ namespace PDFReader
                     commandType: CommandType.StoredProcedure);
             }
         }
+
+        public static async Task<IEnumerable<KeywordResult>> GetFoundKeywordsByReportId(int reportid)
+        {
+            using (IDbConnection db = new SqlConnection(Connection.MyConnection()))
+            {
+                return await db
+                    .QueryAsync<KeywordResult>
+                    ($"select distinct ReportID, Url, fk.FoundKeywords from tbl_AnnualReports ar " +
+                    $"inner join Tbl_FoundKeywords fk on ar.id = fk.ReportID " +
+                    $"where ar.id = {reportid}"
+                    , commandType: CommandType.Text);
+            }
+        }
         #endregion
     }
 }

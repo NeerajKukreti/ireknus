@@ -24,6 +24,13 @@ namespace PDFReader.Model
         public string FoundKeywords { get; set; }
         public string PageText { get; set; }
     }
+    public class FetchedPhrase
+    {
+        public int ReportID { get; set; }
+        public int PDFPageNumber { get; set; }
+        public string FoundKeywords { get; set; }
+        public List<string> PhraseText { get; set; }
+    }
 
     public class ReportResult
     {

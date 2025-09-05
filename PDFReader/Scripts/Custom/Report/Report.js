@@ -202,6 +202,27 @@ $(document).on('click', '#chkComplexSearchEnable', function () {
 
 });
 
+$(document).on('click', 'a.pagelink', function () {
+    var URL = $(this).data('url');
+
+    $.ajax({
+        url: SearchPara,
+        type: 'GET',
+        data: { URL: URL },
+        beforeSend: function () {   },
+        success: function (data) {
+             
+            alert(data)
+        },
+        error: function () { alert('error occured while trying to search') }
+        ,
+        complete: function () {
+             
+            //UpReportTables.reloadTable();
+        }
+    });
+
+});
 function addColumn(str, column) {
     if (/^(like|not like)/i.test(str)) {
         return `${column} ${str}`;

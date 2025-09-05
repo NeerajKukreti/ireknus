@@ -43,14 +43,21 @@ var ReportTables = function () {
                     }
                 },
                 { "title": "Category", "data": "FinancialYear", class: "width_400" },
-                { "title": "Page Number", "data": "PDFPageNumber" },
-                { "title": "Keywords", "data": "FoundKeywords" },
-                { "title": "Total Pages", "data": "TotalPages" },
                 {
-                    "title": "", "data": "TotalPages",
+                    "title": "Page Number", "data": "PDFPageNumber",
                     fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
                         oData.Url = oData.Url + " ";
-                        $(nTd).html("<a href='/report/advancesearch?reportid=" + oData.ReportId + "' target='_blank'><i class='feather icon-search'></i></a>");
+                        $(nTd).html("<a style='color: blue; cursor: pointer'; class='pagelink' data-url='" + oData.Url + "'>" + oData.PDFPageNumber +"</a>");
+                    }
+                },
+                { "title": "Keywords", "data": "FoundKeywords" },
+                { "title": "Total Pages", "data": "TotalPages" },
+                
+                {
+                    "title": "View", "data": "TotalPages",
+                    fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
+                        oData.Url = oData.Url + " ";
+                        $(nTd).html("<a href='/Verbatim?reportid=" + oData.ReportId + "' target='_blank'><i class='feather icon-search'></i></a>");
                     }
                 }
             ],

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.WebPages;
 
 namespace PDFReader.Controllers
 {
@@ -131,5 +132,13 @@ namespace PDFReader.Controllers
             return View("DeepSearch", reportResult);
         }
         #endregion
+
+        public async Task<string> PerformParaSearch(string URL)
+        {
+            Uri url = new Uri(URL);
+            int val = int.Parse(url.Fragment.Split('=')[1]);
+            await PDFSearch.SearchPara(val,URL);
+            return "";
+        }
     }
 }
