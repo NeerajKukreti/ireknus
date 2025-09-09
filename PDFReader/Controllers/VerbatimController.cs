@@ -21,21 +21,35 @@ namespace PDFReader.Controllers
 {
     public class VerbatimController : Controller
     {
+
+        MemoryCache _cache = MemoryCache.Default;
+
         public VerbatimController() { }
-        public async Task<ActionResult> Index(int reportId = 84489)
+        public async Task<ActionResult> Index(int reportId)
         {
             var result = await DB.GetFoundKeywordsByReportId(reportId);
+             
+            foreach (var item in result)
+            {
+                if (!string.IsNullOrEmpty(item.Url))
+                {
+                    _cache.Set($"URL", item.Url, DateTimeOffset.Now.AddMinutes(30));
+                    break; // Use first URL found
+                }
+            }
+            
             return View(result);
         }
 
-        public async Task<ActionResult> SearchKeyword(string URL, string Keyword)
-        {
-            var phrases = await PDFSearch.GetPhrases(URL, Keyword);
+        public async Task<ActionResult> SearchKeyword(string Keyword)
+        { 
+            var url = _cache.Get($"URL") as string;
+            
+            var phrases = await PDFSearch.GetPhrases(url, Keyword);
             return Json(phrases, JsonRequestBehavior.AllowGet);
         }
         public async Task<string> GetPDFText()
         {
-            MemoryCache _cache = MemoryCache.Default;
             string cachedData = _cache["PDF_Text"] as string;
             return cachedData;
         }

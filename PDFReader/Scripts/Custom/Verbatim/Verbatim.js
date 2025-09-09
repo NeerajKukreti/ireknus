@@ -9,7 +9,7 @@ $(document).ready(function () {
         $.ajax({
             url: SearchKeyword,
             type: 'GET',
-            data: { URL: URL, Keyword: foundkeywords },
+            data: { Keyword: foundkeywords },
             beforeSend: function () { },
             success: function (data) {
                 $('.keywordPhrases').empty();
