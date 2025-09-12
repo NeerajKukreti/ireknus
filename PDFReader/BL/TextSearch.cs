@@ -4,7 +4,7 @@ using System.Linq;
 
 public class TextSearcher
 {
-    public static string[] SearchAllWithContext(string input, string searchText, int wordsBefore = 3, int wordsAfter = 3)
+    public static string[] SearchAllWithContext(string input, string searchText, int wordsBefore = 4, int wordsAfter = 6)
     {
         if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(searchText))
             return Array.Empty<string>();

@@ -11,6 +11,33 @@
 <link href="@Url.Content("~/Content/assets/global/css/components.min.css")" rel="stylesheet" id="style_components" type="text/css" )" />
 <link href="@Url.Content("~/Content/assets/global/css/plugins.min.css")" />
 
+<style type="text/css">
+    /* highlight in PDF */
+    .found-text-highlight {
+        color: red;
+        background-color: rgba(255,255,0,0.3);
+    }
+
+    /* highlight inside phrase list */
+    .phrase-highlight {
+        background-color: rgba(255,255,0,0.6);
+        color: inherit;
+        padding: 0 2px;
+        border-radius: 2px;
+    }
+
+    /* selected phrase styling */
+    .keywordPhrase.active-phrase {
+        outline: 1px solid #ffd54f;
+        background-color: rgba(255,245,225,0.6);
+    }
+
+    .fixed-scroll {
+        height: 500px;
+        overflow-y: auto; /* auto = scrollbar only when needed */
+    }
+
+</style>
 
 <div class="row">
     <div class="col-md-2">
@@ -25,7 +52,7 @@
 
             </div>
             <div class="portlet-body">
-                <div class="scroller" style="height:500px" data-rail-visible="1" data-rail-color="yellow" data-handle-color="#a1b2bd">
+                <div class="scroller fixed-scroll" data-rail-visible="1" data-rail-color="yellow" data-handle-color="#a1b2bd">
 
                     @{
                         int cnt = 0;
@@ -61,7 +88,7 @@
                 </div>
             </div>
             <div class="portlet-body">
-                <div class="scroller" style="height:500px" data-rail-visible="1" data-rail-color="yellow" data-handle-color="#a1b2bd">
+                <div class="scroller fixed-scroll" data-rail-visible="1" data-rail-color="yellow" data-handle-color="#a1b2bd">
                     <div class="keywordPhrases inline-block">
 
                     </div>
