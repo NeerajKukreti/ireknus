@@ -58,7 +58,7 @@ $(document).ready(function () {
         $.ajax({
             url: searchKeywordUrl,
             type: 'GET',
-            data: { URL: URL, Keyword: foundkeywords },
+            data: {Keyword: foundkeywords },
             beforeSend: function () {
                 $('.keywordPhrases').empty().append("<p>Loading phrases...</p>");
             },
