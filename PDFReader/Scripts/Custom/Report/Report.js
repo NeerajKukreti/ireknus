@@ -377,6 +377,61 @@ $(document).on('click', '#btnSearch', function () {
 
 });
 
+// show/hide utility
+function showVerbatimPanel() { $('#verbatimPanel').removeClass('d-none'); }
+function hideVerbatimPanel() { $('#verbatimPanel').addClass('d-none'); }
+
+// on veratim click: append id and show panel
+$(document).on('click', '.verbatim', function (e) {
+    e.preventDefault();
+    var reportId = $(this).data('reportid').toString();
+    var $txt = $('#txt_verbatim');
+    var ids = $txt.val().trim() ? $txt.val().split(',').map(x => x.trim()).filter(Boolean) : [];
+    if (ids.indexOf(reportId) === -1) ids.push(reportId);
+    $txt.val(ids.join(','));
+    showVerbatimPanel();
+});
+
+// cancel / close
+$(document).on('click', '#vpCancel, #vpClose', function () {
+    hideVerbatimPanel();
+});
+
+// Clear button
+$(document).on('click', '#vpClear', function () {
+    $("#txt_verbatim").val(""); 
+});
+
+// final extraction
+$(document).on('click', '#vpFinal', function () {
+    var ids = $('#txt_verbatim').val().trim();
+    if (!ids) { alert('No Report Ids selected'); return; }
+    // do final extraction here
+    console.log('final extraction:', ids);
+    hideVerbatimPanel(); // optional
+});
+
+$(document).ready(function () {
+    $("#vpFinal").on("click", function () {
+        var verbatimText = $("#txt_verbatim").val().trim();
+
+        if (verbatimText === "") {
+            alert("Please enter a value in the verbatim textbox.");
+            $("#txt_verbatim").focus();
+            return; // stop execution
+        }
+
+        // Construct the URL to the same controller with the textbox value as parameter
+        var reportId = $("#txt_verbatim").data("reportid"); // optional if you need a ReportId
+        var url = '/Verbatim?reportid=' + encodeURIComponent(verbatimText);
+
+        // Open in the same window (or you can use _blank if needed)
+        window.location.href = url;
+
+        // If you want to use POST instead of GET, we can do an AJAX call
+    });
+});
+
 function getQueryText(){
     return finalText;
 }

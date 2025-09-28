@@ -51,14 +51,24 @@ $(document).ready(function () {
     // Click on a keyword (left column)
     $(document).on('click', '.keywords', function () {
         var foundkeywords = $(this).data('foundkeywords'); // expects data-foundkeywords="..."
+        var reportId = $(this).data('reportid');
         var URL = $(this).data('url');
 
-        console.log('Keyword clicked:', foundkeywords, URL);
+        //console.log('Keyword clicked:', foundkeywords, URL);
+        console.log('Data attributes:', {
+            reportId: $(this).attr('data-reportid'),
+            foundkeywords: $(this).attr('data-foundkeywords'),
+            url: $(this).attr('data-url')
+        });
+
 
         $.ajax({
             url: searchKeywordUrl,
             type: 'GET',
-            data: {Keyword: foundkeywords },
+            data: {
+                Keyword: foundkeywords,
+                reportId: reportId
+            },
             beforeSend: function () {
                 $('.keywordPhrases').empty().append("<p>Loading phrases...</p>");
             },

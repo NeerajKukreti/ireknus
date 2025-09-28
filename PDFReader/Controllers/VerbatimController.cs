@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Runtime.Caching;
 using System.Threading.Tasks;
 using System.Web.Mvc;
-using System.Runtime.Caching;
 
 namespace PDFReader.Controllers
 {
@@ -11,26 +12,29 @@ namespace PDFReader.Controllers
         MemoryCache _cache = MemoryCache.Default;
 
         public VerbatimController() { }
-        public async Task<ActionResult> Index(int reportId)
+        public async Task<ActionResult> Index(string reportId)
         {
-            var result = await DB.GetFoundKeywordsByReportId(reportId);
+            var cachedReports = new HashSet<string>();
+            var reportIds = reportId.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+            var result = await DB.GetFoundKeywordsByReportId(reportIds);
              
             foreach (var item in result)
             {
-                if (!string.IsNullOrEmpty(item.Url))
+                if (!string.IsNullOrEmpty(item.Url) && !cachedReports.Contains(item.ReportId.ToString()))
                 {
-                    _cache.Set($"URL", item.Url, DateTimeOffset.Now.AddMinutes(30));
-                    break; // Use first URL found
+                    _cache.Set($"URL_{item.ReportId.ToString()}", item.Url, DateTimeOffset.Now.AddMinutes(30));
+                    cachedReports.Add(item.ReportId.ToString());
                 }
             }
             
             return View(result);
         }
 
-        public async Task<ActionResult> SearchKeyword(string Keyword)
-        { 
-            var url = _cache.Get($"URL") as string;
-            
+        public async Task<ActionResult> SearchKeyword(string Keyword, string reportId)
+        {
+            var url = _cache.Get($"URL_{reportId}") as string;
+
             var phrases = await PDFSearch.GetPhrases(url, Keyword);
             return Json(phrases, JsonRequestBehavior.AllowGet);
         }

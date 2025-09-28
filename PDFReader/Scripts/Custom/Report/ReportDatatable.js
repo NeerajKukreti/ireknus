@@ -34,7 +34,12 @@ var ReportTables = function () {
                         return data;
                     }
                 },
-                { "title": "Company Name", "data": "CompanyName" },
+                {
+                    "title": "Company Name", "data": "CompanyName",
+                    fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
+                        $(nTd).html("<div class='verbatim' data-reportid='" + oData.ReportId + "'>" + oData.CompanyName + "</div>");
+                    }
+                },
                 {
                     "title": "Url", "data": "Url",
                     fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {

@@ -669,18 +669,30 @@ namespace PDFReader
             }
         }
 
-        public static async Task<IEnumerable<KeywordResult>> GetFoundKeywordsByReportId(int reportid)
+        public static async Task<IEnumerable<KeywordResult>> GetFoundKeywordsByReportId(string[] reportIds)
         {
             using (IDbConnection db = new SqlConnection(Connection.MyConnection()))
             {
-                return await db
-                    .QueryAsync<KeywordResult>
-                    ($"select distinct ReportID, Url, fk.FoundKeywords from tbl_AnnualReports ar " +
-                    $"inner join Tbl_FoundKeywords fk on ar.id = fk.ReportID " +
-                    $"where ar.id = {reportid}"
-                    , commandType: CommandType.Text);
+                // Convert array to comma-separated parameters for SQL IN clause
+                var parameters = new DynamicParameters();
+                for (int i = 0; i < reportIds.Length; i++)
+                {
+                    parameters.Add($"@Id{i}", reportIds[i]);
+                }
+
+                // Build the WHERE IN clause dynamically
+                var inClause = string.Join(",", reportIds.Select((r, i) => $"@Id{i}"));
+
+                var sql = $@"
+            SELECT DISTINCT ReportID, Url, fk.FoundKeywords
+            FROM tbl_AnnualReports ar
+            INNER JOIN Tbl_FoundKeywords fk ON ar.id = fk.ReportID
+            WHERE ar.id IN ({inClause})";
+
+                return await db.QueryAsync<KeywordResult>(sql, parameters);
             }
         }
+
         #endregion
     }
 }
