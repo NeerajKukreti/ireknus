@@ -22,7 +22,7 @@ namespace PDFReader.Controllers
             var reportIds = reportId.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
             var result = await DB.GetFoundKeywordsByReportId(reportIds);
-             
+
             foreach (var item in result)
             {
                 if (!string.IsNullOrEmpty(item.Url) && !cachedReports.Contains(item.ReportId.ToString()))
@@ -53,23 +53,23 @@ namespace PDFReader.Controllers
         {
             var reportIds = reportId.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             var allPhrases = new List<FetchedPhrase>();
-            foreach(var report in reportIds)
+            foreach (var report in reportIds)
             {
                 var url = _cache.Get($"URL_{report}") as string;
-                var phrases = await PDFSearch.GetPhrases(report,url, Keyword);
+                var phrases = await PDFSearch.GetPhrases(report, url, Keyword);
                 if (phrases != null)
                     allPhrases.AddRange(phrases);
             }
-            
+
             return Json(allPhrases, JsonRequestBehavior.AllowGet);
         }
         public async Task<string> GetPDFText()
         {
             var allKeys = _cache
-                .Select(kvp => kvp.Key)
-                .Where(k => k.StartsWith("PDF_Text_"))
-                .OrderBy(k => k)   
-                .ToList();
+            .Select(kvp => kvp.Key)
+            .Where(key => key.All(char.IsDigit))
+            .OrderBy(key => int.Parse(key))   // sort numerically
+            .ToList();
 
             var builder = new StringBuilder();
 

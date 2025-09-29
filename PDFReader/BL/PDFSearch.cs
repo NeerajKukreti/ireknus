@@ -18,7 +18,7 @@ namespace PDFReader
 
         public static string SetData(string reportId, string pdfText)
         {
-            string key = $"PDF_Text_{reportId}";
+            string key = reportId.ToString();
             string data = pdfText;
 
             CacheItemPolicy policy = new CacheItemPolicy
