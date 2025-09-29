@@ -16,15 +16,17 @@ namespace PDFReader
     {
         private static MemoryCache _cache = MemoryCache.Default;
 
-        public static string SetData(string pdfText)
+        public static string SetData(string reportId, string pdfText)
         {
-            string key = "PDF_Text";
+            string key = $"PDF_Text_{reportId}";
             string data = pdfText;
 
-            CacheItemPolicy policy = new CacheItemPolicy();
-            policy.AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(30); // Cache for 30 minutes
-            _cache.Set(key, data, policy);
+            CacheItemPolicy policy = new CacheItemPolicy
+            {
+                AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(30) // Cache for 30 minutes
+            };
 
+            _cache.Set(key, data, policy);
             return data;
         }
 
@@ -102,7 +104,7 @@ namespace PDFReader
             return fetchedKeywords;
         }
 
-        public static async Task<List<FetchedPhrase>> GetPhrases(string PDFUrl, string keyword)
+        public static async Task<List<FetchedPhrase>> GetPhrases(string reportId, string PDFUrl, string keyword)
         {
             List<FetchedPhrase> fetchedPhrases = new List<FetchedPhrase>();
 
@@ -155,7 +157,7 @@ namespace PDFReader
                     });
                 }
 
-                SetData(pageText.ToString().Replace("\n", "</br>"));
+                SetData(reportId,pageText.ToString().Replace("\n", "</br>"));
             }
             catch { }
 

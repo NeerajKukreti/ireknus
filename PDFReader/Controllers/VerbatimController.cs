@@ -1,6 +1,10 @@
-﻿using System;
+﻿using DocumentFormat.OpenXml.Bibliography;
+using PDFReader.Model;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Caching;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 
@@ -27,21 +31,58 @@ namespace PDFReader.Controllers
                     cachedReports.Add(item.ReportId.ToString());
                 }
             }
-            
-            return View(result);
+            // change: build unique keyword -> reportIds mapping
+            var uniqueKeywords = result
+                .Where(r => !string.IsNullOrWhiteSpace(r.FoundKeywords))            // ignore empty keywords
+                .GroupBy(r => r.FoundKeywords.Trim(), StringComparer.OrdinalIgnoreCase) // group case-insensitively on trimmed text
+                .Select(g => new Verbatim
+                {
+                    FoundKeywords = g.Key, // group's trimmed keyword (preserves casing from first occurrence)
+                    ReportIds = string.Join(",", g
+                        .Select(x => x.ReportId)         // get ints
+                        .Distinct()                      // unique report ids
+                        .OrderBy(id => id)               // order ascending (optional)
+                        .Select(id => id.ToString()))    // convert to string for join
+                })
+                .ToList();
+
+            return View(uniqueKeywords);
         }
 
         public async Task<ActionResult> SearchKeyword(string Keyword, string reportId)
         {
-            var url = _cache.Get($"URL_{reportId}") as string;
-
-            var phrases = await PDFSearch.GetPhrases(url, Keyword);
-            return Json(phrases, JsonRequestBehavior.AllowGet);
+            var reportIds = reportId.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            var allPhrases = new List<FetchedPhrase>();
+            foreach(var report in reportIds)
+            {
+                var url = _cache.Get($"URL_{report}") as string;
+                var phrases = await PDFSearch.GetPhrases(report,url, Keyword);
+                if (phrases != null)
+                    allPhrases.AddRange(phrases);
+            }
+            
+            return Json(allPhrases, JsonRequestBehavior.AllowGet);
         }
         public async Task<string> GetPDFText()
         {
-            string cachedData = _cache["PDF_Text"] as string;
-            return cachedData;
+            var allKeys = _cache
+                .Select(kvp => kvp.Key)
+                .Where(k => k.StartsWith("PDF_Text_"))
+                .OrderBy(k => k)   
+                .ToList();
+
+            var builder = new StringBuilder();
+
+            foreach (var key in allKeys)
+            {
+                if (_cache[key] is string pdfText && !string.IsNullOrWhiteSpace(pdfText))
+                {
+                    builder.AppendLine(pdfText);
+                }
+            }
+
+            return builder.ToString();
         }
+
     }
 }

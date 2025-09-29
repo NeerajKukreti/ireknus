@@ -54,6 +54,12 @@ namespace PDFReader.Model
         public string PageText { get; set; }
     }
 
+    public class Verbatim
+    {
+        public string ReportIds { get; set; }
+        public string FoundKeywords { get; set; }
+    }
+
     public class SkippedCount
     {
         public int ImgSkipped { get; set; }
