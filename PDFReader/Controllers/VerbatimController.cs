@@ -18,12 +18,16 @@ namespace PDFReader.Controllers
         public VerbatimController() { }
         public async Task<ActionResult> Index(string reportId)
         {
+            ClearCache();
+
             var cachedReports = new HashSet<string>();
             var reportIds = reportId.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
             var result = await DB.GetFoundKeywordsByReportId(reportIds);
 
-            foreach (var item in result)
+            var uniqueReportIds = result.Select(x => new { x.ReportId, x.Url }).Distinct();
+
+            foreach (var item in uniqueReportIds)
             {
                 if (!string.IsNullOrEmpty(item.Url) && !cachedReports.Contains(item.ReportId.ToString()))
                 {
@@ -31,6 +35,7 @@ namespace PDFReader.Controllers
                     cachedReports.Add(item.ReportId.ToString());
                 }
             }
+
             // change: build unique keyword -> reportIds mapping
             var uniqueKeywords = result
                 .Where(r => !string.IsNullOrWhiteSpace(r.FoundKeywords))            // ignore empty keywords
@@ -43,7 +48,7 @@ namespace PDFReader.Controllers
                         .Distinct()                      // unique report ids
                         .OrderBy(id => id)               // order ascending (optional)
                         .Select(id => id.ToString()))    // convert to string for join
-                })
+                }).OrderBy(x=> x.FoundKeywords)
                 .ToList();
 
             return View(uniqueKeywords);
@@ -51,6 +56,7 @@ namespace PDFReader.Controllers
 
         public async Task<ActionResult> SearchKeyword(string Keyword, string reportId)
         {
+            ClearCache();
             var reportIds = reportId.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             var allPhrases = new List<FetchedPhrase>();
             foreach (var report in reportIds)
@@ -82,6 +88,18 @@ namespace PDFReader.Controllers
             }
 
             return builder.ToString();
+        }
+
+        private void ClearCache() {
+            var numericKeys = _cache
+            .Select(kvp => kvp.Key)
+            .Where(key => key.All(char.IsDigit))
+            .ToList();  // materialize before removing
+
+            foreach (var key in numericKeys)
+            {
+                _cache.Remove(key);
+            }
         }
 
     }
