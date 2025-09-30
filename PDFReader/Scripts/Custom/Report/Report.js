@@ -426,7 +426,7 @@ $(document).ready(function () {
         var url = '/Verbatim?reportid=' + encodeURIComponent(verbatimText);
 
         // Open in the same window (or you can use _blank if needed)
-        window.location.href = url;
+        window.open(url, '_blank');
 
         // If you want to use POST instead of GET, we can do an AJAX call
     });
