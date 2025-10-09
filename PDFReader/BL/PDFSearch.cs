@@ -9,6 +9,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Runtime.Caching;
+using System.Runtime.InteropServices.ComTypes;
+using System.IO;
 
 namespace PDFReader
 {
@@ -131,7 +133,7 @@ namespace PDFReader
 
                 Dictionary<int, string> strlist = new Dictionary<int, string>();
                 TotalPage = pdfReader?.NumberOfPages;
-                
+
                 var pageText = new StringBuilder();
 
                 for (page = 1; page <= pdfReader.NumberOfPages; page++)
@@ -157,7 +159,7 @@ namespace PDFReader
                     });
                 }
 
-                SetData(reportId,pageText.ToString().Replace("\n", "</br>"));
+                SetData(reportId, pageText.ToString().Replace("\n", "</br>"));
             }
             catch { }
 
@@ -259,6 +261,56 @@ namespace PDFReader
             catch { }
 
             return fetchedKeywords;
+        }
+
+        public static async Task<List<FetchedPhrase>> GetPhrases1(Stream file, string keyword)
+        {
+            List<FetchedPhrase> fetchedPhrases = new List<FetchedPhrase>();
+
+            int page = 0;
+            int emptyPageCtn = 0;
+            int? TotalPage = 0;
+
+            try
+            {
+                var pdfReader = new PdfReader(file);
+
+
+                Dictionary<int, string> strlist = new Dictionary<int, string>();
+                TotalPage = pdfReader?.NumberOfPages;
+
+                var pageText = new StringBuilder();
+
+                for (page = 1; page <= pdfReader.NumberOfPages; page++)
+                {
+                    List<string> results = new List<string>();
+                    ITextExtractionStrategy strategy = new SimpleTextExtractionStrategy();
+                    ITextExtractionStrategy strategy1 = new LocationTextExtractionStrategy();
+                    string currentPageText = PdfTextExtractor.GetTextFromPage(pdfReader, page, strategy);
+                    currentPageText = PdfTextExtractor.GetTextFromPage(pdfReader, page, strategy1);
+                    pageText.Append(currentPageText);
+                    currentPageText =
+                        Regex.Replace(currentPageText.Replace(" \n", " ").Replace("\n", " "), @"\s+", " ");
+
+                    if (string.IsNullOrEmpty(currentPageText)) { emptyPageCtn++; continue; }
+
+                    results.AddRange(TextSearcher.SearchAllWithContext(currentPageText, keyword).ToList());
+
+                    if(results.Count>0)
+                    fetchedPhrases.Add(new FetchedPhrase
+                    {
+                        ReportID = 0,
+                        FoundKeywords = keyword,
+                        PDFPageNumber = page,
+                        PhraseText = results
+                    });
+                }
+
+                //SetData(reportId, pageText.ToString().Replace("\n", "</br>"));
+            }
+            catch { }
+
+            return fetchedPhrases;
         }
     }
 }
