@@ -162,13 +162,10 @@ namespace PDFReader.Controllers
                     return Json(new { success = false, message = "The uploaded file appears to be empty." });
                 }
 
-                // Parse keywords from text file (comma-separated)
-                var keywords = fileContent.Split(new char[] { ',', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
-                                          .Select(k => k.Trim())
-                                          .Where(k => !string.IsNullOrWhiteSpace(k))
-                                          .ToList();
+                // Parse enhanced text format: Keywords and Page Skip ranges
+                var parseResult = ParseTextFileContent(fileContent);
 
-                if (!keywords.Any())
+                if (!parseResult.Keywords.Any())
                 {
                     return Json(new { success = false, message = "No valid keywords found in the text file." });
                 }
@@ -177,14 +174,14 @@ namespace PDFReader.Controllers
                 byte[] pdfBytes = System.IO.File.ReadAllBytes(_currentPdfPath);
                 var allPhrases = new List<FetchedPhrase>();
 
-                // Process each keyword against the stored PDF
-                foreach (var keyword in keywords)
+                // Process each keyword against the stored PDF with page filtering
+                foreach (var keyword in parseResult.Keywords)
                 {
                     try
                     {
                         using (var pdfStream = new MemoryStream(pdfBytes))
                         {
-                            var phrases = await PDFSearch.GetPhrases1(pdfStream, keyword);
+                            var phrases = await PDFSearch.GetPhrasesWithPageFilter(pdfStream, keyword, parseResult.PageSkipRanges);
                             if (phrases != null && phrases.Any())
                             {
                                 allPhrases.AddRange(phrases);
@@ -202,11 +199,13 @@ namespace PDFReader.Controllers
                 return Json(new
                 {
                     success = true,
-                    message = $"Processed {keywords.Count} keywords from text file.",
-                    keywordsCount = keywords.Count,
+                    message = $"Processed {parseResult.Keywords.Count} keywords from text file.",
+                    keywordsCount = parseResult.Keywords.Count,
                     phrasesFound = allPhrases.Count,
-                    keywords = keywords,
-                    phrases = allPhrases
+                    keywords = parseResult.Keywords,
+                    phrases = allPhrases,
+                    pageSkipRanges = parseResult.PageSkipRanges,
+                    skipInfo = parseResult.SkipInfo
                 }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -220,6 +219,104 @@ namespace PDFReader.Controllers
                     message = "An error occurred while processing the file. Please try again."
                 });
             }
+        }
+
+        // Helper method to parse text file content with enhanced format
+        private ParsedTextFileContent ParseTextFileContent(string fileContent)
+        {
+            var result = new ParsedTextFileContent
+            {
+                Keywords = new List<string>(),
+                PageSkipRanges = new List<PageRange>(),
+                SkipInfo = ""
+            };
+
+            try
+            {
+                // Split content into lines
+                var lines = fileContent.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
+                                      .Select(line => line.Trim())
+                                      .Where(line => !string.IsNullOrWhiteSpace(line))
+                                      .ToList();
+
+                // Parse keywords line
+                var keywordLine = lines.FirstOrDefault(l => l.StartsWith("Keyword:", StringComparison.OrdinalIgnoreCase));
+                if (keywordLine != null)
+                {
+                    var keywordContent = keywordLine.Substring("Keyword:".Length).Trim();
+                    result.Keywords = keywordContent.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                                                  .Select(k => k.Trim())
+                                                  .Where(k => !string.IsNullOrWhiteSpace(k))
+                                                  .ToList();
+                }
+
+                // Parse page skip line
+                var pageSkipLine = lines.FirstOrDefault(l => l.StartsWith("Page Skip:", StringComparison.OrdinalIgnoreCase));
+                if (pageSkipLine != null)
+                {
+                    var pageSkipContent = pageSkipLine.Substring("Page Skip:".Length).Trim();
+                    result.PageSkipRanges = ParsePageRanges(pageSkipContent);
+                    result.SkipInfo = $"Skipping {result.PageSkipRanges.Count} page range(s): {pageSkipContent}";
+                }
+
+                // Fallback: if no "Keyword:" prefix found, treat entire content as comma-separated keywords
+                if (!result.Keywords.Any())
+                {
+                    result.Keywords = fileContent.Split(new char[] { ',', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
+                                                .Select(k => k.Trim())
+                                                .Where(k => !string.IsNullOrWhiteSpace(k) && !k.StartsWith("Page Skip:", StringComparison.OrdinalIgnoreCase))
+                                                .ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error parsing text file content: {ex.Message}");
+                
+                // Fallback to simple comma-separated parsing
+                result.Keywords = fileContent.Split(new char[] { ',', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
+                                            .Select(k => k.Trim())
+                                            .Where(k => !string.IsNullOrWhiteSpace(k))
+                                            .ToList();
+            }
+
+            return result;
+        }
+
+        // Helper method to parse page ranges like "1-10, 21-90"
+        private List<PageRange> ParsePageRanges(string pageRangeText)
+        {
+            var ranges = new List<PageRange>();
+
+            try
+            {
+                var rangeParts = pageRangeText.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (var part in rangeParts)
+                {
+                    var trimmedPart = part.Trim();
+                    
+                    if (trimmedPart.Contains('-'))
+                    {
+                        var rangeSplit = trimmedPart.Split('-');
+                        if (rangeSplit.Length == 2 && 
+                            int.TryParse(rangeSplit[0].Trim(), out int start) && 
+                            int.TryParse(rangeSplit[1].Trim(), out int end))
+                        {
+                            ranges.Add(new PageRange { Start = start, End = end });
+                        }
+                    }
+                    else if (int.TryParse(trimmedPart, out int singlePage))
+                    {
+                        ranges.Add(new PageRange { Start = singlePage, End = singlePage });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error parsing page ranges: {ex.Message}");
+            }
+
+            return ranges;
         }
 
         // Helper method to get current PDF info
@@ -259,5 +356,8 @@ namespace PDFReader.Controllers
                 }, JsonRequestBehavior.AllowGet);
             }
         }
+
+        // Helper classes for parsing results
+        
     }
 }

@@ -8,8 +8,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Runtime.Caching;
-using System.Runtime.InteropServices.ComTypes;
+using System.Runtime.Caching; 
 using System.IO;
 
 namespace PDFReader
@@ -312,5 +311,83 @@ namespace PDFReader
 
             return fetchedPhrases;
         }
+
+        // New method with page filtering support
+        public static async Task<List<FetchedPhrase>> GetPhrasesWithPageFilter(Stream file, string keyword, List<PageRange> pageSkipRanges)
+        {
+            List<FetchedPhrase> fetchedPhrases = new List<FetchedPhrase>();
+
+            int page = 0;
+            int emptyPageCtn = 0;
+            int? TotalPage = 0;
+
+            try
+            {
+                var pdfReader = new PdfReader(file);
+
+                Dictionary<int, string> strlist = new Dictionary<int, string>();
+                TotalPage = pdfReader?.NumberOfPages;
+
+                var pageText = new StringBuilder();
+
+                for (page = 1; page <= pdfReader.NumberOfPages; page++)
+                {
+                    // Check if this page should be skipped
+                    if (IsPageInSkipRanges(page, pageSkipRanges))
+                    {
+                        continue; // Skip this page
+                    }
+
+                    List<string> results = new List<string>();
+                    ITextExtractionStrategy strategy = new SimpleTextExtractionStrategy();
+                    ITextExtractionStrategy strategy1 = new LocationTextExtractionStrategy();
+                    string currentPageText = PdfTextExtractor.GetTextFromPage(pdfReader, page, strategy);
+                    currentPageText = PdfTextExtractor.GetTextFromPage(pdfReader, page, strategy1);
+                    pageText.Append(currentPageText);
+                    currentPageText =
+                        Regex.Replace(currentPageText.Replace(" \n", " ").Replace("\n", " "), @"\s+", " ");
+
+                    if (string.IsNullOrEmpty(currentPageText)) { emptyPageCtn++; continue; }
+
+                    results.AddRange(TextSearcher.SearchAllWithContext(currentPageText, keyword).ToList());
+
+                    if (results.Count > 0)
+                        fetchedPhrases.Add(new FetchedPhrase
+                        {
+                            ReportID = 0,
+                            FoundKeywords = keyword,
+                            PDFPageNumber = page,
+                            PhraseText = results
+                        });
+                }
+
+                //SetData(reportId, pageText.ToString().Replace("\n", "</br>"));
+            }
+            catch { }
+
+            return fetchedPhrases;
+        }
+
+        // Helper method to check if a page is in skip ranges
+        private static bool IsPageInSkipRanges(int pageNumber, List<PageRange> pageSkipRanges)
+        {
+            if (pageSkipRanges == null || !pageSkipRanges.Any())
+                return false;
+
+            return pageSkipRanges.Any(range => pageNumber >= range.Start && pageNumber <= range.End);
+        } 
+    }
+
+    public class ParsedTextFileContent
+    {
+        public List<string> Keywords { get; set; }
+        public List<PageRange> PageSkipRanges { get; set; }
+        public string SkipInfo { get; set; }
+    }
+
+    public class PageRange
+    {
+        public int Start { get; set; }
+        public int End { get; set; }
     }
 }
