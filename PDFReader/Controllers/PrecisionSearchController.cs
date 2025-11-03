@@ -1,23 +1,13 @@
-﻿using Dapper;
-using DocumentFormat.OpenXml.Bibliography;
-using iTextSharp.text;
-using Newtonsoft.Json;
-using PDFReader.Model;
-using PDFReader.Models;
+﻿using PDFReader.Model;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
-using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using System.Web.UI;
 
 namespace PDFReader.Controllers
 {
@@ -118,37 +108,29 @@ namespace PDFReader.Controllers
 
         // POST: Upload text file
         [HttpPost]
-        public async Task<ActionResult> UploadTextFile(HttpPostedFileBase textFile)
+        public async Task<ActionResult> UploadTextFile(HttpPostedFileBase textFile, string pageSkipRanges)
         {
             try
             {
                 // Validate file input
                 if (textFile == null || textFile.ContentLength == 0)
-                {
                     return Json(new { success = false, message = "Please select a text file to upload." });
-                }
 
                 // Validate file extension
                 var allowedExtensions = new[] { ".txt", ".text" };
                 var fileExtension = Path.GetExtension(textFile.FileName).ToLower();
 
                 if (!allowedExtensions.Contains(fileExtension))
-                {
                     return Json(new { success = false, message = "Only text files (.txt, .text) are allowed." });
-                }
 
                 // Validate file size (max 10MB)
                 const int maxFileSize = 10 * 1024 * 1024; // 10MB
                 if (textFile.ContentLength > maxFileSize)
-                {
                     return Json(new { success = false, message = "File size must be less than 10MB." });
-                }
 
                 // Check if PDF file exists
                 if (!System.IO.File.Exists(_currentPdfPath))
-                {
                     return Json(new { success = false, message = "No PDF file found. Please upload a PDF file first." });
-                }
 
                 // Read the text file content
                 string fileContent;
@@ -157,131 +139,141 @@ namespace PDFReader.Controllers
                     fileContent = reader.ReadToEnd();
                 }
 
-                // Basic validation of content
                 if (string.IsNullOrWhiteSpace(fileContent))
-                {
-                    return Json(new { success = false, message = "The uploaded file appears to be empty." });
-                }
+                    return Json(new { success = false, message = "The uploaded text file appears to be empty." });
 
-                // Parse enhanced text format: Keywords and Page Skip ranges
+                //Read skip ranges from textbox input
+                var skipRanges = ParsePageRanges(pageSkipRanges);
+                var skipInformation = string.IsNullOrWhiteSpace(pageSkipRanges)
+                    ? "No pages skipped."
+                    : $"Skipping {skipRanges.Count} page range(s): {pageSkipRanges}";
+
+                //Parse headed keyword file
                 var parseResult = ParseTextFileContent(fileContent);
 
-                if (!parseResult.Keywords.Any())
-                {
+                if (parseResult.TotalKeywordCount == 0)
                     return Json(new { success = false, message = "No valid keywords found in the text file." });
-                }
 
-                // Read PDF file as stream
+                //Read PDF file once
                 byte[] pdfBytes = System.IO.File.ReadAllBytes(_currentPdfPath);
                 var allPhrases = new List<FetchedPhrase>();
 
-                // Process each keyword against the stored PDF with page filtering
-                foreach (var keyword in parseResult.Keywords)
+                //Process keywords grouped by header
+                foreach (var head in parseResult.HeadKeywordMap)
                 {
-                    try
+                    foreach (var keyword in head.Value)
                     {
-                        using (var pdfStream = new MemoryStream(pdfBytes))
+                        try
                         {
-                            var phrases = await PDFSearch.GetPhrasesWithPageFilter(pdfStream, keyword, parseResult.PageSkipRanges);
-                            if (phrases != null && phrases.Any())
+                            using (var pdfStream = new MemoryStream(pdfBytes))
                             {
-                                allPhrases.AddRange(phrases);
+                                var phrases = await PDFSearch.GetPhrasesWithPageFilter(pdfStream, keyword, skipRanges);
+                                if (phrases != null && phrases.Any())
+                                {
+                                    allPhrases.AddRange(phrases);
+                                }
                             }
                         }
-                    }
-                    catch (Exception keywordEx)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"Error processing keyword '{keyword}': {keywordEx.Message}");
-                        // Continue with other keywords even if one fails
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Error processing keyword '{keyword}': {ex.Message}");
+                            // Continue with other keywords
+                        }
                     }
                 }
 
-                // Return results for display in view
+                //Return results for UI display
                 return Json(new
                 {
                     success = true,
-                    message = $"Processed {parseResult.Keywords.Count} keywords from text file.",
-                    keywordsCount = parseResult.Keywords.Count,
+                    message = $"Processed {parseResult.TotalKeywordHeadCount} header(s) and {parseResult.TotalKeywordCount} keywords.",
+                    headersCount = parseResult.TotalKeywordHeadCount,
+                    keywordsCount = parseResult.TotalKeywordCount,
                     phrasesFound = allPhrases.Count,
-                    keywords = parseResult.Keywords,
+                    headKeywordMap = parseResult.HeadKeywordMap,
                     phrases = allPhrases,
-                    pageSkipRanges = parseResult.PageSkipRanges,
-                    skipInfo = parseResult.SkipInfo
+                    pageSkipRanges = skipRanges,
+                    skipInfo = skipInformation
                 }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-                // Log the exception (you might want to use a logging framework)
                 System.Diagnostics.Debug.WriteLine($"Error uploading text file: {ex.Message}");
-
                 return Json(new
                 {
                     success = false,
-                    message = "An error occurred while processing the file. Please try again."
+                    message = "An error occurred while processing the text file. Please try again."
                 });
             }
         }
 
+
         // Helper method to parse text file content with enhanced format
         private ParsedTextFileContent ParseTextFileContent(string fileContent)
         {
-            var result = new ParsedTextFileContent
-            {
-                Keywords = new List<string>(),
-                PageSkipRanges = new List<PageRange>(),
-                SkipInfo = ""
-            };
+            var result = new ParsedTextFileContent();
 
             try
             {
-                // Split content into lines
-                var lines = fileContent.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
-                                      .Select(line => line.Trim())
-                                      .Where(line => !string.IsNullOrWhiteSpace(line))
-                                      .ToList();
+                // ensure dictionary is initialized (in case model constructor wasn't updated)
+                if (result.HeadKeywordMap == null)
+                    result.HeadKeywordMap = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
-                // Parse keywords line
-                var keywordLine = lines.FirstOrDefault(l => l.StartsWith("Keyword:", StringComparison.OrdinalIgnoreCase));
-                if (keywordLine != null)
+                // remove BOM if present
+                if (!string.IsNullOrEmpty(fileContent) && fileContent[0] == '\uFEFF')
+                    fileContent = fileContent.Substring(1);
+
+                string currentHeader = null;
+                const string defaultHeader = "Default";
+
+                // Split by lines, clean up, ignore blanks
+                var lines = fileContent.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                                       .Select(l => l.Trim())
+                                       .Where(l => !string.IsNullOrWhiteSpace(l))
+                                       .ToList();
+
+                foreach (var line in lines)
                 {
-                    var keywordContent = keywordLine.Substring("Keyword:".Length).Trim();
-                    result.Keywords = keywordContent.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                                                  .Select(k => k.Trim())
-                                                  .Where(k => !string.IsNullOrWhiteSpace(k))
-                                                  .ToList();
+                    if (line.StartsWith("#", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // It's a header line like "#Head 1"
+                        currentHeader = line.TrimStart('#').Trim();
+
+                        if (string.IsNullOrWhiteSpace(currentHeader))
+                        {
+                            // fallback header name if header line was just "#"
+                            currentHeader = defaultHeader;
+                        }
+
+                        if (!result.HeadKeywordMap.ContainsKey(currentHeader))
+                            result.HeadKeywordMap[currentHeader] = new List<string>();
+                    }
+                    else
+                    {
+                        // If we found a keyword before any header, place it under Default header
+                        if (string.IsNullOrEmpty(currentHeader))
+                        {
+                            currentHeader = defaultHeader;
+                            if (!result.HeadKeywordMap.ContainsKey(currentHeader))
+                                result.HeadKeywordMap[currentHeader] = new List<string>();
+                        }
+
+                        // It's a keyword line
+                        result.HeadKeywordMap[currentHeader].Add(line);
+                        result.TotalKeywordCount++;
+                    }
                 }
 
-                // Parse page skip line
-                var pageSkipLine = lines.FirstOrDefault(l => l.StartsWith("Page Skip:", StringComparison.OrdinalIgnoreCase));
-                if (pageSkipLine != null)
-                {
-                    var pageSkipContent = pageSkipLine.Substring("Page Skip:".Length).Trim();
-                    result.PageSkipRanges = ParsePageRanges(pageSkipContent);
-                    result.SkipInfo = $"Skipping {result.PageSkipRanges.Count} page range(s): {pageSkipContent}";
-                }
-
-                // Fallback: if no "Keyword:" prefix found, treat entire content as comma-separated keywords
-                if (!result.Keywords.Any())
-                {
-                    result.Keywords = fileContent.Split(new char[] { ',', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
-                                                .Select(k => k.Trim())
-                                                .Where(k => !string.IsNullOrWhiteSpace(k) && !k.StartsWith("Page Skip:", StringComparison.OrdinalIgnoreCase))
-                                                .ToList();
-                }
+                result.TotalKeywordHeadCount = result.HeadKeywordMap?.Count ?? 0;
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error parsing text file content: {ex.Message}");
-                
-                // Fallback to simple comma-separated parsing
-                result.Keywords = fileContent.Split(new char[] { ',', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
-                                            .Select(k => k.Trim())
-                                            .Where(k => !string.IsNullOrWhiteSpace(k))
-                                            .ToList();
             }
 
             return result;
         }
+
 
         // Helper method to parse page ranges like "1-10, 21-90"
         private List<PageRange> ParsePageRanges(string pageRangeText)
