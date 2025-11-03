@@ -380,9 +380,9 @@ namespace PDFReader
 
     public class ParsedTextFileContent
     {
-        public List<string> Keywords { get; set; }
-        public List<PageRange> PageSkipRanges { get; set; }
-        public string SkipInfo { get; set; }
+        public Dictionary<string, List<string>> HeadKeywordMap { get; set; }
+        public int TotalKeywordCount { get; set; }
+        public int TotalKeywordHeadCount { get; set; }
     }
 
     public class PageRange
