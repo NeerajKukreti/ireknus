@@ -5984,7 +5984,6 @@
     <Content Include="Views\Watchlist\UploadAnnouncement.cshtml" />
     <Content Include="Views\Verbatim\Index.cshtml" />
     <Content Include="Views\PrecisionSearch\Index.cshtml" />
-    <Content Include="Views\PrecisionSearch\HighPerformance.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\ExcelDownload\" />

@@ -29,7 +29,8 @@ namespace PDFReader.Controllers
         public PrecisionSearchController()
         {
             // Initialize AppData folder path for PrecisionSearch
-            string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string appDataPath = $"{AppContext.BaseDirectory}\\App_Data";
+
             _precisionSearchFolder = Path.Combine(appDataPath, "PrecisionSearch");
             _currentPdfPath = Path.Combine(_precisionSearchFolder, "current.pdf");
             
