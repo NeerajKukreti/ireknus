@@ -996,21 +996,21 @@
                 // Summary header
                 const headerDiv = document.createElement('div');
                 headerDiv.style.cssText = `
-            background: #e3f2fd;
-            border: 1px solid #007bff;
-            border-radius: 4px;
-            padding: 10px;
-            margin-bottom: 15px;
-            text-align: center;
-            font-size: 12px;
-            color: #0056b3;
-        `;
+                    background: #e3f2fd;
+                    border: 1px solid #007bff;
+                    border-radius: 4px;
+                    padding: 10px;
+                    margin-bottom: 15px;
+                    text-align: center;
+                    font-size: 12px;
+                    color: #0056b3;
+                `;
                 headerDiv.innerHTML = `
-            Found <strong>${result.phrasesFound}</strong> phrases 
-            for <strong>${result.keywordsCount}</strong> keywords 
-            under <strong>${result.headersCount}</strong> headers.
-            ${result.skipInfo ? `<br><small style="color: #666;"><i class="fas fa-ban"></i> ${result.skipInfo}</small>` : ''}
-        `;
+                    Found <strong>${result.phrasesFound}</strong> phrases
+                    for <strong>${result.keywordsCount}</strong> keywords
+                    under <strong>${result.headersCount}</strong> headers.
+                    ${result.skipInfo ? `<br><small style="color: #666;"><i class="fas fa-ban"></i> ${result.skipInfo}</small>` : ''}
+                `;
                 resultsDiv.appendChild(headerDiv);
 
                 // 🔹 Loop through headers (from controller HeadKeywordMap)
@@ -1018,15 +1018,15 @@
                     // Create header section
                     const headerSection = document.createElement('div');
                     headerSection.style.cssText = `
-                background: #f0f7ff;
-                border-left: 4px solid #007bff;
-                border-radius: 6px;
-                padding: 8px 12px;
-                margin-top: 10px;
-                font-weight: bold;
-                color: #0056b3;
-                font-size: 14px;
-            `;
+                        background: #f0f7ff;
+                        border-left: 4px solid #007bff;
+                        border-radius: 6px;
+                        padding: 8px 12px;
+                        margin-top: 10px;
+                        font-weight: bold;
+                        color: #0056b3;
+                        font-size: 14px;
+                    `;
                     headerSection.innerHTML = `<i class="fas fa-folder-open"></i> ${header}`;
                     resultsDiv.appendChild(headerSection);
 
@@ -1035,42 +1035,46 @@
                         const keywordDiv = document.createElement('div');
                         keywordDiv.className = 'result-page';
                         keywordDiv.style.cssText = `
-                    margin: 5px 0 5px 15px;
-                    padding: 8px 12px;
-                    border: 1px solid #e0e0e0;
-                    border-radius: 4px;
-                    cursor: pointer;
-                    font-size: 13px;
-                    background: white;
-                    transition: all 0.2s ease;
-                `;
+                            padding: 8px 12px;
+                            border: 1px solid #e0e0e0;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            font-size: 13px;
+                            background: white;
+                            transition: all 0.2s ease;
+                        `;
 
                         const keywordMatches = phrasesByKeyword[keyword] ? phrasesByKeyword[keyword].length : 0;
+
+                        var totalPhraseCount = 0
+                        if (keywordMatches>0)
+                            totalPhraseCount = phrasesByKeyword[keyword].reduce((sum, item) => sum + item.PhraseText.length, 0);
+
                         const isZero = keywordMatches == 0;
 
                         keywordDiv.innerHTML = `
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <span style="font-weight: bold; ${isZero ? 'orange' : '#007bff'};">
-                            <i class="fas ${isZero ? 'fa-search-minus' : 'fa-search'}"></i>
-                            ${isZero ? `<s style='color:orange'>${keyword}</s>` : keyword} 
-                        </span>
-                        <span style="background: #e3f2fd; color: #0056b3; padding: 2px 6px; border-radius: 10px; font-size: 11px;">
-                            ${keywordMatches} matches
-                        </span>
-                    </div>
-                `;
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <span style="font-weight: bold; color: ${isZero ? 'orange' : '#007bff'};">
+                                    <i class="fas ${isZero ? 'fa-search-minus' : 'fa-search'}"></i>
+                                    ${isZero ? `<s style='color:orange'>${keyword}</s>` : keyword}
+                                </span>
+                                <span style="background: #e3f2fd; color: #0056b3; padding: 2px 6px; border-radius: 10px; font-size: 11px;">
+                                    ${keywordMatches} Pages ${totalPhraseCount > 0 ? `,${totalPhraseCount} Occurrences` : ''}
+                                </span>
+                            </div>
+                        `;
 
                         const detailsDiv = document.createElement('div');
                         detailsDiv.style.cssText = `
-                    display: none;
-                    margin-top: 8px;
-                    padding: 8px;
-                    background: #f8f9fa;
-                    border-radius: 4px;
-                    border: 1px solid #dee2e6;
-                    max-height: 200px;
-                    overflow-y: auto;
-                `;
+                            display: none;
+                            margin-top: 8px;
+                            padding: 8px;
+                            background: #f8f9fa;
+                            border-radius: 4px;
+                            border: 1px solid #dee2e6;
+                            max-height: 200px;
+                            overflow-y: auto;
+                        `;
 
                         // Add phrase details
                         if (phrasesByKeyword[keyword]) {
@@ -1078,24 +1082,24 @@
                                 const phraseDiv = document.createElement('div');
                                 phraseDiv.className = 'phrase-clickable';
                                 phraseDiv.style.cssText = `
-                            background: white;
-                            border: 1px solid #ddd;
-                            border-radius: 3px;
-                            padding: 8px;
-                            margin-bottom: 6px;
-                            font-size: 11px;
-                            cursor: pointer;
-                        `;
+                                    background: white;
+                                    border: 1px solid #ddd;
+                                    border-radius: 3px;
+                                    padding: 8px;
+                                    margin-bottom: 6px;
+                                    font-size: 11px;
+                                    cursor: pointer;
+                                `;
 
                                 const phraseText = phrase.PhraseText[0] || phrase.Context || phrase.FoundKeywords || 'No text available';
                                 const displayText = phraseText.length > 50 ? phraseText.substring(0, 50) + '...' : phraseText;
 
                                 phraseDiv.innerHTML = `
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                                <span style="font-weight: bold; color: #007bff; font-size: 10px;">${displayText}</span>
-                                ${phrase.PDFPageNumber ? `<span style="background: #e3f2fd; color: #0056b3; padding: 1px 4px; border-radius: 8px; font-size: 9px;">Page ${phrase.PDFPageNumber} (${phrase.PhraseText.length})</span>` : ''}
-                            </div>                            
-                        `;
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                        <span style="font-weight: bold; color: #007bff; font-size: 10px;">${displayText}</span>
+                                        ${phrase.PDFPageNumber ? `<span style="background: #e3f2fd; color: #0056b3; padding: 1px 4px; border-radius: 8px; font-size: 9px;">Page ${phrase.PDFPageNumber} (${phrase.PhraseText.length})</span>` : ''}
+                                    </div>
+                                `;
 
                                 phraseDiv.addEventListener('click', async e => {
                                     e.stopPropagation();
@@ -1124,18 +1128,18 @@
                 // No results found
                 const noResultsDiv = document.createElement('div');
                 noResultsDiv.style.cssText = `
-            text-align: center;
-            padding: 20px;
-            color: #666;
-            background: #f8f9fa;
-            border-radius: 4px;
-            border: 1px solid #dee2e6;
-        `;
+                    text-align: center;
+                    padding: 20px;
+                    color: #666;
+                    background: #f8f9fa;
+                    border-radius: 4px;
+                    border: 1px solid #dee2e6;
+                `;
                 noResultsDiv.innerHTML = `
-            <i class="fas fa-exclamation-triangle" style="font-size: 24px; margin-bottom: 10px; color: #ffc107;"></i><br>
-            <strong>No matches found</strong><br>
-            <small>Try different keywords or check your PDF content.</small>
-        `;
+                    <i class="fas fa-exclamation-triangle" style="font-size: 24px; margin-bottom: 10px; color: #ffc107;"></i><br>
+                    <strong>No matches found</strong><br>
+                    <small>Try different keywords or check your PDF content.</small>
+                `;
                 resultsDiv.appendChild(noResultsDiv);
             }
         }
@@ -1175,11 +1179,11 @@
                 const originalStats = statsDiv.textContent;
 
                 statsDiv.innerHTML = `
-                    <div style="margin-bottom: 4px;">${originalStats}</div>
-                    <div style="font-size: 10px; color: #888; font-style: italic;">
-                        Phrase: "${fullPhraseText.length > 80 ? fullPhraseText.substring(0, 80) + '...' : fullPhraseText}"
-                    </div>
-                `;
+                            <div style="margin-bottom: 4px;">${originalStats}</div>
+                            <div style="font-size: 10px; color: #888; font-style: italic;">
+                                Phrase: "${fullPhraseText.length > 80 ? fullPhraseText.substring(0, 80) + '...' : fullPhraseText}"
+                            </div>
+                        `;
 
                 debugLog('Phrase search completed', {
                     navigatedToPage: pageNumber,
@@ -1195,37 +1199,37 @@
         // Add CSS for phrase active state
         const phraseStyles = document.createElement('style');
         phraseStyles.textContent = `
-            .phrase-clickable {
-                position: relative;
-            }
+                    .phrase-clickable {
+                        position: relative;
+                    }
 
-            .phrase-clickable:hover {
-                box-shadow: 0 2px 5px rgba(0,123,255,0.2);
-            }
+                    .phrase-clickable:hover {
+                        box-shadow: 0 2px 5px rgba(0,123,255,0.2);
+                    }
 
-            .phrase-active {
-                background: #e3f2fd !important;
-                border-color: #007bff !important;
-                box-shadow: 0 2px 8px rgba(0,123,255,0.3) !important;
-            }
+                    .phrase-active {
+                        background: #e3f2fd !important;
+                        border-color: #007bff !important;
+                        box-shadow: 0 2px 8px rgba(0,123,255,0.3) !important;
+                    }
 
-            .phrase-clickable::before {
-                content: '';
-                position: absolute;
-                left: -8px;
-                top: 50%;
-                transform: translateY(-50%);
-                width: 3px;
-                height: 0;
-                background: #007bff;
-                transition: height 0.2s ease;
-            }
+                    .phrase-clickable::before {
+                        content: '';
+                        position: absolute;
+                        left: -8px;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        width: 3px;
+                        height: 0;
+                        background: #007bff;
+                        transition: height 0.2s ease;
+                    }
 
-            .phrase-clickable:hover::before,
-            .phrase-active::before {
-                height: 70%;
-            }
-        `;
+                    .phrase-clickable:hover::before,
+                    .phrase-active::before {
+                        height: 70%;
+                    }
+                `;
         document.head.appendChild(phraseStyles);
 
         // Page navigation event listeners
