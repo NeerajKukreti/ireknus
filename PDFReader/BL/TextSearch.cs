@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 public class TextSearcher
 {
@@ -10,26 +11,42 @@ public class TextSearcher
             return Array.Empty<string>();
 
         List<string> results = new List<string>();
-        string searchLower = searchText.ToLower();
+        bool isWholeWordSearch = searchText.StartsWith("[") && searchText.EndsWith("]");
+        string actualSearchText = isWholeWordSearch ? searchText.Substring(1, searchText.Length - 2) : searchText;
+        string searchLower = actualSearchText.ToLower();
         string inputLower = input.ToLower();
 
         int currentIndex = 0;
 
-        // Find all occurrences of the search text
-        while (currentIndex < input.Length)
+        if (isWholeWordSearch)
         {
-            int searchIndex = inputLower.IndexOf(searchLower, currentIndex);
+            string pattern = @"\b" + Regex.Escape(searchLower) + @"\b";
+            MatchCollection matches = Regex.Matches(inputLower, pattern, RegexOptions.IgnoreCase);
+            
+            foreach (Match match in matches)
+            {
+                string result = ExtractContext(input, match.Index, actualSearchText.Length, wordsBefore, wordsAfter);
+                results.Add(result);
+            }
+        }
+        else
+        {
+            // Find all occurrences of the search text
+            while (currentIndex < input.Length)
+            {
+                int searchIndex = inputLower.IndexOf(searchLower, currentIndex);
 
-            if (searchIndex == -1)
-                break;
+                if (searchIndex == -1)
+                    break;
 
-            // Extract the context for this occurrence
-            string result = 
-                ExtractContext(input, searchIndex, searchText.Length, wordsBefore, wordsAfter);
-            results.Add(result);
+                // Extract the context for this occurrence
+                string result = 
+                    ExtractContext(input, searchIndex, actualSearchText.Length, wordsBefore, wordsAfter);
+                results.Add(result);
 
-            // Move to the next position to avoid infinite loop with same search text
-            currentIndex = searchIndex + searchText.Length;
+                // Move to the next position to avoid infinite loop with same search text
+                currentIndex = searchIndex + actualSearchText.Length;
+            }
         }
 
         return results.ToArray();
