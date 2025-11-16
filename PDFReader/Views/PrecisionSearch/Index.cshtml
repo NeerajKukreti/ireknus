@@ -754,41 +754,43 @@
             });
         }
 
-        // Search functionality
+        // Search functionality with word boundary or content matching
         async function performSearch(searchTerm) {
             if (!pdfDoc || !searchTerm.trim()) {
-                // Clear search results
                 document.getElementById('searchResults').innerHTML = '<div class="no-pdf-message">Enter a search term to see results</div>';
                 return;
             }
 
             const results = [];
-            const lowerTerm = searchTerm.toLowerCase();
+            const isContentSearch = searchTerm.startsWith('*');
+            const actualTerm = isContentSearch ? searchTerm.substring(1) : searchTerm;
+            
+            let regex;
+            if (isContentSearch) {
+                const escapedTerm = actualTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                regex = new RegExp(escapedTerm, 'gi');
+            } else {
+                const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                regex = new RegExp(`\\b${escapedTerm}\\b`, 'gi');
+            }
 
-            // Show progress
             progressBar.style.display = 'block';
             searchStats.textContent = 'Searching...';
 
             try {
-                // Search through all pages
                 for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
                     progressFill.style.width = ((pageNum / pdfDoc.numPages) * 100) + '%';
 
                     const pageText = await getPageText(pageNum);
-                    if (pageText.toLowerCase().includes(lowerTerm)) {
+                    if (regex.test(pageText)) {
                         results.push(pageNum);
                     }
 
-                    // Small delay to keep UI responsive
                     await new Promise(resolve => setTimeout(resolve, 1));
                 }
 
-                // Display results
                 displaySearchResults(results, searchTerm);
-
-                // Re-render current page with highlighting
                 await renderPage(currentPage, searchTerm);
-
                 searchStats.textContent = `Found "${searchTerm}" on ${results.length} page(s)`;
 
             } catch (error) {
@@ -1165,6 +1167,13 @@
         async function searchPhraseInPDF(searchTerm, pageNumber, fullPhraseText) {
 
             searchTerm = searchTerm.replace('[', '').replace(']', '').trim();
+            // Check if it's content search before removing *
+            const isContentSearch = searchTerm.startsWith('*');
+            if (isContentSearch) {
+                searchTerm = searchTerm.substring(1);
+            }
+            // Store search type for highlighting
+            window.currentSearchType = isContentSearch ? 'content' : 'word';
 
             // Check if PDF is loaded
             if (!pdfDoc) {
@@ -1179,21 +1188,24 @@
             });
 
             try {
+                // Clear any existing highlights first
+                const existingCanvas = document.getElementById('highlight-canvas');
+                if (existingCanvas) {
+                    const ctx = existingCanvas.getContext('2d');
+                    ctx.clearRect(0, 0, existingCanvas.width, existingCanvas.height);
+                }
+
                 // Navigate to the specific page
                 if (pageNumber && pageNumber >= 1 && pageNumber <= pdfDoc.numPages) {
                     await goToPage(pageNumber);
-
-                    // Small delay to ensure page is rendered
                     await new Promise(resolve => setTimeout(resolve, 100));
                 }
 
-                // Update search box with the search term
+                // Update search box and trigger highlighting
                 document.getElementById('searchBox').value = searchTerm;
+                await renderPage(currentPage, searchTerm);
 
-                // Trigger search with highlighting
-                //await performSearch(searchTerm);
-
-                // Update search stats to show phrase context
+                // Update search stats
                 const statsDiv = document.getElementById('searchStats');
                 const originalStats = statsDiv.textContent;
 
@@ -1292,7 +1304,7 @@
             await createCanvasHighlights(textContent, viewport, searchTerm);
         }
 
-        // Method: Canvas-based highlighting (same method that was working before)
+        // Method: Canvas-based highlighting with word boundary or content matching
         async function createCanvasHighlights(textContent, viewport, searchTerm) {
             if (!searchTerm) return;
 
@@ -1315,26 +1327,54 @@
             highlightCtx.clearRect(0, 0, highlightCanvas.width, highlightCanvas.height);
             highlightCtx.fillStyle = 'rgba(255, 255, 0, 0.4)';
 
-            const lowerTerm = searchTerm.toLowerCase();
-
+            // Build full text with position mapping
+            let fullText = '';
+            const itemMap = [];
+            
             textContent.items.forEach((item, index) => {
-                const text = item.str.toLowerCase();
-                if (text.includes(lowerTerm)) {
-                    const tx = pdfjsLib.Util.transform(viewport.transform, item.transform);
-
-                    const x = tx[4];
-                    const y = tx[5] - item.height;
-                    const width = item.width;
-                    const height = item.height;
-
-                    highlightCtx.fillRect(x, y, width, height);
-
-                    debugLog(`Canvas highlight ${index}`, {
-                        text: item.str,
-                        x, y, width, height
-                    });
+                const startPos = fullText.length;
+                fullText += item.str;
+                if (item.hasEOL || (index < textContent.items.length - 1 && !item.str.endsWith(' '))) {
+                    fullText += ' ';
                 }
+                itemMap.push({
+                    item: item,
+                    startPos: startPos,
+                    endPos: fullText.length,
+                    index: index
+                });
             });
+            
+            // Create regex based on search type
+            const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            let regex;
+            if (window.currentSearchType === 'content') {
+                // Content search - simple contains matching
+                regex = new RegExp(escapedTerm, 'gi');
+            } else {
+                // Word boundary search - exact word/phrase matching
+                regex = new RegExp(`\\b${escapedTerm}\\b`, 'gi');
+            }
+            
+            let match;
+            while ((match = regex.exec(fullText)) !== null) {
+                const matchStart = match.index;
+                const matchEnd = match.index + match[0].length;
+                
+                // Highlight items that contain this match
+                itemMap.forEach(mapping => {
+                    if (mapping.startPos < matchEnd && mapping.endPos > matchStart) {
+                        const tx = pdfjsLib.Util.transform(viewport.transform, mapping.item.transform);
+                        
+                        const x = tx[4];
+                        const y = tx[5] - mapping.item.height;
+                        const width = mapping.item.width;
+                        const height = mapping.item.height;
+                        
+                        highlightCtx.fillRect(x, y, width, height);
+                    }
+                });
+            }
         }
 
         // Get page text for searching
@@ -1345,7 +1385,13 @@
 
             const page = await pdfDoc.getPage(pageNum);
             const textContent = await page.getTextContent();
-            const text = textContent.items.map(item => item.str).join(' ');
+            let text = '';
+            textContent.items.forEach((item, index) => {
+                text += item.str;
+                if (item.hasEOL || (index < textContent.items.length - 1 && !item.str.endsWith(' '))) {
+                    text += ' ';
+                }
+            });
 
             searchCache.set(pageNum, text);
             return text;

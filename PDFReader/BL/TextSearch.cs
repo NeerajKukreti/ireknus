@@ -11,14 +11,14 @@ public class TextSearcher
             return Array.Empty<string>();
 
         List<string> results = new List<string>();
-        bool isWholeWordSearch = searchText.StartsWith("[") && searchText.EndsWith("]");
-        string actualSearchText = isWholeWordSearch ? searchText.Substring(1, searchText.Length - 2) : searchText;
+        bool isWholeWordSearch = searchText.StartsWith("*");
+        string actualSearchText = isWholeWordSearch ? searchText.Substring(1, searchText.Length-1) : searchText;
         string searchLower = actualSearchText.ToLower();
         string inputLower = input.ToLower();
 
         int currentIndex = 0;
 
-        if (isWholeWordSearch)
+        if (!isWholeWordSearch)
         {
             string pattern = @"\b" + Regex.Escape(searchLower) + @"\b";
             MatchCollection matches = Regex.Matches(inputLower, pattern, RegexOptions.IgnoreCase);
