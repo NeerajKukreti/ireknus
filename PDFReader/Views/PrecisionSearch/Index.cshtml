@@ -395,6 +395,98 @@
                 min-height: 400px;
             }
         }
+
+        /* layout: left panel + right viewer area */
+        .content-area {
+            display: flex;
+            gap: 16px;
+            /* subtract header/navigation toolbar height — adjust 64px if needed */
+            height: calc(100vh - 64px);
+            box-sizing: border-box;
+            padding: 10px;
+        }
+
+        /* left panel fixed width */
+        .left-panel {
+            width: 340px; /* keep whatever width you prefer */
+            overflow: auto;
+            box-sizing: border-box;
+        }
+
+        /* viewer column occupies remaining space */
+        .pdf-viewer,
+        #originalPdfContainer {
+            flex: 1 1 auto;
+            min-width: 0; /* important for flex children to prevent overflow */
+            height: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+            background: #fff;
+        }
+
+            /* keep pdf-viewer default styles (your existing styles will work) */
+            .pdf-viewer #pdf-container {
+                height: 100%;
+                overflow: auto;
+            }
+
+        /* original container hidden by default and will fill the viewer area when shown */
+        #originalPdfContainer {
+            display: none;
+            padding: 0;
+        }
+
+        /* iframe fills the container */
+        #originalPdfFrame {
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        /* Toggle switch visuals (optional keep your existing style) */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+            .switch input {
+                display: none;
+            }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+            .slider:before {
+                content: "";
+                position: absolute;
+                height: 18px;
+                width: 18px;
+                left: 3px;
+                bottom: 3px;
+                background: #fff;
+                transition: .4s;
+                border-radius: 50%;
+            }
+
+        input:checked + .slider {
+            background: #2196F3;
+        }
+
+            input:checked + .slider:before {
+                transform: translateX(26px);
+            }
+
     </style>
 
 </head>
@@ -457,6 +549,14 @@
                 </button>
             </div>
 
+            <!-- TOGGLE ORIGINAL PDF VIEW -->
+            <div style="display: flex; align-items: center; gap: 5px; margin-left: 10px;">
+                <label class="switch">
+                    <input type="checkbox" id="toggleOriginalPdf">
+                    <span class="slider round"></span>
+                </label>
+                <span>View PDF</span>
+            </div>
         </div>
 
     </div>
@@ -541,7 +641,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- PDF Viewer -->
         <div class="pdf-viewer">
             <div id="pdf-container">
@@ -553,6 +653,15 @@
                 <div id="text-layer" class="text-layer"></div>
             </div>
         </div>
+
+        <!-- ORIGINAL PDF VIEWER -->
+        <div id="originalPdfContainer">
+            <embed id="originalPdfEmbed"
+                   type="application/pdf"
+                   src=""
+                   style="width:100%; height:100%; border:0;" />
+        </div>
+
     </div>
 
     <script>
@@ -1497,6 +1606,33 @@
         document.getElementById('rotateLeft').addEventListener('click', rotateCounterClockwise);
         document.getElementById('rotateRight').addEventListener('click', rotateClockwise);
         document.getElementById('resetRotation').addEventListener('click', resetRotation);
+
+        // Elements
+        const toggle = document.getElementById("toggleOriginalPdf");
+        const originalContainer = document.getElementById("originalPdfContainer");
+        const pdfViewer = document.querySelector(".pdf-viewer");
+        const originalFrame = document.getElementById("originalPdfFrame");
+        const fileInput = document.getElementById("fileInput"); // your PDF file input
+
+        // When user selects a PDF, load it into iframe (so original can show it)
+        fileInput.addEventListener("change", function () {
+            const file = this.files[0];
+            const url = URL.createObjectURL(file);
+            document.getElementById("originalPdfEmbed").src = url;
+        });
+
+        // Toggle behavior: show original in the same viewer area (replace pdf-viewer)
+        toggle.addEventListener("change", function () {
+            if (this.checked) {
+                // show original and hide custom viewer
+                originalContainer.style.display = "block";
+                pdfViewer.style.display = "none";
+            } else {
+                originalContainer.style.display = "none";
+                pdfViewer.style.display = "block";
+            }
+        });
+
     </script>
 
 </body>
