@@ -375,6 +375,57 @@ namespace PDFReader
                 return false;
 
             return pageSkipRanges.Any(range => pageNumber >= range.Start && pageNumber <= range.End);
+        }
+
+        // Optimized method: Extract PDF once, search all keywords in memory
+        public static async Task<List<FetchedPhrase>> GetPhrasesOptimized(Stream file, List<string> keywords, List<PageRange> pageSkipRanges)
+        {
+            var allPhrases = new List<FetchedPhrase>();
+            if (keywords == null || !keywords.Any())
+                return allPhrases;
+
+            try
+            {
+                using (var pdfReader = new PdfReader(file))
+                {
+                    var totalPages = pdfReader.NumberOfPages;
+
+                    for (int page = 1; page <= totalPages; page++)
+                    {
+                        if (IsPageInSkipRanges(page, pageSkipRanges))
+                            continue;
+
+                        string currentPageText = PdfTextExtractor.GetTextFromPage(pdfReader, page, new LocationTextExtractionStrategy());
+                        currentPageText = Regex.Replace(currentPageText.Replace(" \n", " ").Replace("\n", " "), @"\s+", " ");
+
+                        if (string.IsNullOrEmpty(currentPageText))
+                            continue;
+
+                        // Search all keywords in this page
+                        foreach (var keyword in keywords)
+                        {
+                            try
+                            {
+                                var results = TextSearcher.SearchAllWithContext(currentPageText, keyword).ToList();
+                                if (results.Count > 0)
+                                {
+                                    allPhrases.Add(new FetchedPhrase
+                                    {
+                                        ReportID = 0,
+                                        FoundKeywords = keyword,
+                                        PDFPageNumber = page,
+                                        PhraseText = results
+                                    });
+                                }
+                            }
+                            catch { }
+                        }
+                    }
+                }
+            }
+            catch { }
+
+            return allPhrases;
         } 
     }
 

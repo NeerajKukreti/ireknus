@@ -449,6 +449,11 @@
                 <input type="text" id="txtSkipPages" placeholder="Page Skip Ex: 1-10, 21-90" />
             </div>
             <div>
+                <i class="fas fa-file-code" style="font-size: 20px; color: #28a745;" title="Upload JSON File"></i>
+                <input type="file" id="jsonFileInput" accept=".json"
+                       style="padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; width: 100px;">
+            </div>
+            <div>
                 <i class="fas fa-file-alt" style="font-size: 20px; color: #0275d8;" title="Upload Keyword Text File"></i>
                 <input type="file" id="textFileInput" accept=".txt,.text"
                        style="padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; width: 100px;">
@@ -922,6 +927,22 @@
         }
 
         let uploadedFile = null;
+        
+        // JSON File Upload Handler
+        document.getElementById('jsonFileInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            try {
+                const text = await file.text();
+                const jsonData = JSON.parse(text);
+                displayPDFSearchResults(jsonData);
+                searchStats.textContent = `Loaded ${jsonData.keywordsCount || 0} keywords, ${jsonData.phrasesFound || 0} phrases from JSON`;
+            } catch (error) {
+                alert('Invalid JSON file');
+            }
+        });
+
         document.getElementById('textFileInput').addEventListener('click', () => {
             // Allow selecting the same file again
             fileInput.value = null;
@@ -983,6 +1004,9 @@
                         keywordsCount: result.keywordsCount,
                         phrasesFound: result.phrasesFound
                     });
+
+                    // Save JSON response to file
+                    saveJsonToFile(result);
                 } else {
                     alert(result.message);
                     updateFileStatus('error', result.message);
@@ -1204,6 +1228,9 @@
                 // Update search box and trigger highlighting
                 document.getElementById('searchBox').value = searchTerm;
                 await renderPage(currentPage, searchTerm);
+                
+                // Auto-scroll to show highlighted text
+                await scrollToHighlight(searchTerm);
 
                 // Update search stats
                 const statsDiv = document.getElementById('searchStats');
@@ -1224,6 +1251,78 @@
             } catch (error) {
                 console.error('Error searching phrase in PDF:', error);
                 alert('Error occurred while searching phrase in PDF.');
+            }
+        }
+
+        // Auto-scroll to highlighted text
+        async function scrollToHighlight(searchTerm) {
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            const pdfViewer = document.querySelector('.pdf-viewer');
+            const pdfContainer = document.getElementById('pdf-container');
+            
+            // Get current page text content to find highlight position
+            if (!pdfDoc) return;
+            
+            try {
+                const page = await pdfDoc.getPage(currentPage);
+                const textContent = await page.getTextContent();
+                const viewport = page.getViewport({ scale: currentScale, rotation: currentRotation });
+                
+                let foundY = null;
+                let foundX = null;
+                
+                // Build text and find match position
+                let fullText = '';
+                const itemMap = [];
+                
+                textContent.items.forEach((item, index) => {
+                    const startPos = fullText.length;
+                    fullText += item.str;
+                    if (item.hasEOL || (index < textContent.items.length - 1 && !item.str.endsWith(' '))) {
+                        fullText += ' ';
+                    }
+                    itemMap.push({ item, startPos, endPos: fullText.length });
+                });
+                
+                // Find first match
+                const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                let regex;
+                if (window.currentSearchType === 'content') {
+                    regex = new RegExp(escapedTerm, 'gi');
+                } else {
+                    regex = new RegExp(`\\b${escapedTerm}\\b`, 'gi');
+                }
+                
+                const match = regex.exec(fullText);
+                if (match) {
+                    // Find the text item containing this match
+                    for (const mapping of itemMap) {
+                        if (mapping.startPos <= match.index && mapping.endPos > match.index) {
+                            const tx = pdfjsLib.Util.transform(viewport.transform, mapping.item.transform);
+                            foundY = tx[5];
+                            foundX = tx[4];
+                            break;
+                        }
+                    }
+                }
+                
+                if (foundY !== null && foundX !== null) {
+                    // Calculate scroll position to center the found text
+                    const containerRect = pdfContainer.getBoundingClientRect();
+                    const viewerRect = pdfViewer.getBoundingClientRect();
+                    
+                    const scrollX = foundX - (viewerRect.width / 2);
+                    const scrollY = foundY - (viewerRect.height / 2);
+                    
+                    pdfViewer.scrollTo({
+                        left: Math.max(0, scrollX),
+                        top: Math.max(0, scrollY),
+                        behavior: 'smooth'
+                    });
+                }
+            } catch (error) {
+                console.error('Error scrolling to highlight:', error);
             }
         }
 
@@ -1497,6 +1596,21 @@
         document.getElementById('rotateLeft').addEventListener('click', rotateCounterClockwise);
         document.getElementById('rotateRight').addEventListener('click', rotateClockwise);
         document.getElementById('resetRotation').addEventListener('click', resetRotation);
+
+        // Save JSON to file function
+        function saveJsonToFile(jsonData) {
+            const jsonString = JSON.stringify(jsonData, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `search-results-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
     </script>
 
 </body>

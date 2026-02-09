@@ -154,32 +154,14 @@ namespace PDFReader.Controllers
                 if (parseResult.TotalKeywordCount == 0)
                     return Json(new { success = false, message = "No valid keywords found in the text file." });
 
-                //Read PDF file once
-                byte[] pdfBytes = System.IO.File.ReadAllBytes(_currentPdfPath);
-                var allPhrases = new List<FetchedPhrase>();
+                // Flatten all keywords from all headers
+                var allKeywords = parseResult.HeadKeywordMap.Values.SelectMany(k => k).Distinct().ToList();
 
-                //Process keywords grouped by header
-                foreach (var head in parseResult.HeadKeywordMap)
+                // Optimized: Read PDF once and search all keywords
+                List<FetchedPhrase> allPhrases;
+                using (var fileStream = new FileStream(_currentPdfPath, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
-                    foreach (var keyword in head.Value)
-                    {
-                        try
-                        {
-                            using (var pdfStream = new MemoryStream(pdfBytes))
-                            {
-                                var phrases = await PDFSearch.GetPhrasesWithPageFilter(pdfStream, keyword, skipRanges);
-                                if (phrases != null && phrases.Any())
-                                {
-                                    allPhrases.AddRange(phrases);
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            System.Diagnostics.Debug.WriteLine($"Error processing keyword '{keyword}': {ex.Message}");
-                            // Continue with other keywords
-                        }
-                    }
+                    allPhrases = await PDFSearch.GetPhrasesOptimized(fileStream, allKeywords, skipRanges);
                 }
 
                 //Return results for UI display
