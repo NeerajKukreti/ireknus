@@ -12,480 +12,480 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f5f5f5;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f5f5f5;
         }
 
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-            .header h2 {
-                margin: 0;
-                font-size: 24px;
-                font-weight: 600;
-            }
+        .header h2 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 600;
+        }
 
         .navigation-toolbar {
-            background: white;
-            border-bottom: 1px solid #e0e0e0;
-            padding: 5px 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        background: white;
+        border-bottom: 1px solid #e0e0e0;
+        padding: 5px 5px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
         .navigation-section {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
         }
 
-            .navigation-section h4 {
-                margin: 0;
-                color: #333;
-                font-size: 16px;
-                font-weight: 600;
-                min-width: 140px;
-            }
+        .navigation-section h4 {
+        margin: 0;
+        color: #333;
+        font-size: 16px;
+        font-weight: 600;
+        min-width: 140px;
+        }
 
         .control-group {
-            display: flex;
-            align-items: center;
-            gap: 3px;
+        display: flex;
+        align-items: center;
+        gap: 3px;
         }
 
-            .control-group label {
-                font-size: 12px;
-                color: #666;
-                font-weight: 500;
-            }
+        .control-group label {
+        font-size: 12px;
+        color: #666;
+        font-weight: 500;
+        }
 
         .btn {
-            padding: 8px 8px;
-            border: 1px solid #ddd;
-            background: #fff;
-            cursor: pointer;
-            border-radius: 4px;
-            font-size: 13px;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
+        /*padding: 8px 8px;*/
+        border: 1px solid #ddd;
+        background: #fff;
+        cursor: pointer;
+        border-radius: 4px;
+        font-size: 13px;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
         }
 
-            .btn:hover:not(:disabled) {
-                background: #f8f9fa;
-                border-color: #007bff;
-                transform: translateY(-1px);
-            }
+        .btn:hover:not(:disabled) {
+        background: #f8f9fa;
+        border-color: #007bff;
+        transform: translateY(-1px);
+        }
 
-            .btn:disabled {
-                opacity: 0.5;
-                cursor: not-allowed;
-                transform: none;
-            }
+        .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+        }
 
         .btn-primary {
-            background: #007bff;
-            color: white;
-            border-color: #007bff;
+        background: #007bff;
+        color: white;
+        border-color: #007bff;
         }
 
-            .btn-primary:hover:not(:disabled) {
-                background: #0056b3;
-                border-color: #0056b3;
-            }
+        .btn-primary:hover:not(:disabled) {
+        background: #0056b3;
+        border-color: #0056b3;
+        }
 
         .btn-success {
-            background: #28a745;
-            color: white;
-            border-color: #28a745;
+        background: #28a745;
+        color: white;
+        border-color: #28a745;
         }
 
-            .btn-success:hover:not(:disabled) {
-                background: #1e7e34;
-            }
+        .btn-success:hover:not(:disabled) {
+        background: #1e7e34;
+        }
 
         .btn-warning {
-            background: #ffc107;
-            color: #212529;
-            border-color: #ffc107;
+        background: #ffc107;
+        color: #212529;
+        border-color: #ffc107;
         }
 
-            .btn-warning:hover:not(:disabled) {
-                background: #e0a800;
-            }
+        .btn-warning:hover:not(:disabled) {
+        background: #e0a800;
+        }
 
         select {
-            padding: 6px 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 12px;
-            background: white;
+        padding: 6px 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 12px;
+        background: white;
         }
 
         input[type="number"] {
-            padding: 6px 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 12px;
+        padding: 6px 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 12px;
         }
 
         .page-info {
-            font-weight: 600;
-            color: #333;
-            text-align: center;
-            font-size: 14px;
-            background: #f8f9fa;
-            padding: 6px 6px;
-            border-radius: 4px;
-            border: 1px solid #e0e0e0;
+        font-weight: 600;
+        color: #333;
+        text-align: center;
+        font-size: 14px;
+        background: #f8f9fa;
+        padding: 6px 6px;
+        border-radius: 4px;
+        border: 1px solid #e0e0e0;
         }
 
         .zoom-info, .rotation-info {
-            font-weight: 600;
-            color: #333;
-            min-width: 30px;
-            text-align: center;
-            font-size: 12px;
-            background: #f8f9fa;
-            padding: 4px 8px;
-            border-radius: 4px;
-            border: 1px solid #e0e0e0;
+        font-weight: 600;
+        color: #333;
+        min-width: 30px;
+        text-align: center;
+        font-size: 12px;
+        background: #f8f9fa;
+        padding: 4px 8px;
+        border-radius: 4px;
+        border: 1px solid #e0e0e0;
         }
 
         .content-area {
-            display: flex;
-            height: calc(100vh - 100px);
-            margin: 20px;
-            gap: 20px;
+        display: flex;
+        height: calc(100vh - 100px);
+        margin: 20px;
+        gap: 20px;
         }
 
         .left-panel {
-            width: 350px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
+        width: 350px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
         }
 
         .panel-section {
-            padding: 20px;
-            border-bottom: 1px solid #e0e0e0;
+        padding: 20px;
+        border-bottom: 1px solid #e0e0e0;
         }
 
-            .panel-section:last-child {
-                border-bottom: none;
-                flex: 1;
-            }
+        .panel-section:last-child {
+        border-bottom: none;
+        flex: 1;
+        }
 
-            .panel-section h4 {
-                margin: 0 0 15px 0;
-                color: #333;
-                font-size: 16px;
-                border-bottom: 2px solid #007bff;
-                padding-bottom: 5px;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
+        .panel-section h4 {
+        margin: 0 0 15px 0;
+        color: #333;
+        font-size: 16px;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 5px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        }
 
         .search-section .control-group {
-            margin-bottom: 15px;
+        margin-bottom: 15px;
         }
 
         .search-input {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            width: 100%;
-            margin-bottom: 10px;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        width: 100%;
+        margin-bottom: 10px;
         }
 
-            .search-input:focus {
-                outline: none;
-                border-color: #007bff;
-                box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
-            }
+        .search-input:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        }
 
         .file-input {
-            width: 100%;
-            padding: 8px;
-            border: 2px dashed #ddd;
-            border-radius: 4px;
-            background: #f8f9fa;
-            margin-bottom: 15px;
-            text-align: center;
+        width: 100%;
+        padding: 8px;
+        border: 2px dashed #ddd;
+        border-radius: 4px;
+        background: #f8f9fa;
+        margin-bottom: 15px;
+        text-align: center;
         }
 
         .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #f0f0f0;
-            border-radius: 4px;
-            overflow: hidden;
-            margin: 10px 0;
+        width: 100%;
+        height: 8px;
+        background: #f0f0f0;
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 10px 0;
         }
 
         .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #007bff, #28a745);
-            transition: width 0.3s ease;
-            width: 0%;
+        height: 100%;
+        background: linear-gradient(90deg, #007bff, #28a745);
+        transition: width 0.3s ease;
+        width: 0%;
         }
 
         .search-stats {
-            font-size: 12px;
-            color: #666;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 4px;
-            margin-top: 10px;
+        font-size: 12px;
+        color: #666;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 4px;
+        margin-top: 10px;
         }
 
         .pdf-viewer {
-            flex: 1;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 20px;
-            overflow: auto;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
+        flex: 1;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 20px;
+        overflow: auto;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
         }
 
         #pdf-container {
-            position: relative;
-            display: inline-block;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            overflow: auto;
-            max-width: 100%;
-            max-height: 100%;
+        position: relative;
+        display: inline-block;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        overflow: auto;
+        max-width: 100%;
+        max-height: 100%;
         }
 
         canvas {
-            display: block;
-            transition: transform 0.3s ease;
+        display: block;
+        transition: transform 0.3s ease;
         }
 
         .text-layer {
-            position: absolute;
-            left: 0;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            overflow: hidden;
-            opacity: 0;
-            line-height: 1.0;
-            pointer-events: none;
-            transition: transform 0.3s ease;
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        overflow: hidden;
+        opacity: 0;
+        line-height: 1.0;
+        pointer-events: none;
+        transition: transform 0.3s ease;
         }
 
-            .text-layer > span {
-                color: transparent;
-                position: absolute;
-                white-space: pre;
-                cursor: text;
-                transform-origin: 0% 0%;
-            }
+        .text-layer > span {
+        color: transparent;
+        position: absolute;
+        white-space: pre;
+        cursor: text;
+        transform-origin: 0% 0%;
+        }
 
-            .text-layer .highlight {
-                background-color: rgba(255, 255, 0, 0.4);
-                color: transparent;
-            }
+        .text-layer .highlight {
+        background-color: rgba(255, 255, 0, 0.4);
+        color: transparent;
+        }
 
         .result-page {
-            cursor: pointer;
-            color: #007bff;
-            text-decoration: none;
-            margin: 5px 0;
-            padding: 10px 15px;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            display: block;
-            transition: all 0.2s ease;
-            font-size: 14px;
+        cursor: pointer;
+        color: #007bff;
+        text-decoration: none;
+        margin: 5px 0;
+        padding: 10px 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        display: block;
+        transition: all 0.2s ease;
+        font-size: 14px;
         }
 
-            .result-page:hover {
-                background: #f8f9fa;
-                border-color: #007bff;
-                text-decoration: none;
-                transform: translateY(-1px);
-            }
+        .result-page:hover {
+        background: #f8f9fa;
+        border-color: #007bff;
+        text-decoration: none;
+        transform: translateY(-1px);
+        }
 
-            .result-page.active {
-                background: #e3f2fd;
-                border-color: #007bff;
-                color: #0056b3;
-            }
+        .result-page.active {
+        background: #e3f2fd;
+        border-color: #007bff;
+        color: #0056b3;
+        }
 
         .debug-info {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            padding: 10px;
-            margin: 10px 0;
-            font-family: monospace;
-            font-size: 10px;
-            max-height: 200px;
-            overflow-y: auto;
-            border-radius: 4px;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        padding: 10px;
+        margin: 10px 0;
+        font-family: monospace;
+        font-size: 10px;
+        max-height: 200px;
+        overflow-y: auto;
+        border-radius: 4px;
         }
 
         .checkbox-label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 10px;
         }
 
         .view-controls-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 10px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 10px;
         }
 
         .divider {
-            height: 1px;
-            background: #e0e0e0;
-            margin: 15px 0;
+        height: 1px;
+        background: #e0e0e0;
+        margin: 15px 0;
         }
 
         .no-pdf-message {
-            text-align: center;
-            color: #666;
-            padding: 50px 20px;
-            font-size: 16px;
+        text-align: center;
+        color: #666;
+        padding: 50px 20px;
+        font-size: 16px;
         }
 
         @@media (max-width: 1200px) {
-            .navigation-section {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
+        .navigation-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+        }
         }
 
         @@media (max-width: 768px) {
-            .content-area {
-                flex-direction: column;
-                height: auto;
-            }
+        .content-area {
+        flex-direction: column;
+        height: auto;
+        }
 
-            .left-panel {
-                width: 100%;
-                order: 2;
-            }
+        .left-panel {
+        width: 100%;
+        order: 2;
+        }
 
-            .pdf-viewer {
-                order: 1;
-                min-height: 400px;
-            }
+        .pdf-viewer {
+        order: 1;
+        min-height: 400px;
+        }
         }
 
         /* layout: left panel + right viewer area */
         .content-area {
-            display: flex;
-            gap: 16px;
-            /* subtract header/navigation toolbar height — adjust 64px if needed */
-            height: calc(100vh - 64px);
-            box-sizing: border-box;
-            padding: 10px;
+        display: flex;
+        gap: 16px;
+        /* subtract header/navigation toolbar height — adjust 64px if needed */
+        height: calc(100vh - 64px);
+        box-sizing: border-box;
+        padding: 10px;
         }
 
         /* left panel fixed width */
         .left-panel {
-            width: 340px; /* keep whatever width you prefer */
-            overflow: auto;
-            box-sizing: border-box;
+        width: 340px; /* keep whatever width you prefer */
+        overflow: auto;
+        box-sizing: border-box;
         }
 
         /* viewer column occupies remaining space */
         .pdf-viewer,
         #originalPdfContainer {
-            flex: 1 1 auto;
-            min-width: 0; /* important for flex children to prevent overflow */
-            height: 100%;
-            box-sizing: border-box;
-            overflow: hidden;
-            background: #fff;
+        flex: 1 1 auto;
+        min-width: 0; /* important for flex children to prevent overflow */
+        height: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
+        background: #fff;
         }
 
-            /* keep pdf-viewer default styles (your existing styles will work) */
-            .pdf-viewer #pdf-container {
-                height: 100%;
-                overflow: auto;
-            }
+        /* keep pdf-viewer default styles (your existing styles will work) */
+        .pdf-viewer #pdf-container {
+        height: 100%;
+        overflow: auto;
+        }
 
         /* original container hidden by default and will fill the viewer area when shown */
         #originalPdfContainer {
-            display: none;
-            padding: 0;
+        display: none;
+        padding: 0;
         }
 
         /* iframe fills the container */
         #originalPdfFrame {
-            width: 100%;
-            height: 100%;
-            border: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
         }
 
         /* Toggle switch visuals (optional keep your existing style) */
         .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
         }
 
-            .switch input {
-                display: none;
-            }
+        .switch input {
+        display: none;
+        }
 
         .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: #ccc;
-            transition: .4s;
-            border-radius: 34px;
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #ccc;
+        transition: .4s;
+        border-radius: 34px;
         }
 
-            .slider:before {
-                content: "";
-                position: absolute;
-                height: 18px;
-                width: 18px;
-                left: 3px;
-                bottom: 3px;
-                background: #fff;
-                transition: .4s;
-                border-radius: 50%;
-            }
+        .slider:before {
+        content: "";
+        position: absolute;
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background: #fff;
+        transition: .4s;
+        border-radius: 50%;
+        }
 
         input:checked + .slider {
-            background: #2196F3;
+        background: #2196F3;
         }
 
-            input:checked + .slider:before {
-                transform: translateX(26px);
-            }
+        input:checked + .slider:before {
+        transform: translateX(26px);
+        }
 
     </style>
 
@@ -537,7 +537,8 @@
                 <input type="file" id="fileInput" accept="application/pdf"
                        style="padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; width:100px;">
             </div>
-            <div>Skip
+            <div>
+                Skip
                 <input type="text" id="txtSkipPages" placeholder="Page Skip Ex: 1-10, 21-90" />
             </div>
             <div>
@@ -549,13 +550,13 @@
                 <i class="fas fa-file-alt" style="font-size: 20px; color: #0275d8;" title="Upload Keyword Text File"></i>
                 <input type="file" id="textFileInput" accept=".txt,.text"
                        style="padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; width: 100px;">
-                <button id="uploadTextBtn" class="btn btn-primary" style="margin-left: 5px;">
+                <button id="uploadTextBtn" class="btn btn-primary" style="margin-left: 5px;    padding: 5px;">
                     <i class="fas fa-file-alt"></i> Upload
                 </button>
             </div>
 
             <!-- TOGGLE ORIGINAL PDF VIEW -->
-            <div style="display: flex; align-items: center; gap: 5px; margin-left: 10px;">
+            <div style="display: flex; align-items: center; gap: 5px;">
                 <label class="switch">
                     <input type="checkbox" id="toggleOriginalPdf">
                     <span class="slider round"></span>
@@ -583,9 +584,11 @@
                 <div class="control-group" style="margin-top: 15px; display: none">
                     <label style="min-width: auto;">Highlight Method:</label>
                     <select id="highlightMethod" style="flex: 1;">
-                        @*<option value="textLayer">Text Layer (Most Accurate)</option>*@
+                        @*
+                        <option value="textLayer">Text Layer (Most Accurate)</option>*@
                         <option selected value="canvas">Canvas Method</option>
-                        @*<option value="dom">DOM Overlay</option>*@
+                        @*
+                        <option value="dom">DOM Overlay</option>*@
                     </select>
                 </div>
 
@@ -699,776 +702,776 @@
 
         // Debug functionality
         function debugLog(message, data = null) {
-            if (document.getElementById('debugMode').checked) {
-                console.log(`[DEBUG] ${message}`, data);
-                const debugDiv = document.getElementById('debugInfo');
-                debugDiv.style.display = 'block';
-                debugDiv.innerHTML += `<div>[${new Date().toLocaleTimeString()}] ${message}</div>`;
-                if (data) {
-                    debugDiv.innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
-                }
-                debugDiv.scrollTop = debugDiv.scrollHeight;
-            }
+        if (document.getElementById('debugMode').checked) {
+        console.log(`[DEBUG] ${message}`, data);
+        const debugDiv = document.getElementById('debugInfo');
+        debugDiv.style.display = 'block';
+        debugDiv.innerHTML += `<div>[${new Date().toLocaleTimeString()}] ${message}</div>`;
+        if (data) {
+        debugDiv.innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        }
+        debugDiv.scrollTop = debugDiv.scrollHeight;
+        }
         }
 
         // Clear debug info
         function clearDebug() {
-            debugInfo.innerHTML = '<h5><i class="fas fa-bug"></i> Debug Information</h5>';
-            debugInfo.style.display = 'none';
+        debugInfo.innerHTML = '<h5><i class="fas fa-bug"></i> Debug Information</h5>';
+        debugInfo.style.display = 'none';
         }
 
         // Update UI controls
         function updateControls() {
-            if (!pdfDoc) return;
+        if (!pdfDoc) return;
 
-            // Update page info
-            document.getElementById('pageInfo').textContent = `${currentPage} / ${pdfDoc.numPages}`;
-            document.getElementById('pageInput').max = pdfDoc.numPages;
-            document.getElementById('pageInput').value = currentPage;
+        // Update page info
+        document.getElementById('pageInfo').textContent = `${currentPage} / ${pdfDoc.numPages}`;
+        document.getElementById('pageInput').max = pdfDoc.numPages;
+        document.getElementById('pageInput').value = currentPage;
 
-            // Update page navigation buttons
-            document.getElementById('firstPage').disabled = currentPage <= 1;
-            document.getElementById('prevPage').disabled = currentPage <= 1;
-            document.getElementById('nextPage').disabled = currentPage >= pdfDoc.numPages;
-            document.getElementById('lastPage').disabled = currentPage >= pdfDoc.numPages;
+        // Update page navigation buttons
+        document.getElementById('firstPage').disabled = currentPage <= 1;
+        document.getElementById('prevPage').disabled = currentPage <= 1;
+        document.getElementById('nextPage').disabled = currentPage >= pdfDoc.numPages;
+        document.getElementById('lastPage').disabled = currentPage >= pdfDoc.numPages;
 
-            // Update zoom info
-            const zoomPercent = Math.round(currentScale * 100);
-            document.getElementById('zoomInfo').textContent = `${zoomPercent}%`;
+        // Update zoom info
+        const zoomPercent = Math.round(currentScale * 100);
+        document.getElementById('zoomInfo').textContent = `${zoomPercent}%`;
 
-            // Update zoom buttons
-            document.getElementById('zoomOut').disabled = currentZoomIndex <= 0;
-            document.getElementById('zoomIn').disabled = currentZoomIndex >= zoomLevels.length - 1;
+        // Update zoom buttons
+        document.getElementById('zoomOut').disabled = currentZoomIndex <= 0;
+        document.getElementById('zoomIn').disabled = currentZoomIndex >= zoomLevels.length - 1;
 
-            // Update rotation info
-            document.getElementById('rotationInfo').textContent = `${currentRotation}°`;
+        // Update rotation info
+        document.getElementById('rotationInfo').textContent = `${currentRotation}°`;
 
-            // Update scale select
-            if (document.getElementById('scaleSelect').value !== 'fit-width') {
-                document.getElementById('scaleSelect').value = currentScale.toString();
-            }
+        // Update scale select
+        if (document.getElementById('scaleSelect').value !== 'fit-width') {
+        document.getElementById('scaleSelect').value = currentScale.toString();
+        }
         }
 
         // Calculate fit-width scale
         function calculateFitWidthScale() {
-            if (!pdfDoc || !containerWidth) return 1.0;
+        if (!pdfDoc || !containerWidth) return 1.0;
 
-            // Use a reference page to calculate dimensions
-            return new Promise(async (resolve) => {
-                try {
-                    const page = await pdfDoc.getPage(currentPage);
-                    const viewport = page.getViewport({ scale: 1.0, rotation: currentRotation });
-                    const scale = (containerWidth - 40) / viewport.width; // 40px for padding
-                    resolve(Math.max(0.1, Math.min(5.0, scale))); // Clamp between 0.1 and 5.0
-                } catch (error) {
-                    resolve(1.0);
-                }
-            });
+        // Use a reference page to calculate dimensions
+        return new Promise(async (resolve) => {
+        try {
+        const page = await pdfDoc.getPage(currentPage);
+        const viewport = page.getViewport({ scale: 1.0, rotation: currentRotation });
+        const scale = (containerWidth - 40) / viewport.width; // 40px for padding
+        resolve(Math.max(0.1, Math.min(5.0, scale))); // Clamp between 0.1 and 5.0
+        } catch (error) {
+        resolve(1.0);
+        }
+        });
         }
 
         // Apply transform to canvas and text layer
         function applyTransforms() {
-            const transformString = `rotate(${currentRotation}deg) scale(${currentScale})`;
-            canvas.style.transform = transformString;
-            textLayer.style.transform = transformString;
+        const transformString = `rotate(${currentRotation}deg) scale(${currentScale})`;
+        canvas.style.transform = transformString;
+        textLayer.style.transform = transformString;
 
-            debugLog('Applied transforms', {
-                scale: currentScale,
-                rotation: currentRotation,
-                transform: transformString
-            });
+        debugLog('Applied transforms', {
+        scale: currentScale,
+        rotation: currentRotation,
+        transform: transformString
+        });
         }
 
         // Update file status display
         function updateFileStatus(type, message) {
-            const statusDiv = document.getElementById('fileStatus');
-            const statusText = document.getElementById('fileStatusText');
+        const statusDiv = document.getElementById('fileStatus');
+        const statusText = document.getElementById('fileStatusText');
 
-            statusDiv.style.display = 'block';
-            statusText.textContent = message;
+        statusDiv.style.display = 'block';
+        statusText.textContent = message;
 
-            // Set color based on type
-            if (type === 'success') {
-                statusDiv.style.backgroundColor = '#d4edda';
-                statusDiv.style.color = '#155724';
-                statusDiv.style.borderColor = '#c3e6cb';
-            } else if (type === 'error') {
-                statusDiv.style.backgroundColor = '#f8d7da';
-                statusDiv.style.color = '#721c24';
-                statusDiv.style.borderColor = '#f5c6cb';
-            } else {
-                statusDiv.style.backgroundColor = '#d1ecf1';
-                statusDiv.style.color = '#0c5460';
-                statusDiv.style.borderColor = '#bee5eb';
-            }
+        // Set color based on type
+        if (type === 'success') {
+        statusDiv.style.backgroundColor = '#d4edda';
+        statusDiv.style.color = '#155724';
+        statusDiv.style.borderColor = '#c3e6cb';
+        } else if (type === 'error') {
+        statusDiv.style.backgroundColor = '#f8d7da';
+        statusDiv.style.color = '#721c24';
+        statusDiv.style.borderColor = '#f5c6cb';
+        } else {
+        statusDiv.style.backgroundColor = '#d1ecf1';
+        statusDiv.style.color = '#0c5460';
+        statusDiv.style.borderColor = '#bee5eb';
+        }
         }
 
         // Render page with accurate text layer
         async function renderPage(num, searchTerm = '') {
-            if (!pdfDoc) return;
+        if (!pdfDoc) return;
 
-            debugLog(`Rendering page ${num}`, {
-                searchTerm,
-                scale: currentScale,
-                rotation: currentRotation
-            });
+        debugLog(`Rendering page ${num}`, {
+        searchTerm,
+        scale: currentScale,
+        rotation: currentRotation
+        });
 
-            const page = await pdfDoc.getPage(num);
-            const viewport = page.getViewport({
-                scale: currentScale,
-                rotation: currentRotation
-            });
+        const page = await pdfDoc.getPage(num);
+        const viewport = page.getViewport({
+        scale: currentScale,
+        rotation: currentRotation
+        });
 
-            // Set canvas dimensions
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
+        // Set canvas dimensions
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
 
-            // Set text layer dimensions
-            textLayer.style.width = viewport.width + 'px';
-            textLayer.style.height = viewport.height + 'px';
+        // Set text layer dimensions
+        textLayer.style.width = viewport.width + 'px';
+        textLayer.style.height = viewport.height + 'px';
 
-            // Render PDF page
-            await page.render({
-                canvasContext: ctx,
-                viewport: viewport
-            }).promise;
+        // Render PDF page
+        await page.render({
+        canvasContext: ctx,
+        viewport: viewport
+        }).promise;
 
-            // Get text content
-            const textContent = await page.getTextContent();
+        // Get text content
+        const textContent = await page.getTextContent();
 
-            // Clear previous text layer
-            textLayer.innerHTML = '';
+        // Clear previous text layer
+        textLayer.innerHTML = '';
 
-            // Create text layer using PDF.js method
-            await createTextLayer(textContent, viewport, searchTerm);
+        // Create text layer using PDF.js method
+        await createTextLayer(textContent, viewport, searchTerm);
 
-            currentPage = num;
-            updateControls();
-            debugLog('Page rendering complete');
+        currentPage = num;
+        updateControls();
+        debugLog('Page rendering complete');
         }
 
         // Navigation Functions
         async function goToPage(pageNum) {
-            if (!pdfDoc || pageNum < 1 || pageNum > pdfDoc.numPages) return;
+        if (!pdfDoc || pageNum < 1 || pageNum > pdfDoc.numPages) return;
 
-            const searchTerm = document.getElementById('searchBox').value.trim();
-            await renderPage(pageNum, searchTerm);
+        const searchTerm = document.getElementById('searchBox').value.trim();
+        await renderPage(pageNum, searchTerm);
 
-            // Update active result if applicable
-            updateActiveSearchResult(pageNum);
+        // Update active result if applicable
+        updateActiveSearchResult(pageNum);
         }
 
         function updateActiveSearchResult(pageNum) {
-            const results = document.querySelectorAll('.result-page');
-            results.forEach(result => {
-                result.classList.remove('active');
-                if (result.dataset.page == pageNum) {
-                    result.classList.add('active');
-                }
-            });
+        const results = document.querySelectorAll('.result-page');
+        results.forEach(result => {
+        result.classList.remove('active');
+        if (result.dataset.page == pageNum) {
+        result.classList.add('active');
+        }
+        });
         }
 
         // Search functionality with word boundary or content matching
         async function performSearch(searchTerm) {
-            if (!pdfDoc || !searchTerm.trim()) {
-                document.getElementById('searchResults').innerHTML = '<div class="no-pdf-message">Enter a search term to see results</div>';
-                return;
-            }
+        if (!pdfDoc || !searchTerm.trim()) {
+        document.getElementById('searchResults').innerHTML = '<div class="no-pdf-message">Enter a search term to see results</div>';
+        return;
+        }
 
-            const results = [];
-            const isContentSearch = searchTerm.startsWith('*');
-            const actualTerm = isContentSearch ? searchTerm.substring(1) : searchTerm;
-            
-            let regex;
-            if (isContentSearch) {
-                const escapedTerm = actualTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                regex = new RegExp(escapedTerm, 'gi');
-            } else {
-                const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                regex = new RegExp(`\\b${escapedTerm}\\b`, 'gi');
-            }
+        const results = [];
+        const isContentSearch = searchTerm.startsWith('*');
+        const actualTerm = isContentSearch ? searchTerm.substring(1) : searchTerm;
 
-            progressBar.style.display = 'block';
-            searchStats.textContent = 'Searching...';
+        let regex;
+        if (isContentSearch) {
+        const escapedTerm = actualTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        regex = new RegExp(escapedTerm, 'gi');
+        } else {
+        const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        regex = new RegExp(`\\b${escapedTerm}\\b`, 'gi');
+        }
 
-            try {
-                for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
-                    progressFill.style.width = ((pageNum / pdfDoc.numPages) * 100) + '%';
+        progressBar.style.display = 'block';
+        searchStats.textContent = 'Searching...';
 
-                    const pageText = await getPageText(pageNum);
-                    if (regex.test(pageText)) {
-                        results.push(pageNum);
-                    }
+        try {
+        for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
+        progressFill.style.width = ((pageNum / pdfDoc.numPages) * 100) + '%';
 
-                    await new Promise(resolve => setTimeout(resolve, 1));
-                }
+        const pageText = await getPageText(pageNum);
+        if (regex.test(pageText)) {
+        results.push(pageNum);
+        }
 
-                displaySearchResults(results, searchTerm);
-                await renderPage(currentPage, searchTerm);
-                searchStats.textContent = `Found "${searchTerm}" on ${results.length} page(s)`;
+        await new Promise(resolve => setTimeout(resolve, 1));
+        }
 
-            } catch (error) {
-                console.error('Search error:', error);
-                searchStats.textContent = 'Search failed';
-            } finally {
-                progressBar.style.display = 'none';
-            }
+        displaySearchResults(results, searchTerm);
+        await renderPage(currentPage, searchTerm);
+        searchStats.textContent = `Found "${searchTerm}" on ${results.length} page(s)`;
+
+        } catch (error) {
+        console.error('Search error:', error);
+        searchStats.textContent = 'Search failed';
+        } finally {
+        progressBar.style.display = 'none';
+        }
         }
 
         // Display search results in sidebar
         function displaySearchResults(results, searchTerm) {
-            const resultsDiv = document.getElementById('searchResults');
-            resultsDiv.innerHTML = '';
+        const resultsDiv = document.getElementById('searchResults');
+        resultsDiv.innerHTML = '';
 
-            if (results.length === 0) {
-                resultsDiv.innerHTML = '<div class="no-pdf-message">No results found for "' + searchTerm + '"</div>';
-                return;
-            }
+        if (results.length === 0) {
+        resultsDiv.innerHTML = '<div class="no-pdf-message">No results found for "' + searchTerm + '"</div>';
+        return;
+        }
 
-            results.forEach(pageNum => {
-                const resultDiv = document.createElement('div');
-                resultDiv.className = 'result-page';
-                resultDiv.dataset.page = pageNum;
-                resultDiv.textContent = `Page ${pageNum}`;
+        results.forEach(pageNum => {
+        const resultDiv = document.createElement('div');
+        resultDiv.className = 'result-page';
+        resultDiv.dataset.page = pageNum;
+        resultDiv.textContent = `Page ${pageNum}`;
 
-                resultDiv.onclick = () => {
-                    goToPage(pageNum);
-                };
+        resultDiv.onclick = () => {
+        goToPage(pageNum);
+        };
 
-                resultsDiv.appendChild(resultDiv);
-            });
+        resultsDiv.appendChild(resultDiv);
+        });
         }
 
         // Load PDF
         document.getElementById('fileInput').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
+        const file = e.target.files[0];
+        if (!file) return;
 
-            // Call uploadPdf function first
-            await uploadPdf();
+        // Call uploadPdf function first
+        await uploadPdf();
 
-            currentFileType = 'pdf';
-            textFileContent = null;
+        currentFileType = 'pdf';
+        textFileContent = null;
 
-            searchCache.clear();
-            renderCache.clear();
-            clearDebug();
+        searchCache.clear();
+        renderCache.clear();
+        clearDebug();
 
-            // Reset view state
-            currentPage = 1;
-            currentScale = 1.25;
-            currentRotation = 0;
-            currentZoomIndex = zoomLevels.indexOf(1.25);
+        // Reset view state
+        currentPage = 1;
+        currentScale = 1.25;
+        currentRotation = 0;
+        currentZoomIndex = zoomLevels.indexOf(1.25);
 
-            // Get container width for fit-width calculations
-            containerWidth = container.clientWidth;
+        // Get container width for fit-width calculations
+        containerWidth = container.clientWidth;
 
-            const reader = new FileReader();
-            reader.onload = async function () {
-                try {
-                    const typedArray = new Uint8Array(this.result);
-                    pdfDoc = await pdfjsLib.getDocument(typedArray).promise;
+        const reader = new FileReader();
+        reader.onload = async function () {
+        try {
+        const typedArray = new Uint8Array(this.result);
+        pdfDoc = await pdfjsLib.getDocument(typedArray).promise;
 
-                    // Show canvas and hide placeholder
-                    canvas.style.display = 'block';
-                    const placeholder = container.querySelector('.no-pdf-message');
-                    if (placeholder) placeholder.style.display = 'none';
+        // Show canvas and hide placeholder
+        canvas.style.display = 'block';
+        const placeholder = container.querySelector('.no-pdf-message');
+        if (placeholder) placeholder.style.display = 'none';
 
-                    // Hide any existing search results
-                    const existingResults = document.getElementById('pdf-search-results');
-                    if (existingResults) existingResults.remove();
+        // Hide any existing search results
+        const existingResults = document.getElementById('pdf-search-results');
+        if (existingResults) existingResults.remove();
 
-                    await renderPage(1);
-                    updateControls();
-                    searchStats.textContent = `PDF loaded: ${pdfDoc.numPages} pages`;
-                    debugLog('PDF loaded successfully', { numPages: pdfDoc.numPages });
+        await renderPage(1);
+        updateControls();
+        searchStats.textContent = `PDF loaded: ${pdfDoc.numPages} pages`;
+        debugLog('PDF loaded successfully', { numPages: pdfDoc.numPages });
 
-                    // Clear search results
-                    document.getElementById('searchResults').innerHTML = '<div class="no-pdf-message">Search for text to see results</div>';
+        // Clear search results
+        document.getElementById('searchResults').innerHTML = '<div class="no-pdf-message">Search for text to see results</div>';
 
-                } catch (error) {
-                    console.error('Error loading PDF:', error);
-                    alert('Error loading PDF file');
+        } catch (error) {
+        console.error('Error loading PDF:', error);
+        alert('Error loading PDF file');
 
-                }
-            };
-            reader.readAsArrayBuffer(file);
+        }
+        };
+        reader.readAsArrayBuffer(file);
         });
 
         // PDF File Upload Handler
         async function uploadPdf() {
-            const fileInput = document.getElementById('fileInput');
-            const file = fileInput.files[0];
+        const fileInput = document.getElementById('fileInput');
+        const file = fileInput.files[0];
 
-            if (!file) {
-                console.log('No file selected for PDF upload');
-                return;
-            }
+        if (!file) {
+        console.log('No file selected for PDF upload');
+        return;
+        }
 
-            try {
-                // Create FormData for file upload
-                const formData = new FormData();
-                formData.append('file', file); // Changed from 'pdfFile' to 'file' to match controller parameter
+        try {
+        // Create FormData for file upload
+        const formData = new FormData();
+        formData.append('file', file); // Changed from 'pdfFile' to 'file' to match controller parameter
 
-                // Upload file to controller
-                const response = await fetch('/PrecisionSearch/UploadPDF', {
-                    method: 'POST',
-                    body: formData
-                });
+        // Upload file to controller
+        const response = await fetch('/PrecisionSearch/UploadPDF', {
+        method: 'POST',
+        body: formData
+        });
 
-                const result = await response.json();
+        const result = await response.json();
 
-                if (result.success) {
-                    debugLog('PDF uploaded and stored successfully', {
-                        fileName: result.fileName,
-                        fileSize: result.fileSize,
-                        storedPath: result.storedPath
-                    });
+        if (result.success) {
+        debugLog('PDF uploaded and stored successfully', {
+        fileName: result.fileName,
+        fileSize: result.fileSize,
+        storedPath: result.storedPath
+        });
 
-                } else {
-                    console.error('PDF upload failed:', result.message);
+        } else {
+        console.error('PDF upload failed:', result.message);
 
-                }
-            } catch (error) {
-                console.error('Error uploading PDF file:', error);
+        }
+        } catch (error) {
+        console.error('Error uploading PDF file:', error);
 
-            }
+        }
         }
 
         let uploadedFile = null;
-        
+
         // JSON File Upload Handler
         document.getElementById('jsonFileInput').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
+        const file = e.target.files[0];
+        if (!file) return;
 
-            try {
-                const text = await file.text();
-                const jsonData = JSON.parse(text);
-                displayPDFSearchResults(jsonData);
-                searchStats.textContent = `Loaded ${jsonData.keywordsCount || 0} keywords, ${jsonData.phrasesFound || 0} phrases from JSON`;
-            } catch (error) {
-                alert('Invalid JSON file');
-            }
+        try {
+        const text = await file.text();
+        const jsonData = JSON.parse(text);
+        displayPDFSearchResults(jsonData);
+        searchStats.textContent = `Loaded ${jsonData.keywordsCount || 0} keywords, ${jsonData.phrasesFound || 0} phrases from JSON`;
+        } catch (error) {
+        alert('Invalid JSON file');
+        }
         });
 
         document.getElementById('textFileInput').addEventListener('click', () => {
-            // Allow selecting the same file again
-            fileInput.value = null;
+        // Allow selecting the same file again
+        fileInput.value = null;
         });
 
 
         // Text File Upload Handler
         document.getElementById('textFileInput').addEventListener('change', async () => {
-            const fileInput = document.getElementById('textFileInput');
-            const file = fileInput.files[0];
+        const fileInput = document.getElementById('textFileInput');
+        const file = fileInput.files[0];
 
-            if (!file) {
-                alert('Please select a text file to upload.');
-                return;
-            }
+        if (!file) {
+        alert('Please select a text file to upload.');
+        return;
+        }
 
-            // ✅ Remove old file if exists
-            if (uploadedFile) {
-                console.log("Old file removed:", uploadedFile.name);
-                uploadedFile = null;
-            }
+        // ✅ Remove old file if exists
+        if (uploadedFile) {
+        console.log("Old file removed:", uploadedFile.name);
+        uploadedFile = null;
+        }
 
-            // ✅ Add the new file
-            uploadedFile = file;
+        // ✅ Add the new file
+        uploadedFile = file;
 
-            // Show loading state
-            const uploadBtn = document.getElementById('uploadTextBtn');
-            const originalText = uploadBtn.innerHTML;
-            uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-            uploadBtn.disabled = true;
+        // Show loading state
+        const uploadBtn = document.getElementById('uploadTextBtn');
+        const originalText = uploadBtn.innerHTML;
+        uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        uploadBtn.disabled = true;
 
-            try {
-                // Create FormData for file upload
-                const formData = new FormData();
-                formData.append('textFile', uploadedFile);
+        try {
+        // Create FormData for file upload
+        const formData = new FormData();
+        formData.append('textFile', uploadedFile);
 
-                // Add skip page ranges from textbox
-                const skipPages = document.getElementById('txtSkipPages').value.trim();
-                formData.append('pageSkipRanges', skipPages);
+        // Add skip page ranges from textbox
+        const skipPages = document.getElementById('txtSkipPages').value.trim();
+        formData.append('pageSkipRanges', skipPages);
 
-                // Upload file to controller
-                const response = await fetch('/PrecisionSearch/UploadTextFile', {
-                    method: 'POST',
-                    body: formData
-                });
+        // Upload file to controller
+        const response = await fetch('/PrecisionSearch/UploadTextFile', {
+        method: 'POST',
+        body: formData
+        });
 
-                const result = await response.json();
+        const result = await response.json();
 
-                if (result.success) {
-                    // Display the search results from PDF processing
-                    displayPDFSearchResults(result);
+        if (result.success) {
+        // Display the search results from PDF processing
+        displayPDFSearchResults(result);
 
-                    // Update UI
-                    searchStats.textContent = `Processed ${result.keywordsCount} keywords, found ${result.phrasesFound} phrases`;
-                    updateFileStatus('success', `Text file processed: ${file.name}`);
+        // Update UI
+        searchStats.textContent = `Processed ${result.keywordsCount} keywords, found ${result.phrasesFound} phrases`;
+        updateFileStatus('success', `Text file processed: ${file.name}`);
 
-                    debugLog('Text file processed successfully', {
-                        fileName: file.name,
-                        keywordsCount: result.keywordsCount,
-                        phrasesFound: result.phrasesFound
-                    });
+        debugLog('Text file processed successfully', {
+        fileName: file.name,
+        keywordsCount: result.keywordsCount,
+        phrasesFound: result.phrasesFound
+        });
 
-                    // Save JSON response to file
-                    saveJsonToFile(result);
-                } else {
-                    alert(result.message);
-                    updateFileStatus('error', result.message);
-                }
-            } catch (error) {
-                console.error('Error uploading text file:', error);
-                alert('Error uploading text file. Please try again.' + error);
-                updateFileStatus('error', 'Error uploading text file');
-            } finally {
-                // Reset button state
-                uploadBtn.innerHTML = originalText;
-                uploadBtn.disabled = false;
-            }
+        // Save JSON response to file
+        saveJsonToFile(result);
+        } else {
+        alert(result.message);
+        updateFileStatus('error', result.message);
+        }
+        } catch (error) {
+        console.error('Error uploading text file:', error);
+        alert('Error uploading text file. Please try again.' + error);
+        updateFileStatus('error', 'Error uploading text file');
+        } finally {
+        // Reset button state
+        uploadBtn.innerHTML = originalText;
+        uploadBtn.disabled = false;
+        }
         });
 
         // Display PDF search results in the left panel only
         function displayPDFSearchResults(result) {
-            const resultsDiv = document.getElementById('searchResults');
-            resultsDiv.innerHTML = '';
+        const resultsDiv = document.getElementById('searchResults');
+        resultsDiv.innerHTML = '';
 
-            if (result.phrases && result.phrases.length > 0) {
-                const phrasesByKeyword = {};
-                result.phrases.forEach(phrase => {
-                    const keyword = phrase.FoundKeywords || 'Unknown';
-                    if (!phrasesByKeyword[keyword]) phrasesByKeyword[keyword] = [];
-                    phrasesByKeyword[keyword].push(phrase);
-                });
+        if (result.phrases && result.phrases.length > 0) {
+        const phrasesByKeyword = {};
+        result.phrases.forEach(phrase => {
+        const keyword = phrase.FoundKeywords || 'Unknown';
+        if (!phrasesByKeyword[keyword]) phrasesByKeyword[keyword] = [];
+        phrasesByKeyword[keyword].push(phrase);
+        });
 
-                // Summary header
-                const headerDiv = document.createElement('div');
-                headerDiv.style.cssText = `
-                        background: #e3f2fd;
-                        border: 1px solid #007bff;
-                        border-radius: 4px;
-                        padding: 10px;
-                        margin-bottom: 15px;
-                        text-align: center;
-                        font-size: 12px;
-                        color: #0056b3;
-                    `;
-                headerDiv.innerHTML = `
-                        Found <strong>${result.phrasesFound}</strong> phrases
-                        for <strong>${result.keywordsCount}</strong> keywords
-                        under <strong>${result.headersCount}</strong> headers.
-                        ${result.skipInfo ? `<br><small style="color: #666;"><i class="fas fa-ban"></i> ${result.skipInfo}</small>` : ''}
-                    `;
-                resultsDiv.appendChild(headerDiv);
+        // Summary header
+        const headerDiv = document.createElement('div');
+        headerDiv.style.cssText = `
+        background: #e3f2fd;
+        border: 1px solid #007bff;
+        border-radius: 4px;
+        padding: 10px;
+        margin-bottom: 15px;
+        text-align: center;
+        font-size: 12px;
+        color: #0056b3;
+        `;
+        headerDiv.innerHTML = `
+        Found <strong>${result.phrasesFound}</strong> phrases
+        for <strong>${result.keywordsCount}</strong> keywords
+        under <strong>${result.headersCount}</strong> headers.
+        ${result.skipInfo ? `<br><small style="color: #666;"><i class="fas fa-ban"></i> ${result.skipInfo}</small>` : ''}
+        `;
+        resultsDiv.appendChild(headerDiv);
 
-                // 🔹 Loop through headers (from controller HeadKeywordMap)
-                for (const [header, keywords] of Object.entries(result.headKeywordMap)) {
-                    // Create header section
-                    const headerSection = document.createElement('div');
-                    headerSection.style.cssText = `
-                            background: #f0f7ff;
-                            border-left: 4px solid #007bff;
-                            border-radius: 6px;
-                            padding: 8px 12px;
-                            margin-top: 10px;
-                            font-weight: bold;
-                            color: #0056b3;
-                            font-size: 14px;
-                        `;
-                    headerSection.innerHTML = `<i class="fas fa-folder-open"></i> ${header}`;
-                    resultsDiv.appendChild(headerSection);
+        // 🔹 Loop through headers (from controller HeadKeywordMap)
+        for (const [header, keywords] of Object.entries(result.headKeywordMap)) {
+        // Create header section
+        const headerSection = document.createElement('div');
+        headerSection.style.cssText = `
+        background: #f0f7ff;
+        border-left: 4px solid #007bff;
+        border-radius: 6px;
+        padding: 8px 12px;
+        margin-top: 10px;
+        font-weight: bold;
+        color: #0056b3;
+        font-size: 14px;
+        `;
+        headerSection.innerHTML = `<i class="fas fa-folder-open"></i> ${header}`;
+        resultsDiv.appendChild(headerSection);
 
-                    // 🔸 Render all keywords under this header
-                    keywords.forEach((keyword, keywordIndex) => {
-                        const keywordDiv = document.createElement('div');
-                        keywordDiv.className = 'result-page';
-                        keywordDiv.style.cssText = `
-                                padding: 8px 12px;
-                                border: 1px solid #e0e0e0;
-                                border-radius: 4px;
-                                cursor: pointer;
-                                font-size: 13px;
-                                background: white;
-                                transition: all 0.2s ease;
-                            `;
+        // 🔸 Render all keywords under this header
+        keywords.forEach((keyword, keywordIndex) => {
+        const keywordDiv = document.createElement('div');
+        keywordDiv.className = 'result-page';
+        keywordDiv.style.cssText = `
+        padding: 8px 12px;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+        background: white;
+        transition: all 0.2s ease;
+        `;
 
-                        const keywordMatches = phrasesByKeyword[keyword] ? phrasesByKeyword[keyword].length : 0;
+        const keywordMatches = phrasesByKeyword[keyword] ? phrasesByKeyword[keyword].length : 0;
 
-                        var totalPhraseCount = 0
-                        if (keywordMatches > 0)
-                            totalPhraseCount = phrasesByKeyword[keyword].reduce((sum, item) => sum + item.PhraseText.length, 0);
+        var totalPhraseCount = 0
+        if (keywordMatches > 0)
+        totalPhraseCount = phrasesByKeyword[keyword].reduce((sum, item) => sum + item.PhraseText.length, 0);
 
-                        const isZero = keywordMatches == 0;
+        const isZero = keywordMatches == 0;
 
-                        keywordDiv.innerHTML = `
-                                <div style="display: flex; align-items: center; justify-content: space-between;">
-                                    <span style="font-weight: bold; color: ${isZero ? 'orange' : '#007bff'};">
-                                        <i class="fas ${isZero ? 'fa-search-minus' : 'fa-search'}"></i>
-                                        ${isZero ? `<s style='color:orange'>${keyword}</s>` : keyword}
-                                    </span>
-                                    <span style="background: #e3f2fd; color: #0056b3; padding: 2px 6px; border-radius: 10px; font-size: 11px;">
-                                        ${keywordMatches} Pages ${totalPhraseCount > 0 ? `,${totalPhraseCount} Occurrences` : ''}
-                                    </span>
-                                </div>
-                            `;
+        keywordDiv.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+        <span style="font-weight: bold; color: ${isZero ? 'orange' : '#007bff'};">
+        <i class="fas ${isZero ? 'fa-search-minus' : 'fa-search'}"></i>
+        ${isZero ? `<s style='color:orange'>${keyword}</s>` : keyword}
+        </span>
+        <span style="background: #e3f2fd; color: #0056b3; padding: 2px 6px; border-radius: 10px; font-size: 11px;">
+        ${keywordMatches} Pages ${totalPhraseCount > 0 ? `,${totalPhraseCount} Occurrences` : ''}
+        </span>
+        </div>
+        `;
 
-                        const detailsDiv = document.createElement('div');
-                        detailsDiv.style.cssText = `
-                                display: none;
-                                margin-top: 8px;
-                                padding: 8px;
-                                background: #f8f9fa;
-                                border-radius: 4px;
-                                border: 1px solid #dee2e6;
-                                max-height: 200px;
-                                overflow-y: auto;
-                            `;
+        const detailsDiv = document.createElement('div');
+        detailsDiv.style.cssText = `
+        display: none;
+        margin-top: 8px;
+        padding: 8px;
+        background: #f8f9fa;
+        border-radius: 4px;
+        border: 1px solid #dee2e6;
+        max-height: 200px;
+        overflow-y: auto;
+        `;
 
-                        // Add phrase details
-                        if (phrasesByKeyword[keyword]) {
-                            phrasesByKeyword[keyword].forEach(phrase => {
-                                const phraseDiv = document.createElement('div');
-                                phraseDiv.className = 'phrase-clickable';
-                                phraseDiv.style.cssText = `
-                                        background: white;
-                                        border: 1px solid #ddd;
-                                        border-radius: 3px;
-                                        padding: 8px;
-                                        margin-bottom: 6px;
-                                        font-size: 11px;
-                                        cursor: pointer;
-                                    `;
+        // Add phrase details
+        if (phrasesByKeyword[keyword]) {
+        phrasesByKeyword[keyword].forEach(phrase => {
+        const phraseDiv = document.createElement('div');
+        phraseDiv.className = 'phrase-clickable';
+        phraseDiv.style.cssText = `
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        padding: 8px;
+        margin-bottom: 6px;
+        font-size: 11px;
+        cursor: pointer;
+        `;
 
-                                const phraseText = phrase.PhraseText[0] || phrase.Context || phrase.FoundKeywords || 'No text available';
-                                const displayText = phraseText.length > 50 ? phraseText.substring(0, 50) + '...' : phraseText;
+        const phraseText = phrase.PhraseText[0] || phrase.Context || phrase.FoundKeywords || 'No text available';
+        const displayText = phraseText.length > 50 ? phraseText.substring(0, 50) + '...' : phraseText;
 
-                                phraseDiv.innerHTML = `
-                                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                                            <span style="font-weight: bold; color: #007bff; font-size: 10px;">${displayText}</span>
-                                            ${phrase.PDFPageNumber ? `<span style="background: #e3f2fd; color: #0056b3; padding: 1px 4px; border-radius: 8px; font-size: 9px;">Page ${phrase.PDFPageNumber} (${phrase.PhraseText.length})</span>` : ''}
-                                        </div>
-                                    `;
+        phraseDiv.innerHTML = `
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+        <span style="font-weight: bold; color: #007bff; font-size: 10px;">${displayText}</span>
+        ${phrase.PDFPageNumber ? `<span style="background: #e3f2fd; color: #0056b3; padding: 1px 4px; border-radius: 8px; font-size: 9px;">Page ${phrase.PDFPageNumber} (${phrase.PhraseText.length})</span>` : ''}
+        </div>
+        `;
 
-                                phraseDiv.addEventListener('click', async e => {
-                                    e.stopPropagation();
-                                    document.querySelectorAll('.phrase-clickable').forEach(div => {
-                                        div.classList.remove('phrase-active');
-                                        div.style.background = 'white';
-                                    });
-                                    phraseDiv.classList.add('phrase-active');
-                                    phraseDiv.style.background = '#e3f2fd';
-                                    await searchPhraseInPDF(phrase.FoundKeywords, phrase.PDFPageNumber, phraseText);
-                                });
+        phraseDiv.addEventListener('click', async e => {
+        e.stopPropagation();
+        document.querySelectorAll('.phrase-clickable').forEach(div => {
+        div.classList.remove('phrase-active');
+        div.style.background = 'white';
+        });
+        phraseDiv.classList.add('phrase-active');
+        phraseDiv.style.background = '#e3f2fd';
+        await searchPhraseInPDF(phrase.FoundKeywords, phrase.PDFPageNumber, phraseText);
+        });
 
-                                detailsDiv.appendChild(phraseDiv);
-                            });
-                        }
+        detailsDiv.appendChild(phraseDiv);
+        });
+        }
 
-                        keywordDiv.addEventListener('click', () => {
-                            detailsDiv.style.display = detailsDiv.style.display === 'none' ? 'block' : 'none';
-                        });
+        keywordDiv.addEventListener('click', () => {
+        detailsDiv.style.display = detailsDiv.style.display === 'none' ? 'block' : 'none';
+        });
 
-                        resultsDiv.appendChild(keywordDiv);
-                        resultsDiv.appendChild(detailsDiv);
-                    });
-                }
-            } else {
-                // No results found
-                const noResultsDiv = document.createElement('div');
-                noResultsDiv.style.cssText = `
-                        text-align: center;
-                        padding: 20px;
-                        color: #666;
-                        background: #f8f9fa;
-                        border-radius: 4px;
-                        border: 1px solid #dee2e6;
-                    `;
-                noResultsDiv.innerHTML = `
-                        <i class="fas fa-exclamation-triangle" style="font-size: 24px; margin-bottom: 10px; color: #ffc107;"></i><br>
-                        <strong>No matches found</strong><br>
-                        <small>Try different keywords or check your PDF content.</small>
-                    `;
-                resultsDiv.appendChild(noResultsDiv);
-            }
+        resultsDiv.appendChild(keywordDiv);
+        resultsDiv.appendChild(detailsDiv);
+        });
+        }
+        } else {
+        // No results found
+        const noResultsDiv = document.createElement('div');
+        noResultsDiv.style.cssText = `
+        text-align: center;
+        padding: 20px;
+        color: #666;
+        background: #f8f9fa;
+        border-radius: 4px;
+        border: 1px solid #dee2e6;
+        `;
+        noResultsDiv.innerHTML = `
+        <i class="fas fa-exclamation-triangle" style="font-size: 24px; margin-bottom: 10px; color: #ffc107;"></i><br>
+        <strong>No matches found</strong><br>
+        <small>Try different keywords or check your PDF content.</small>
+        `;
+        resultsDiv.appendChild(noResultsDiv);
+        }
         }
 
 
         // Search phrase in PDF viewer
         async function searchPhraseInPDF(searchTerm, pageNumber, fullPhraseText) {
 
-            searchTerm = searchTerm.replace('[', '').replace(']', '').trim();
-            // Check if it's content search before removing *
-            const isContentSearch = searchTerm.startsWith('*');
-            if (isContentSearch) {
-                searchTerm = searchTerm.substring(1);
-            }
-            // Store search type for highlighting
-            window.currentSearchType = isContentSearch ? 'content' : 'word';
+        searchTerm = searchTerm.replace('[', '').replace(']', '').trim();
+        // Check if it's content search before removing *
+        const isContentSearch = searchTerm.startsWith('*');
+        if (isContentSearch) {
+        searchTerm = searchTerm.substring(1);
+        }
+        // Store search type for highlighting
+        window.currentSearchType = isContentSearch ? 'content' : 'word';
 
-            // Check if PDF is loaded
-            if (!pdfDoc) {
-                alert('PDF not loaded. Please load a PDF file first.');
-                return;
-            }
+        // Check if PDF is loaded
+        if (!pdfDoc) {
+        alert('PDF not loaded. Please load a PDF file first.');
+        return;
+        }
 
-            debugLog('Searching phrase in PDF', {
-                searchTerm,
-                pageNumber,
-                fullPhraseText: fullPhraseText.substring(0, 100) + '...'
-            });
+        debugLog('Searching phrase in PDF', {
+        searchTerm,
+        pageNumber,
+        fullPhraseText: fullPhraseText.substring(0, 100) + '...'
+        });
 
-            try {
-                // Clear any existing highlights first
-                const existingCanvas = document.getElementById('highlight-canvas');
-                if (existingCanvas) {
-                    const ctx = existingCanvas.getContext('2d');
-                    ctx.clearRect(0, 0, existingCanvas.width, existingCanvas.height);
-                }
+        try {
+        // Clear any existing highlights first
+        const existingCanvas = document.getElementById('highlight-canvas');
+        if (existingCanvas) {
+        const ctx = existingCanvas.getContext('2d');
+        ctx.clearRect(0, 0, existingCanvas.width, existingCanvas.height);
+        }
 
-                // Navigate to the specific page
-                if (pageNumber && pageNumber >= 1 && pageNumber <= pdfDoc.numPages) {
-                    await goToPage(pageNumber);
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                }
+        // Navigate to the specific page
+        if (pageNumber && pageNumber >= 1 && pageNumber <= pdfDoc.numPages) {
+        await goToPage(pageNumber);
+        await new Promise(resolve => setTimeout(resolve, 100));
+        }
 
-                // Update search box and trigger highlighting
-                document.getElementById('searchBox').value = searchTerm;
-                await renderPage(currentPage, searchTerm);
-                
-                // Auto-scroll to show highlighted text
-                await scrollToHighlight(searchTerm);
+        // Update search box and trigger highlighting
+        document.getElementById('searchBox').value = searchTerm;
+        await renderPage(currentPage, searchTerm);
 
-                // Update search stats
-                const statsDiv = document.getElementById('searchStats');
-                const originalStats = statsDiv.textContent;
+        // Auto-scroll to show highlighted text
+        await scrollToHighlight(searchTerm);
 
-                statsDiv.innerHTML = `
-                                <div style="margin-bottom: 4px;">${originalStats}</div>
-                                <div style="font-size: 10px; color: #888; font-style: italic;">
-                                    Phrase: "${fullPhraseText.length > 80 ? fullPhraseText.substring(0, 80) + '...' : fullPhraseText}"
-                                </div>
-                            `;
+        // Update search stats
+        const statsDiv = document.getElementById('searchStats');
+        const originalStats = statsDiv.textContent;
 
-                debugLog('Phrase search completed', {
-                    navigatedToPage: pageNumber,
-                    searchTerm: searchTerm
-                });
+        statsDiv.innerHTML = `
+        <div style="margin-bottom: 4px;">${originalStats}</div>
+        <div style="font-size: 10px; color: #888; font-style: italic;">
+        Phrase: "${fullPhraseText.length > 80 ? fullPhraseText.substring(0, 80) + '...' : fullPhraseText}"
+        </div>
+        `;
 
-            } catch (error) {
-                console.error('Error searching phrase in PDF:', error);
-                alert('Error occurred while searching phrase in PDF.');
-            }
+        debugLog('Phrase search completed', {
+        navigatedToPage: pageNumber,
+        searchTerm: searchTerm
+        });
+
+        } catch (error) {
+        console.error('Error searching phrase in PDF:', error);
+        alert('Error occurred while searching phrase in PDF.');
+        }
         }
 
         // Auto-scroll to highlighted text
         async function scrollToHighlight(searchTerm) {
-            await new Promise(resolve => setTimeout(resolve, 300));
-            
-            const pdfViewer = document.querySelector('.pdf-viewer');
-            const pdfContainer = document.getElementById('pdf-container');
-            
-            // Get current page text content to find highlight position
-            if (!pdfDoc) return;
-            
-            try {
-                const page = await pdfDoc.getPage(currentPage);
-                const textContent = await page.getTextContent();
-                const viewport = page.getViewport({ scale: currentScale, rotation: currentRotation });
-                
-                let foundY = null;
-                let foundX = null;
-                
-                // Build text and find match position
-                let fullText = '';
-                const itemMap = [];
-                
-                textContent.items.forEach((item, index) => {
-                    const startPos = fullText.length;
-                    fullText += item.str;
-                    if (item.hasEOL || (index < textContent.items.length - 1 && !item.str.endsWith(' '))) {
-                        fullText += ' ';
-                    }
-                    itemMap.push({ item, startPos, endPos: fullText.length });
-                });
-                
-                // Find first match
-                const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                let regex;
-                if (window.currentSearchType === 'content') {
-                    regex = new RegExp(escapedTerm, 'gi');
-                } else {
-                    regex = new RegExp(`\\b${escapedTerm}\\b`, 'gi');
-                }
-                
-                const match = regex.exec(fullText);
-                if (match) {
-                    // Find the text item containing this match
-                    for (const mapping of itemMap) {
-                        if (mapping.startPos <= match.index && mapping.endPos > match.index) {
-                            const tx = pdfjsLib.Util.transform(viewport.transform, mapping.item.transform);
-                            foundY = tx[5];
-                            foundX = tx[4];
-                            break;
-                        }
-                    }
-                }
-                
-                if (foundY !== null && foundX !== null) {
-                    // Calculate scroll position to center the found text
-                    const containerRect = pdfContainer.getBoundingClientRect();
-                    const viewerRect = pdfViewer.getBoundingClientRect();
-                    
-                    const scrollX = foundX - (viewerRect.width / 2);
-                    const scrollY = foundY - (viewerRect.height / 2);
-                    
-                    pdfViewer.scrollTo({
-                        left: Math.max(0, scrollX),
-                        top: Math.max(0, scrollY),
-                        behavior: 'smooth'
-                    });
-                }
-            } catch (error) {
-                console.error('Error scrolling to highlight:', error);
-            }
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        const pdfViewer = document.querySelector('.pdf-viewer');
+        const pdfContainer = document.getElementById('pdf-container');
+
+        // Get current page text content to find highlight position
+        if (!pdfDoc) return;
+
+        try {
+        const page = await pdfDoc.getPage(currentPage);
+        const textContent = await page.getTextContent();
+        const viewport = page.getViewport({ scale: currentScale, rotation: currentRotation });
+
+        let foundY = null;
+        let foundX = null;
+
+        // Build text and find match position
+        let fullText = '';
+        const itemMap = [];
+
+        textContent.items.forEach((item, index) => {
+        const startPos = fullText.length;
+        fullText += item.str;
+        if (item.hasEOL || (index < textContent.items.length - 1 && !item.str.endsWith(' '))) {
+        fullText += ' ';
+        }
+        itemMap.push({ item, startPos, endPos: fullText.length });
+        });
+
+        // Find first match
+        const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        let regex;
+        if (window.currentSearchType === 'content') {
+        regex = new RegExp(escapedTerm, 'gi');
+        } else {
+        regex = new RegExp(`\\b${escapedTerm}\\b`, 'gi');
+        }
+
+        const match = regex.exec(fullText);
+        if (match) {
+        // Find the text item containing this match
+        for (const mapping of itemMap) {
+        if (mapping.startPos <= match.index && mapping.endPos > match.index) {
+        const tx = pdfjsLib.Util.transform(viewport.transform, mapping.item.transform);
+        foundY = tx[5];
+        foundX = tx[4];
+        break;
+        }
+        }
+        }
+
+        if (foundY !== null && foundX !== null) {
+        // Calculate scroll position to center the found text
+        const containerRect = pdfContainer.getBoundingClientRect();
+        const viewerRect = pdfViewer.getBoundingClientRect();
+
+        const scrollX = foundX - (viewerRect.width / 2);
+        const scrollY = foundY - (viewerRect.height / 2);
+
+        pdfViewer.scrollTo({
+        left: Math.max(0, scrollX),
+        top: Math.max(0, scrollY),
+        behavior: 'smooth'
+        });
+        }
+        } catch (error) {
+        console.error('Error scrolling to highlight:', error);
+        }
         }
 
         // Add CSS for phrase active state
         const phraseStyles = document.createElement('style');
         phraseStyles.textContent = `
-                        .phrase-clickable {
-                            position: relative;
-                        }
+        .phrase-clickable {
+        position: relative;
+        }
 
-                        .phrase-clickable:hover {
-                            box-shadow: 0 2px 5px rgba(0,123,255,0.2);
-                        }
+        .phrase-clickable:hover {
+        box-shadow: 0 2px 5px rgba(0,123,255,0.2);
+        }
 
-                        .phrase-active {
-                            background: #e3f2fd !important;
-                            border-color: #007bff !important;
-                            box-shadow: 0 2px 8px rgba(0,123,255,0.3) !important;
-                        }
+        .phrase-active {
+        background: #e3f2fd !important;
+        border-color: #007bff !important;
+        box-shadow: 0 2px 8px rgba(0,123,255,0.3) !important;
+        }
 
-                        .phrase-clickable::before {
-                            content: '';
-                            position: absolute;
-                            left: -8px;
-                            top: 50%;
-                            transform: translateY(-50%);
-                            width: 3px;
-                            height: 0;
-                            background: #007bff;
-                            transition: height 0.2s ease;
-                        }
+        .phrase-clickable::before {
+        content: '';
+        position: absolute;
+        left: -8px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 0;
+        background: #007bff;
+        transition: height 0.2s ease;
+        }
 
-                        .phrase-clickable:hover::before,
-                        .phrase-active::before {
-                            height: 70%;
-                        }
-                    `;
+        .phrase-clickable:hover::before,
+        .phrase-active::before {
+        height: 70%;
+        }
+        `;
         document.head.appendChild(phraseStyles);
 
         // Page navigation event listeners
@@ -1478,15 +1481,15 @@
         document.getElementById('lastPage').addEventListener('click', () => goToPage(pdfDoc ? pdfDoc.numPages : 1));
 
         document.getElementById('goToPage').addEventListener('click', () => {
-            const pageNum = parseInt(document.getElementById('pageInput').value);
-            goToPage(pageNum);
+        const pageNum = parseInt(document.getElementById('pageInput').value);
+        goToPage(pageNum);
         });
 
         document.getElementById('pageInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const pageNum = parseInt(e.target.value);
-                goToPage(pageNum);
-            }
+        if (e.key === 'Enter') {
+        const pageNum = parseInt(e.target.value);
+        goToPage(pageNum);
+        }
         });
 
         // Zoom event listeners
@@ -1496,209 +1499,209 @@
 
         // Scale select change
         document.getElementById('scaleSelect').addEventListener('change', (e) => {
-            const scale = e.target.value;
-            if (scale === 'fit-width') {
-                setZoom('fit-width');
-            } else {
-                setZoom(parseFloat(scale));
-            }
+        const scale = e.target.value;
+        if (scale === 'fit-width') {
+        setZoom('fit-width');
+        } else {
+        setZoom(parseFloat(scale));
+        }
         });
 
         // Add missing essential functions for highlighting
 
         // Create accurate text layer with highlighting
         async function createTextLayer(textContent, viewport, searchTerm = '') {
-            // Always use canvas method since the search section is hidden
-            await createCanvasHighlights(textContent, viewport, searchTerm);
+        // Always use canvas method since the search section is hidden
+        await createCanvasHighlights(textContent, viewport, searchTerm);
         }
 
         // Method: Canvas-based highlighting with word boundary or content matching
         async function createCanvasHighlights(textContent, viewport, searchTerm) {
-            if (!searchTerm) return;
+        if (!searchTerm) return;
 
-            // Create a separate canvas for highlights
-            let highlightCanvas = document.getElementById('highlight-canvas');
-            if (!highlightCanvas) {
-                highlightCanvas = document.createElement('canvas');
-                highlightCanvas.id = 'highlight-canvas';
-                highlightCanvas.style.position = 'absolute';
-                highlightCanvas.style.top = '0';
-                highlightCanvas.style.left = '0';
-                highlightCanvas.style.pointerEvents = 'none';
-                container.appendChild(highlightCanvas);
-            }
+        // Create a separate canvas for highlights
+        let highlightCanvas = document.getElementById('highlight-canvas');
+        if (!highlightCanvas) {
+        highlightCanvas = document.createElement('canvas');
+        highlightCanvas.id = 'highlight-canvas';
+        highlightCanvas.style.position = 'absolute';
+        highlightCanvas.style.top = '0';
+        highlightCanvas.style.left = '0';
+        highlightCanvas.style.pointerEvents = 'none';
+        container.appendChild(highlightCanvas);
+        }
 
-            highlightCanvas.width = canvas.width;
-            highlightCanvas.height = canvas.height;
-            const highlightCtx = highlightCanvas.getContext('2d');
+        highlightCanvas.width = canvas.width;
+        highlightCanvas.height = canvas.height;
+        const highlightCtx = highlightCanvas.getContext('2d');
 
-            highlightCtx.clearRect(0, 0, highlightCanvas.width, highlightCanvas.height);
-            highlightCtx.fillStyle = 'rgba(255, 255, 0, 0.4)';
+        highlightCtx.clearRect(0, 0, highlightCanvas.width, highlightCanvas.height);
+        highlightCtx.fillStyle = 'rgba(255, 255, 0, 0.4)';
 
-            // Build full text with position mapping
-            let fullText = '';
-            const itemMap = [];
-            
-            textContent.items.forEach((item, index) => {
-                const startPos = fullText.length;
-                fullText += item.str;
-                if (item.hasEOL || (index < textContent.items.length - 1 && !item.str.endsWith(' '))) {
-                    fullText += ' ';
-                }
-                itemMap.push({
-                    item: item,
-                    startPos: startPos,
-                    endPos: fullText.length,
-                    index: index
-                });
-            });
-            
-            // Create regex based on search type
-            const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            let regex;
-            if (window.currentSearchType === 'content') {
-                // Content search - simple contains matching
-                regex = new RegExp(escapedTerm, 'gi');
-            } else {
-                // Word boundary search - exact word/phrase matching
-                regex = new RegExp(`\\b${escapedTerm}\\b`, 'gi');
-            }
-            
-            let match;
-            while ((match = regex.exec(fullText)) !== null) {
-                const matchStart = match.index;
-                const matchEnd = match.index + match[0].length;
-                
-                // Highlight items that contain this match
-                itemMap.forEach(mapping => {
-                    if (mapping.startPos < matchEnd && mapping.endPos > matchStart) {
-                        const tx = pdfjsLib.Util.transform(viewport.transform, mapping.item.transform);
-                        
-                        const x = tx[4];
-                        const y = tx[5] - mapping.item.height;
-                        const width = mapping.item.width;
-                        const height = mapping.item.height;
-                        
-                        highlightCtx.fillRect(x, y, width, height);
-                    }
-                });
-            }
+        // Build full text with position mapping
+        let fullText = '';
+        const itemMap = [];
+
+        textContent.items.forEach((item, index) => {
+        const startPos = fullText.length;
+        fullText += item.str;
+        if (item.hasEOL || (index < textContent.items.length - 1 && !item.str.endsWith(' '))) {
+        fullText += ' ';
+        }
+        itemMap.push({
+        item: item,
+        startPos: startPos,
+        endPos: fullText.length,
+        index: index
+        });
+        });
+
+        // Create regex based on search type
+        const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        let regex;
+        if (window.currentSearchType === 'content') {
+        // Content search - simple contains matching
+        regex = new RegExp(escapedTerm, 'gi');
+        } else {
+        // Word boundary search - exact word/phrase matching
+        regex = new RegExp(`\\b${escapedTerm}\\b`, 'gi');
+        }
+
+        let match;
+        while ((match = regex.exec(fullText)) !== null) {
+        const matchStart = match.index;
+        const matchEnd = match.index + match[0].length;
+
+        // Highlight items that contain this match
+        itemMap.forEach(mapping => {
+        if (mapping.startPos < matchEnd && mapping.endPos > matchStart) {
+        const tx = pdfjsLib.Util.transform(viewport.transform, mapping.item.transform);
+
+        const x = tx[4];
+        const y = tx[5] - mapping.item.height;
+        const width = mapping.item.width;
+        const height = mapping.item.height;
+
+        highlightCtx.fillRect(x, y, width, height);
+        }
+        });
+        }
         }
 
         // Get page text for searching
         async function getPageText(pageNum) {
-            if (searchCache.has(pageNum)) {
-                return searchCache.get(pageNum);
-            }
+        if (searchCache.has(pageNum)) {
+        return searchCache.get(pageNum);
+        }
 
-            const page = await pdfDoc.getPage(pageNum);
-            const textContent = await page.getTextContent();
-            let text = '';
-            textContent.items.forEach((item, index) => {
-                text += item.str;
-                if (item.hasEOL || (index < textContent.items.length - 1 && !item.str.endsWith(' '))) {
-                    text += ' ';
-                }
-            });
+        const page = await pdfDoc.getPage(pageNum);
+        const textContent = await page.getTextContent();
+        let text = '';
+        textContent.items.forEach((item, index) => {
+        text += item.str;
+        if (item.hasEOL || (index < textContent.items.length - 1 && !item.str.endsWith(' '))) {
+        text += ' ';
+        }
+        });
 
-            searchCache.set(pageNum, text);
-            return text;
+        searchCache.set(pageNum, text);
+        return text;
         }
 
         // Zoom Functions
         async function setZoom(scale) {
-            if (scale === 'fit-width') {
-                currentScale = await calculateFitWidthScale();
-                document.getElementById('scaleSelect').value = 'fit-width';
-            } else {
-                currentScale = Math.max(0.1, Math.min(5.0, scale));
-                currentZoomIndex = zoomLevels.indexOf(currentScale);
-                if (currentZoomIndex === -1) {
-                    // Find closest zoom level
-                    currentZoomIndex = zoomLevels.reduce((prev, curr, index) => {
-                        return Math.abs(curr - currentScale) < Math.abs(zoomLevels[prev] - currentScale) ? index : prev;
-                    }, 0);
-                }
-            }
+        if (scale === 'fit-width') {
+        currentScale = await calculateFitWidthScale();
+        document.getElementById('scaleSelect').value = 'fit-width';
+        } else {
+        currentScale = Math.max(0.1, Math.min(5.0, scale));
+        currentZoomIndex = zoomLevels.indexOf(currentScale);
+        if (currentZoomIndex === -1) {
+        // Find closest zoom level
+        currentZoomIndex = zoomLevels.reduce((prev, curr, index) => {
+        return Math.abs(curr - currentScale) < Math.abs(zoomLevels[prev] - currentScale) ? index : prev;
+        }, 0);
+        }
+        }
 
-            const searchTerm = document.getElementById('searchBox').value.trim();
-            await renderPage(currentPage, searchTerm);
+        const searchTerm = document.getElementById('searchBox').value.trim();
+        await renderPage(currentPage, searchTerm);
         }
 
         async function zoomIn() {
-            if (currentZoomIndex < zoomLevels.length - 1) {
-                currentZoomIndex++;
-                await setZoom(zoomLevels[currentZoomIndex]);
-            }
+        if (currentZoomIndex < zoomLevels.length - 1) {
+        currentZoomIndex++;
+        await setZoom(zoomLevels[currentZoomIndex]);
+        }
         }
 
         async function zoomOut() {
-            if (currentZoomIndex > 0) {
-                currentZoomIndex--;
-                await setZoom(zoomLevels[currentZoomIndex]);
-            }
+        if (currentZoomIndex > 0) {
+        currentZoomIndex--;
+        await setZoom(zoomLevels[currentZoomIndex]);
+        }
         }
 
         // Rotation Functions
         async function rotateClockwise() {
-            currentRotation = (currentRotation + 90) % 360;
-            const searchTerm = document.getElementById('searchBox').value.trim();
-            await renderPage(currentPage, searchTerm);
+        currentRotation = (currentRotation + 90) % 360;
+        const searchTerm = document.getElementById('searchBox').value.trim();
+        await renderPage(currentPage, searchTerm);
         }
 
         async function rotateCounterClockwise() {
-            currentRotation = (currentRotation - 90 + 360) % 360;
-            const searchTerm = document.getElementById('searchBox').value.trim();
-            await renderPage(currentPage, searchTerm);
+        currentRotation = (currentRotation - 90 + 360) % 360;
+        const searchTerm = document.getElementById('searchBox').value.trim();
+        await renderPage(currentPage, searchTerm);
         }
 
         async function resetRotation() {
-            currentRotation = 0;
-            const searchTerm = document.getElementById('searchBox').value.trim();
-            await renderPage(currentPage, searchTerm);
+        currentRotation = 0;
+        const searchTerm = document.getElementById('searchBox').value.trim();
+        await renderPage(currentPage, searchTerm);
         }
 
         // Event listeners for search functionality (even though section is hidden)
         document.getElementById('searchBtn').addEventListener('click', () => {
-            const term = document.getElementById('searchBox').value.trim();
-            performSearch(term);
+        const term = document.getElementById('searchBox').value.trim();
+        performSearch(term);
         });
 
         document.getElementById('cancelBtn').addEventListener('click', () => {
-            if (searchController) {
-                searchController.abort();
-            }
+        if (searchController) {
+        searchController.abort();
+        }
         });
 
         document.getElementById('searchBox').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const term = e.target.value.trim();
-                performSearch(term);
-            }
+        if (e.key === 'Enter') {
+        const term = e.target.value.trim();
+        performSearch(term);
+        }
         });
 
         // Debug mode toggle
         document.getElementById('debugMode').addEventListener('change', (e) => {
-            if (!e.target.checked) {
-                clearDebug();
-            }
+        if (!e.target.checked) {
+        clearDebug();
+        }
         });
 
         // Memory cleanup
         window.addEventListener('beforeunload', () => {
-            searchCache.clear();
-            renderCache.clear();
-            if (searchController) {
-                searchController.abort();
-            }
+        searchCache.clear();
+        renderCache.clear();
+        if (searchController) {
+        searchController.abort();
+        }
         });
 
         // Window resize handler for fit-width
         window.addEventListener('resize', () => {
-            containerWidth = container.clientWidth;
-            if (document.getElementById('scaleSelect').value === 'fit-width') {
-                setZoom('fit-width');
-            }
+        containerWidth = container.clientWidth;
+        if (document.getElementById('scaleSelect').value === 'fit-width') {
+        setZoom('fit-width');
+        }
         });
 
         // Rotation Controls
@@ -1715,37 +1718,37 @@
 
         // When user selects a PDF, load it into iframe (so original can show it)
         fileInput.addEventListener("change", function () {
-            const file = this.files[0];
-            const url = URL.createObjectURL(file);
-            document.getElementById("originalPdfEmbed").src = url;
+        const file = this.files[0];
+        const url = URL.createObjectURL(file);
+        document.getElementById("originalPdfEmbed").src = url;
         });
 
         // Toggle behavior: show original in the same viewer area (replace pdf-viewer)
         toggle.addEventListener("change", function () {
-            if (this.checked) {
-                // show original and hide custom viewer
-                originalContainer.style.display = "block";
-                pdfViewer.style.display = "none";
-            } else {
-                originalContainer.style.display = "none";
-                pdfViewer.style.display = "block";
-            }
+        if (this.checked) {
+        // show original and hide custom viewer
+        originalContainer.style.display = "block";
+        pdfViewer.style.display = "none";
+        } else {
+        originalContainer.style.display = "none";
+        pdfViewer.style.display = "block";
+        }
         });
 
 
         // Save JSON to file function
         function saveJsonToFile(jsonData) {
-            const jsonString = JSON.stringify(jsonData, null, 2);
-            const blob = new Blob([jsonString], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `search-results-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+        const jsonString = JSON.stringify(jsonData, null, 2);
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `search-results-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
         }
     </script>
 
