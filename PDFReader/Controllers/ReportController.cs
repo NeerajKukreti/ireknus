@@ -58,7 +58,7 @@ namespace PDFReader.Controllers
 
         public async Task<ActionResult> GetSearchedReport(string Year, string query = "", bool queryEnabled = false)
         {
-            query = HttpUtility.UrlDecode(query);
+            //query = HttpUtility.UrlDecode(query);
             IEnumerable<KeywordResult> reportResult = DB.GetSearchedReport(Year, query, queryEnabled);
             Session["searchresult"] = reportResult;
             var xx = Json(data: reportResult, JsonRequestBehavior.AllowGet);
