@@ -1,5 +1,7 @@
 ﻿using Dapper;
+using DocumentFormat.OpenXml.Spreadsheet;
 using ExcelDataReader;
+using Microsoft.Ajax.Utilities;
 using Newtonsoft.Json;
 using PDFReader.Helpers;
 using PDFReader.Models;
@@ -298,26 +300,27 @@ namespace PDFReader.Controllers
             FileHandler.UploadHARFile(Request);
             string path = HostingEnvironment.MapPath(ConfigurationManager.AppSettings["UploadPath"] + "/annoucements.har");
             var jsonData = HarHandler.GetJsonFromHARFile(path);
-            //var dt = DB.GetLastAnnDateTime();
+
 
             try
             {
-                var result = JsonConvert.DeserializeObject<Root>(jsonData);
-                //var newList = result?.Table.Where(x => x.DT_TM > dt).Distinct().ToList();
-                var newList = result?.Table.Distinct().ToList();
-                newList = newList.GroupBy(x => x.NEWSID).Select(x => x.FirstOrDefault()).ToList();
+                var result = JsonConvert.DeserializeObject<List<Root>>(jsonData);
+                if (result == null) return 0;
 
-                if (newList.Any())
+                var categories = DB.GetCategories().ToList();
+
+                foreach (var r in result)
                 {
-                    for (int i = 0; i < newList.Count; i += 100)
-                    {
-                        var items = newList.Skip(i).Take(100).ToList();
-                        List<KeyValuePair<string, int>> RepeatedAnnList = new List<KeyValuePair<string, int>>();
-                        AnnouncementBL.PerformSearch(DB.GetCategories().ToList(), newList, RepeatedAnnList);
-                        await insertAnnouncement(items, RepeatedAnnList);
-                    }
+                    var list = r.Table.Where(x => x.NEWSID != null).DistinctBy(x => x.NEWSID).ToList();
+
+                    var repeatedAnnList = new List<KeyValuePair<string, int>>();
+
+                    AnnouncementBL.PerformSearch(categories, list, repeatedAnnList);
+
+                    await insertAnnouncement(list, repeatedAnnList);
                 }
-                return (newList!=null?newList.Count:0);
+
+                return result.SelectMany(r => r.Table1 ?? Enumerable.Empty<Table1>()).FirstOrDefault()?.ROWCNT ?? 0;
             }
             catch (Exception ex)
             {
@@ -399,7 +402,8 @@ namespace PDFReader.Controllers
 
         }
 
-        public async Task DeleteAnnouncement(DateTime date) { 
+        public async Task DeleteAnnouncement(DateTime date)
+        {
             DB.DeleteAnnouncement(date);
         }
     }

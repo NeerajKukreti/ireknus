@@ -29,23 +29,15 @@ namespace PDFReader.Helpers
                             entry.Response.Content.Text.Contains("Table"))
                         {
                             strTemp = null;
-                            strTemp = entry.Response.Content.Text;
-
-                            strTemp = strTemp.Replace("{\"Table\":[", "");
-
-                            string[] stringSeparators = new string[] { "}]," };
-
-                            strTempArr = strTemp.Split(stringSeparators, StringSplitOptions.RemoveEmptyEntries);
-
-                            strFinal = strFinal + strTempArr[0] + "},";
+                            strTemp = entry.Response.Content.Text; 
+                            strFinal = strFinal + strTemp +","; 
                         }
 
                     }
 
                     if (strFinal != null)
                     {
-                        strFinal = strFinal.Remove(strFinal.Length - 1, 1);
-                        strFinal = "{\"Table\":[" + strFinal + "]}";
+                       strFinal = $"[{strFinal.Trim(',')}]";
                     }
                     writer.Flush();
                     return strFinal;
