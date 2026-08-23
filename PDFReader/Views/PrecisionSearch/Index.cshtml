@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = null;
 }
 
@@ -162,7 +162,7 @@
         .content-area {
         display: flex;
         height: calc(100vh - 100px);
-        margin: 20px;
+        /*margin: 20px;*/
         gap: 20px;
         }
 
@@ -525,7 +525,7 @@
             <!-- ROTATION -->
             <div class="control-group">
                 <label>Rotate:</label>
-                <button id="rotateLeft" class="btn"><i class="fas fa-undo title="Rotate Left"></i></button>
+                <button id="rotateLeft" class="btn"><i class="fas fa-undo" title="Rotate Left"></i></button>
                 <span id="rotationInfo" class="rotation-info">0°</span>
                 <button id="rotateRight" class="btn"><i class="fas fa-redo" title="Rotate Right"></i></button>
             </div>
@@ -626,7 +626,30 @@
 
             <!-- Search Results Section -->
             <div class="panel-section">
-                <h4><i class="fas fa-list"></i> Search Results</h4>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                    <h4 style="margin: 0; padding-bottom: 0; border-bottom: none;"><i class="fas fa-list"></i> Search Results</h4>
+                </div>
+
+                <!-- Keyword Status Filter Toggle (All / Found / Not Found) + Save JSON icon -->
+                <div id="keywordFilterContainer" style="display: none; margin-bottom: 12px;">
+                    <div style="display: flex; gap: 4px; align-items: center;">
+                        <div style="display: flex; gap: 4px; flex: 1; background: #e9ecef; padding: 3px; border-radius: 6px;">
+                            <button type="button" id="btnFilterAll" class="kw-filter-btn" style="flex: 1; padding: 5px 4px; font-size: 11px; font-weight: 600; border: none; border-radius: 4px; cursor: pointer; background: #007bff; color: white; transition: all 0.2s;">
+                                All (<span id="countAllKeywords">0</span>)
+                            </button>
+                            <button type="button" id="btnFilterFound" class="kw-filter-btn" style="flex: 1; padding: 5px 4px; font-size: 11px; font-weight: 600; border: none; border-radius: 4px; cursor: pointer; background: transparent; color: #495057; transition: all 0.2s;">
+                                <i class="fas fa-check-circle" style="color: #28a745;"></i> Found (<span id="countFoundKeywords">0</span>)
+                            </button>
+                            <button type="button" id="btnFilterNotFound" class="kw-filter-btn" style="flex: 1; padding: 5px 4px; font-size: 11px; font-weight: 600; border: none; border-radius: 4px; cursor: pointer; background: transparent; color: #495057; transition: all 0.2s;">
+                                <i class="fas fa-times-circle" style="color: #dc3545;"></i> Not Found (<span id="countNotFoundKeywords">0</span>)
+                            </button>
+                        </div>
+                        <button type="button" id="btnSaveJsonFilter" title="Save JSON results" style="padding: 6px 9px; font-size: 14px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.2s;" onmouseover="this.style.background='#218838'" onmouseout="this.style.background='#28a745'">
+                            <i class="fas fa-save"></i>
+                        </button>
+                    </div>
+                </div>
+
                 <div id="searchResults" style="display: grid; gap: 5px;">
                     <div class="no-pdf-message">
                         Load a PDF and search to see results here
@@ -651,8 +674,18 @@
         </div>
 
         <!-- PDF Viewer -->
-        <div class="pdf-viewer">
-            <div id="pdf-container">
+        <div class="pdf-viewer" style="display: flex; flex-direction: column; align-items: stretch;">
+            <!-- Document Full Name Header (Thin Strip, 12px) -->
+            <div id="pdfTitleHeader" style="display: none; width: 100%; margin-bottom: 6px; padding: 4px 10px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; box-sizing: border-box;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-file-pdf" style="font-size: 13px; color: #d9534f; flex-shrink: 0;"></i>
+                    <div style="font-size: 12px; font-weight: 600; color: #212529; word-break: break-all; line-height: 1.2;">
+                        <span id="pdfFullFileName"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pdf-container" style="align-self: center;">
                 <div class="no-pdf-message">
                     <i class="fas fa-file-pdf" style="font-size: 48px; color: #ccc; margin-bottom: 15px;"></i><br>
                     Select a PDF file to begin viewing and searching
@@ -664,10 +697,7 @@
 
         <!-- ORIGINAL PDF VIEWER -->
         <div id="originalPdfContainer">
-            <embed id="originalPdfEmbed"
-                   type="application/pdf"
-                   src=""
-                   style="width:100%; height:100%; border:0;" />
+            <!-- Dynamically populated by renderOriginalPdf(pageNum) -->
         </div>
 
     </div>
@@ -686,6 +716,8 @@
         let containerWidth = 0; // For fit-width calculation
         let textFileContent = null; // Store uploaded text file content
         let currentFileType = 'pdf'; // Track current file type: 'pdf' or 'text'
+        let rawPdfBlobUrl = null; // Stored blob URL for original PDF viewer
+        let currentKeywordFilter = 'all'; // Current keyword filter ('all', 'found', 'notfound')
 
         const canvas = document.getElementById('pdf-canvas');
         const ctx = canvas.getContext('2d');
@@ -854,11 +886,18 @@
         async function goToPage(pageNum) {
         if (!pdfDoc || pageNum < 1 || pageNum > pdfDoc.numPages) return;
 
+        currentPage = pageNum;
         const searchTerm = document.getElementById('searchBox').value.trim();
         await renderPage(pageNum, searchTerm);
 
         // Update active result if applicable
         updateActiveSearchResult(pageNum);
+
+        // If View PDF mode is active, sync page in raw PDF viewer
+        const toggle = document.getElementById("toggleOriginalPdf");
+        if (toggle && toggle.checked && rawPdfBlobUrl) {
+            renderOriginalPdf(pageNum);
+        }
         }
 
         function updateActiveSearchResult(pageNum) {
@@ -946,6 +985,24 @@
         document.getElementById('fileInput').addEventListener('change', async (e) => {
         const file = e.target.files[0];
         if (!file) return;
+
+        // Update Full PDF File Name Header above canvas
+        const titleHeader = document.getElementById('pdfTitleHeader');
+        const fullFileName = document.getElementById('pdfFullFileName');
+        if (titleHeader && fullFileName) {
+            fullFileName.textContent = file.name;
+            titleHeader.style.display = 'block';
+        }
+
+        // Prepare raw PDF URL for native viewer toggle
+        if (rawPdfBlobUrl) {
+            try { URL.revokeObjectURL(rawPdfBlobUrl); } catch(err){}
+        }
+        rawPdfBlobUrl = URL.createObjectURL(file);
+        const toggle = document.getElementById("toggleOriginalPdf");
+        if (toggle && toggle.checked) {
+            renderOriginalPdf(1);
+        }
 
         // Call uploadPdf function first
         await uploadPdf();
@@ -1055,9 +1112,9 @@
         }
         });
 
-        document.getElementById('textFileInput').addEventListener('click', () => {
-        // Allow selecting the same file again
-        fileInput.value = null;
+        document.getElementById('textFileInput').addEventListener('click', function () {
+            // Allow selecting the same file again
+            this.value = null;
         });
 
 
@@ -1104,8 +1161,15 @@
         const result = await response.json();
 
         if (result.success) {
+        // Determine suggested JSON name from uploaded keyword text file
+        let suggestedJsonName = 'search-results.json';
+        if (file && file.name) {
+            const baseName = file.name.replace(/\.[^/.]+$/, "");
+            suggestedJsonName = `${baseName}.json`;
+        }
+
         // Display the search results from PDF processing
-        displayPDFSearchResults(result);
+        displayPDFSearchResults(result, suggestedJsonName);
 
         // Update UI
         searchStats.textContent = `Processed ${result.keywordsCount} keywords, found ${result.phrasesFound} phrases`;
@@ -1117,8 +1181,8 @@
         phrasesFound: result.phrasesFound
         });
 
-        // Save JSON response to file
-        saveJsonToFile(result);
+        // Auto-download JSON silently to the default Downloads folder
+        downloadJsonSilent(result, suggestedJsonName);
         } else {
         alert(result.message);
         updateFileStatus('error', result.message);
@@ -1135,11 +1199,13 @@
         });
 
         // Display PDF search results in the left panel only
-        function displayPDFSearchResults(result) {
+        function displayPDFSearchResults(result, jsonFileName) {
         const resultsDiv = document.getElementById('searchResults');
         resultsDiv.innerHTML = '';
 
-        if (result.phrases && result.phrases.length > 0) {
+        const suggestedName = jsonFileName || (uploadedFile && uploadedFile.name ? uploadedFile.name.replace(/\.[^/.]+$/, "") + ".json" : "search-results.json");
+
+        if (result.phrases && result.headKeywordMap) {
         const phrasesByKeyword = {};
         result.phrases.forEach(phrase => {
         const keyword = phrase.FoundKeywords || 'Unknown';
@@ -1147,29 +1213,52 @@
         phrasesByKeyword[keyword].push(phrase);
         });
 
-        // Summary header
+        // Summary header (clean, no save button - save icon is in the filter bar)
         const headerDiv = document.createElement('div');
         headerDiv.style.cssText = `
         background: #e3f2fd;
         border: 1px solid #007bff;
         border-radius: 4px;
-        padding: 10px;
-        margin-bottom: 15px;
-        text-align: center;
+        padding: 8px 12px;
+        margin-bottom: 12px;
         font-size: 12px;
         color: #0056b3;
         `;
         headerDiv.innerHTML = `
-        Found <strong>${result.phrasesFound}</strong> phrases
-        for <strong>${result.keywordsCount}</strong> keywords
-        under <strong>${result.headersCount}</strong> headers.
-        ${result.skipInfo ? `<br><small style="color: #666;"><i class="fas fa-ban"></i> ${result.skipInfo}</small>` : ''}
+        <div style="line-height: 1.4;">
+            Found <strong>${result.phrasesFound}</strong> phrases
+            for <strong>${result.keywordsCount}</strong> keywords
+            under <strong>${result.headersCount}</strong> headers.
+            ${result.skipInfo ? `<br><small style="color: #666;"><i class="fas fa-ban"></i> ${result.skipInfo}</small>` : ''}
+        </div>
         `;
         resultsDiv.appendChild(headerDiv);
 
+        // Wire up the green Save icon in the filter bar to save the JSON
+        const btnSaveFilter = document.getElementById('btnSaveJsonFilter');
+        if (btnSaveFilter) {
+            // Remove any previously attached listener by replacing the node
+            const newBtn = btnSaveFilter.cloneNode(true);
+            btnSaveFilter.parentNode.replaceChild(newBtn, btnSaveFilter);
+            newBtn.title = `Save JSON (${suggestedName})`;
+            newBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                await saveJsonToFile(result, suggestedName);
+            });
+        }
+
+        let totalKwCount = 0;
+        let foundKwCount = 0;
+        let notFoundKwCount = 0;
+
         // 🔹 Loop through headers (from controller HeadKeywordMap)
         for (const [header, keywords] of Object.entries(result.headKeywordMap)) {
-        // Create header section
+        // Create header container group
+        const headerGroup = document.createElement('div');
+        headerGroup.className = 'keyword-header-group';
+        headerGroup.style.cssText = 'margin-bottom: 10px;';
+
+        // Create header section title
         const headerSection = document.createElement('div');
         headerSection.style.cssText = `
         background: #f0f7ff;
@@ -1177,15 +1266,31 @@
         border-radius: 6px;
         padding: 8px 12px;
         margin-top: 10px;
+        margin-bottom: 6px;
         font-weight: bold;
         color: #0056b3;
         font-size: 14px;
         `;
         headerSection.innerHTML = `<i class="fas fa-folder-open"></i> ${header}`;
-        resultsDiv.appendChild(headerSection);
+        headerGroup.appendChild(headerSection);
 
         // 🔸 Render all keywords under this header
         keywords.forEach((keyword, keywordIndex) => {
+        totalKwCount++;
+        const keywordMatches = phrasesByKeyword[keyword] ? phrasesByKeyword[keyword].length : 0;
+        const isZero = keywordMatches === 0;
+
+        if (isZero) {
+            notFoundKwCount++;
+        } else {
+            foundKwCount++;
+        }
+
+        const kwWrapper = document.createElement('div');
+        kwWrapper.className = 'keyword-item-wrapper';
+        kwWrapper.dataset.status = isZero ? 'notfound' : 'found';
+        kwWrapper.style.marginBottom = '5px';
+
         const keywordDiv = document.createElement('div');
         keywordDiv.className = 'result-page';
         keywordDiv.style.cssText = `
@@ -1198,22 +1303,18 @@
         transition: all 0.2s ease;
         `;
 
-        const keywordMatches = phrasesByKeyword[keyword] ? phrasesByKeyword[keyword].length : 0;
-
-        var totalPhraseCount = 0
+        var totalPhraseCount = 0;
         if (keywordMatches > 0)
         totalPhraseCount = phrasesByKeyword[keyword].reduce((sum, item) => sum + item.PhraseText.length, 0);
 
-        const isZero = keywordMatches == 0;
-
         keywordDiv.innerHTML = `
         <div style="display: flex; align-items: center; justify-content: space-between;">
-        <span style="font-weight: bold; color: ${isZero ? 'orange' : '#007bff'};">
-        <i class="fas ${isZero ? 'fa-search-minus' : 'fa-search'}"></i>
-        ${isZero ? `<s style='color:orange'>${keyword}</s>` : keyword}
+        <span style="font-weight: bold; color: ${isZero ? '#dc3545' : '#007bff'};">
+        <i class="fas ${isZero ? 'fa-times-circle' : 'fa-check-circle'}"></i>
+        ${isZero ? `<span style='color:#6c757d; text-decoration: line-through;'>${keyword}</span>` : keyword}
         </span>
-        <span style="background: #e3f2fd; color: #0056b3; padding: 2px 6px; border-radius: 10px; font-size: 11px;">
-        ${keywordMatches} Pages ${totalPhraseCount > 0 ? `,${totalPhraseCount} Occurrences` : ''}
+        <span style="background: ${isZero ? '#f8d7da' : '#e3f2fd'}; color: ${isZero ? '#721c24' : '#0056b3'}; padding: 2px 6px; border-radius: 10px; font-size: 11px; font-weight: 600;">
+        ${isZero ? '0 Matches' : `${keywordMatches} Pages ${totalPhraseCount > 0 ? `(${totalPhraseCount})` : ''}`}
         </span>
         </div>
         `;
@@ -1274,12 +1375,26 @@
         detailsDiv.style.display = detailsDiv.style.display === 'none' ? 'block' : 'none';
         });
 
-        resultsDiv.appendChild(keywordDiv);
-        resultsDiv.appendChild(detailsDiv);
+        kwWrapper.appendChild(keywordDiv);
+        kwWrapper.appendChild(detailsDiv);
+        headerGroup.appendChild(kwWrapper);
         });
+
+        resultsDiv.appendChild(headerGroup);
         }
+
+        // Update counts in filter toggle buttons
+        document.getElementById('countAllKeywords').textContent = totalKwCount;
+        document.getElementById('countFoundKeywords').textContent = foundKwCount;
+        document.getElementById('countNotFoundKeywords').textContent = notFoundKwCount;
+        document.getElementById('keywordFilterContainer').style.display = 'block';
+
+        // Apply current filter state
+        applyKeywordFilter(currentKeywordFilter);
+
         } else {
         // No results found
+        document.getElementById('keywordFilterContainer').style.display = 'none';
         const noResultsDiv = document.createElement('div');
         noResultsDiv.style.cssText = `
         text-align: center;
@@ -1297,6 +1412,46 @@
         resultsDiv.appendChild(noResultsDiv);
         }
         }
+
+        // Keyword filter function (All / Found / Not Found)
+        function applyKeywordFilter(filterType) {
+            currentKeywordFilter = filterType;
+            const btnAll = document.getElementById('btnFilterAll');
+            const btnFound = document.getElementById('btnFilterFound');
+            const btnNotFound = document.getElementById('btnFilterNotFound');
+
+            if (btnAll && btnFound && btnNotFound) {
+                btnAll.style.background = filterType === 'all' ? '#007bff' : 'transparent';
+                btnAll.style.color = filterType === 'all' ? 'white' : '#495057';
+
+                btnFound.style.background = filterType === 'found' ? '#28a745' : 'transparent';
+                btnFound.style.color = filterType === 'found' ? 'white' : '#495057';
+
+                btnNotFound.style.background = filterType === 'notfound' ? '#dc3545' : 'transparent';
+                btnNotFound.style.color = filterType === 'notfound' ? 'white' : '#495057';
+            }
+
+            const headerGroups = document.querySelectorAll('.keyword-header-group');
+            headerGroups.forEach(group => {
+                const items = group.querySelectorAll('.keyword-item-wrapper');
+                let visibleCount = 0;
+                items.forEach(item => {
+                    const status = item.dataset.status;
+                    if (filterType === 'all' || filterType === status) {
+                        item.style.display = 'block';
+                        visibleCount++;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+                group.style.display = visibleCount > 0 ? 'block' : 'none';
+            });
+        }
+
+        // Attach event listeners for keyword filter buttons
+        document.getElementById('btnFilterAll').addEventListener('click', () => applyKeywordFilter('all'));
+        document.getElementById('btnFilterFound').addEventListener('click', () => applyKeywordFilter('found'));
+        document.getElementById('btnFilterNotFound').addEventListener('click', () => applyKeywordFilter('notfound'));
 
 
         // Search phrase in PDF viewer
@@ -1333,7 +1488,14 @@
 
         // Navigate to the specific page
         if (pageNumber && pageNumber >= 1 && pageNumber <= pdfDoc.numPages) {
+        currentPage = pageNumber;
         await goToPage(pageNumber);
+        
+        // If View PDF mode is active, sync page in raw PDF viewer
+        const toggle = document.getElementById("toggleOriginalPdf");
+        if (toggle && toggle.checked && rawPdfBlobUrl) {
+            document.getElementById("originalPdfEmbed").src = `${rawPdfBlobUrl}#page=${pageNumber}&toolbar=1&navpanes=0`;
+        }
         await new Promise(resolve => setTimeout(resolve, 100));
         }
 
@@ -1713,42 +1875,86 @@
         const toggle = document.getElementById("toggleOriginalPdf");
         const originalContainer = document.getElementById("originalPdfContainer");
         const pdfViewer = document.querySelector(".pdf-viewer");
-        const originalFrame = document.getElementById("originalPdfFrame");
-        const fileInput = document.getElementById("fileInput"); // your PDF file input
 
-        // When user selects a PDF, load it into iframe (so original can show it)
-        fileInput.addEventListener("change", function () {
-        const file = this.files[0];
-        const url = URL.createObjectURL(file);
-        document.getElementById("originalPdfEmbed").src = url;
-        });
+        // Render or re-instantiate raw PDF viewer at specific page
+        function renderOriginalPdf(pageNum) {
+            pageNum = pageNum || currentPage || 1;
+            const container = document.getElementById("originalPdfContainer");
+            if (!container) return;
 
-        // Toggle behavior: show original in the same viewer area (replace pdf-viewer)
+            if (rawPdfBlobUrl) {
+                // Completely replacing container.innerHTML forces the browser PDF plugin to re-instantiate cleanly
+                container.innerHTML = `<embed id="originalPdfEmbed" type="application/pdf" src="${rawPdfBlobUrl}#page=${pageNum}&toolbar=1&navpanes=0" style="width:100%; height:100%; border:0;" />`;
+            } else {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 50px 20px; color: #666;">
+                        <i class="fas fa-file-pdf" style="font-size: 48px; color: #ccc; margin-bottom: 15px;"></i><br>
+                        No PDF file loaded yet. Please select a PDF file first.
+                    </div>`;
+            }
+        }
+
+        // Toggle behavior: show original in the same viewer area and jump to exact currentPage
         toggle.addEventListener("change", function () {
         if (this.checked) {
-        // show original and hide custom viewer
-        originalContainer.style.display = "block";
-        pdfViewer.style.display = "none";
+            // show original and jump to the exact page the user was checking
+            renderOriginalPdf(currentPage);
+            originalContainer.style.display = "block";
+            pdfViewer.style.display = "none";
         } else {
-        originalContainer.style.display = "none";
-        pdfViewer.style.display = "block";
+            // return to custom viewer and re-render current page
+            originalContainer.style.display = "none";
+            pdfViewer.style.display = "flex";
+            if (pdfDoc) {
+                renderPage(currentPage);
+            }
         }
         });
 
 
-        // Save JSON to file function
-        function saveJsonToFile(jsonData) {
-        const jsonString = JSON.stringify(jsonData, null, 2);
-        const blob = new Blob([jsonString], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
+        // Auto-download JSON silently to the browser's default Downloads folder (no dialog)
+        function downloadJsonSilent(jsonData, fileName) {
+            const jsonString = JSON.stringify(jsonData, null, 2);
+            fileName = fileName || `search-results-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
 
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `search-results-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        // Save JSON via native OS "Save As" dialog — called only when user explicitly clicks the green save icon
+        async function saveJsonToFile(jsonData, defaultFileName) {
+            const jsonString = JSON.stringify(jsonData, null, 2);
+            const fileName = defaultFileName || `search-results-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+
+            // Try File System Access API (opens native Save Dialog with pre-filled name)
+            if (window.showSaveFilePicker) {
+                try {
+                    const fileHandle = await window.showSaveFilePicker({
+                        suggestedName: fileName,
+                        types: [{
+                            description: 'JSON Files',
+                            accept: { 'application/json': ['.json'] }
+                        }]
+                    });
+                    const writable = await fileHandle.createWritable();
+                    await writable.write(jsonString);
+                    await writable.close();
+                    debugLog('JSON saved to selected location', { fileName });
+                    return;
+                } catch (err) {
+                    if (err.name === 'AbortError') return; // user cancelled
+                    console.warn('showSaveFilePicker failed, falling back to download:', err);
+                }
+            }
+
+            // Fallback: standard download if File System Access API unavailable
+            downloadJsonSilent(jsonData, fileName);
         }
     </script>
 
