@@ -923,10 +923,14 @@
 
         let regex;
         if (isContentSearch) {
-        const escapedTerm = actualTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const escapedTerm = actualTerm
+        .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        .replace(/\s+/g, '\\s+');
         regex = new RegExp(escapedTerm, 'gi');
         } else {
-        const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const escapedTerm = searchTerm
+        .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        .replace(/\s+/g, '\\s+');
         regex = new RegExp(`\\b${escapedTerm}\\b`, 'gi');
         }
 
@@ -1456,7 +1460,7 @@
 
         // Search phrase in PDF viewer
         async function searchPhraseInPDF(searchTerm, pageNumber, fullPhraseText) {
-
+           
         searchTerm = searchTerm.replace('[', '').replace(']', '').trim();
         // Check if it's content search before removing *
         const isContentSearch = searchTerm.startsWith('*');
@@ -1560,7 +1564,10 @@
         });
 
         // Find first match
-        const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const escapedTerm = searchTerm
+        .trim()
+        .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        .replace(/\s+/g, '\\s+');
         let regex;
         if (window.currentSearchType === 'content') {
         regex = new RegExp(escapedTerm, 'gi');
@@ -1679,6 +1686,7 @@
 
         // Method: Canvas-based highlighting with word boundary or content matching
         async function createCanvasHighlights(textContent, viewport, searchTerm) {
+            debugger;
         if (!searchTerm) return;
 
         // Create a separate canvas for highlights
@@ -1719,12 +1727,16 @@
         });
 
         // Create regex based on search type
-        const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const escapedTerm = searchTerm
+        .trim()
+        .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        .replace(/\s+/g, '\\s+');
         let regex;
         if (window.currentSearchType === 'content') {
         // Content search - simple contains matching
         regex = new RegExp(escapedTerm, 'gi');
-        } else {
+        } else
+        {
         // Word boundary search - exact word/phrase matching
         regex = new RegExp(`\\b${escapedTerm}\\b`, 'gi');
         }
