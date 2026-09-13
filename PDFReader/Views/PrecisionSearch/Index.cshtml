@@ -408,7 +408,7 @@
 
         /* left panel fixed width */
         .left-panel {
-        width: 340px; /* keep whatever width you prefer */
+        width: 450px; /* keep whatever width you prefer */
         overflow: auto;
         box-sizing: border-box;
         }
@@ -1470,6 +1470,9 @@
         // Store search type for highlighting
         window.currentSearchType = isContentSearch ? 'content' : 'word';
 
+        // Clear page text cache so stale entries (from old join logic or previous PDF) never interfere
+        searchCache.clear();
+
         // Check if PDF is loaded
         if (!pdfDoc) {
         alert('PDF not loaded. Please load a PDF file first.');
@@ -1490,22 +1493,21 @@
         ctx.clearRect(0, 0, existingCanvas.width, existingCanvas.height);
         }
 
-        // Navigate to the specific page
+        // Set the search box BEFORE navigating so goToPage picks up the correct term
+        document.getElementById('searchBox').value = searchTerm;
+
+        // Navigate to the specific page — goToPage reads searchBox internally, so it will render with the keyword highlighted
         if (pageNumber && pageNumber >= 1 && pageNumber <= pdfDoc.numPages) {
         currentPage = pageNumber;
         await goToPage(pageNumber);
-        
+
         // If View PDF mode is active, sync page in raw PDF viewer
         const toggle = document.getElementById("toggleOriginalPdf");
         if (toggle && toggle.checked && rawPdfBlobUrl) {
-            document.getElementById("originalPdfEmbed").src = `${rawPdfBlobUrl}#page=${pageNumber}&toolbar=1&navpanes=0`;
+            renderOriginalPdf(pageNumber);
         }
         await new Promise(resolve => setTimeout(resolve, 100));
         }
-
-        // Update search box and trigger highlighting
-        document.getElementById('searchBox').value = searchTerm;
-        await renderPage(currentPage, searchTerm);
 
         // Auto-scroll to show highlighted text
         await scrollToHighlight(searchTerm);
@@ -1550,30 +1552,8 @@
         let foundY = null;
         let foundX = null;
 
-        // Build text and find match position
-        let fullText = '';
-        const itemMap = [];
-
-        textContent.items.forEach((item, index) => {
-        const startPos = fullText.length;
-        fullText += item.str;
-        if (item.hasEOL || (index < textContent.items.length - 1 && !item.str.endsWith(' '))) {
-        fullText += ' ';
-        }
-        itemMap.push({ item, startPos, endPos: fullText.length });
-        });
-
-        // Find first match
-        const escapedTerm = searchTerm
-        .trim()
-        .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-        .replace(/\s+/g, '\\s+');
-        let regex;
-        if (window.currentSearchType === 'content') {
-        regex = new RegExp(escapedTerm, 'gi');
-        } else {
-        regex = new RegExp(`\\b${escapedTerm}\\b`, 'gi');
-        }
+        const { fullText, itemMap } = buildPageTextMap(textContent);
+        const regex = buildSearchRegex(searchTerm);
 
         const match = regex.exec(fullText);
         if (match) {
@@ -1684,102 +1664,122 @@
         await createCanvasHighlights(textContent, viewport, searchTerm);
         }
 
+        // Robust text reconstruction that preserves words while detecting spaces from line breaks and physical horizontal gaps
+        function buildPageTextMap(textContent) {
+            let fullText = '';
+            const itemMap = [];
+
+            for (let i = 0; i < textContent.items.length; i++) {
+                const item = textContent.items[i];
+                const startPos = fullText.length;
+                fullText += item.str;
+
+                if (i < textContent.items.length - 1) {
+                    const nextItem = textContent.items[i + 1];
+                    const isNewLine = item.hasEOL || Math.abs(item.transform[5] - nextItem.transform[5]) > 3;
+
+                    if (isNewLine) {
+                        if (!item.str.endsWith(' ') && !item.str.endsWith('-')) {
+                            fullText += ' ';
+                        }
+                    } else {
+                        // Same line: check horizontal gap between end of current item and start of next item
+                        const gap = nextItem.transform[4] - (item.transform[4] + item.width);
+                        const minGap = (item.height || 10) * 0.15;
+                        if (gap > minGap && !item.str.endsWith(' ') && !nextItem.str.startsWith(' ')) {
+                            fullText += ' ';
+                        }
+                    }
+                }
+
+                itemMap.push({
+                    item: item,
+                    startPos: startPos,
+                    endPos: fullText.length,
+                    index: i
+                });
+            }
+
+            return { fullText, itemMap };
+        }
+
+        // Build flexible regex matching words or content
+        function buildSearchRegex(searchTerm) {
+            const cleanTerm = searchTerm.replace(/^\[/, '').replace(/\]$/, '').trim();
+            const isContent = window.currentSearchType === 'content' || cleanTerm.startsWith('*');
+            const term = cleanTerm.startsWith('*') ? cleanTerm.substring(1) : cleanTerm;
+
+            const words = term.trim().split(/\s+/);
+            const escapedWords = words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+            const flexPattern = escapedWords.join('\\s+');
+
+            if (isContent) {
+                return new RegExp(flexPattern, 'gi');
+            } else {
+                return new RegExp(`(?<![a-zA-Z0-9])${flexPattern}(?![a-zA-Z0-9])`, 'gi');
+            }
+        }
+
         // Method: Canvas-based highlighting with word boundary or content matching
         async function createCanvasHighlights(textContent, viewport, searchTerm) {
-            debugger;
-        if (!searchTerm) return;
+            if (!searchTerm) return;
 
-        // Create a separate canvas for highlights
-        let highlightCanvas = document.getElementById('highlight-canvas');
-        if (!highlightCanvas) {
-        highlightCanvas = document.createElement('canvas');
-        highlightCanvas.id = 'highlight-canvas';
-        highlightCanvas.style.position = 'absolute';
-        highlightCanvas.style.top = '0';
-        highlightCanvas.style.left = '0';
-        highlightCanvas.style.pointerEvents = 'none';
-        container.appendChild(highlightCanvas);
-        }
+            // Create a separate canvas for highlights
+            let highlightCanvas = document.getElementById('highlight-canvas');
+            if (!highlightCanvas) {
+                highlightCanvas = document.createElement('canvas');
+                highlightCanvas.id = 'highlight-canvas';
+                highlightCanvas.style.position = 'absolute';
+                highlightCanvas.style.top = '0';
+                highlightCanvas.style.left = '0';
+                highlightCanvas.style.pointerEvents = 'none';
+                container.appendChild(highlightCanvas);
+            }
 
-        highlightCanvas.width = canvas.width;
-        highlightCanvas.height = canvas.height;
-        const highlightCtx = highlightCanvas.getContext('2d');
+            highlightCanvas.width = canvas.width;
+            highlightCanvas.height = canvas.height;
+            const highlightCtx = highlightCanvas.getContext('2d');
 
-        highlightCtx.clearRect(0, 0, highlightCanvas.width, highlightCanvas.height);
-        highlightCtx.fillStyle = 'rgba(255, 255, 0, 0.4)';
+            highlightCtx.clearRect(0, 0, highlightCanvas.width, highlightCanvas.height);
+            highlightCtx.fillStyle = 'rgba(255, 255, 0, 0.4)';
 
-        // Build full text with position mapping
-        let fullText = '';
-        const itemMap = [];
+            const { fullText, itemMap } = buildPageTextMap(textContent);
+            const regex = buildSearchRegex(searchTerm);
 
-        textContent.items.forEach((item, index) => {
-        const startPos = fullText.length;
-        fullText += item.str;
-        if (item.hasEOL || (index < textContent.items.length - 1 && !item.str.endsWith(' '))) {
-        fullText += ' ';
-        }
-        itemMap.push({
-        item: item,
-        startPos: startPos,
-        endPos: fullText.length,
-        index: index
-        });
-        });
+            let match;
+            while ((match = regex.exec(fullText)) !== null) {
+                const matchStart = match.index;
+                const matchEnd = match.index + match[0].length;
 
-        // Create regex based on search type
-        const escapedTerm = searchTerm
-        .trim()
-        .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-        .replace(/\s+/g, '\\s+');
-        let regex;
-        if (window.currentSearchType === 'content') {
-        // Content search - simple contains matching
-        regex = new RegExp(escapedTerm, 'gi');
-        } else
-        {
-        // Word boundary search - exact word/phrase matching
-        regex = new RegExp(`\\b${escapedTerm}\\b`, 'gi');
-        }
+                // Highlight all items that overlap with this match span
+                itemMap.forEach(mapping => {
+                    if (mapping.startPos < matchEnd && mapping.endPos > matchStart) {
+                        const tx = pdfjsLib.Util.transform(viewport.transform, mapping.item.transform);
 
-        let match;
-        while ((match = regex.exec(fullText)) !== null) {
-        const matchStart = match.index;
-        const matchEnd = match.index + match[0].length;
+                        const x = tx[4];
+                        const fontSize = Math.sqrt(tx[0] * tx[0] + tx[1] * tx[1]);
+                        const height = (mapping.item.height ? mapping.item.height * currentScale : fontSize) || fontSize;
+                        const width = mapping.item.width * currentScale;
+                        const y = tx[5] - height;
 
-        // Highlight items that contain this match
-        itemMap.forEach(mapping => {
-        if (mapping.startPos < matchEnd && mapping.endPos > matchStart) {
-        const tx = pdfjsLib.Util.transform(viewport.transform, mapping.item.transform);
-
-        const x = tx[4];
-        const y = tx[5] - mapping.item.height;
-        const width = mapping.item.width;
-        const height = mapping.item.height;
-
-        highlightCtx.fillRect(x, y, width, height);
-        }
-        });
-        }
+                        highlightCtx.fillRect(x, y, width, height);
+                    }
+                });
+            }
         }
 
         // Get page text for searching
         async function getPageText(pageNum) {
-        if (searchCache.has(pageNum)) {
-        return searchCache.get(pageNum);
-        }
+            if (searchCache.has(pageNum)) {
+                return searchCache.get(pageNum);
+            }
 
-        const page = await pdfDoc.getPage(pageNum);
-        const textContent = await page.getTextContent();
-        let text = '';
-        textContent.items.forEach((item, index) => {
-        text += item.str;
-        if (item.hasEOL || (index < textContent.items.length - 1 && !item.str.endsWith(' '))) {
-        text += ' ';
-        }
-        });
+            const page = await pdfDoc.getPage(pageNum);
+            const textContent = await page.getTextContent();
+            const { fullText } = buildPageTextMap(textContent);
 
-        searchCache.set(pageNum, text);
-        return text;
+            searchCache.set(pageNum, fullText);
+            return fullText;
         }
 
         // Zoom Functions
@@ -1800,6 +1800,12 @@
 
         const searchTerm = document.getElementById('searchBox').value.trim();
         await renderPage(currentPage, searchTerm);
+
+        // If View PDF mode is active, sync raw PDF viewer with the updated zoom
+        const toggle = document.getElementById("toggleOriginalPdf");
+        if (toggle && toggle.checked && rawPdfBlobUrl) {
+            renderOriginalPdf(currentPage);
+        }
         }
 
         async function zoomIn() {
@@ -1888,15 +1894,20 @@
         const originalContainer = document.getElementById("originalPdfContainer");
         const pdfViewer = document.querySelector(".pdf-viewer");
 
-        // Render or re-instantiate raw PDF viewer at specific page
-        function renderOriginalPdf(pageNum) {
+        // Render or re-instantiate raw PDF viewer at specific page and sync with zoomInfo %
+        function renderOriginalPdf(pageNum, zoomPercent) {
             pageNum = pageNum || currentPage || 1;
             const container = document.getElementById("originalPdfContainer");
             if (!container) return;
 
+            // Get zoom percentage in sync with zoomInfo control (e.g. 125, 150)
+            const zoomText = document.getElementById('zoomInfo') ? document.getElementById('zoomInfo').textContent : '';
+            const parsedZoom = parseInt(zoomText);
+            const zoom = zoomPercent || (!isNaN(parsedZoom) && parsedZoom > 0 ? parsedZoom : Math.round((currentScale || 1.25) * 100));
+
             if (rawPdfBlobUrl) {
-                // Completely replacing container.innerHTML forces the browser PDF plugin to re-instantiate cleanly
-                container.innerHTML = `<embed id="originalPdfEmbed" type="application/pdf" src="${rawPdfBlobUrl}#page=${pageNum}&toolbar=1&navpanes=0" style="width:100%; height:100%; border:0;" />`;
+                // Completely replacing container.innerHTML forces the browser PDF plugin to re-instantiate cleanly with page and zoom in sync
+                container.innerHTML = `<embed id="originalPdfEmbed" type="application/pdf" src="${rawPdfBlobUrl}#page=${pageNum}&zoom=${zoom}&toolbar=1&navpanes=0" style="width:100%; height:100%; border:0;" />`;
             } else {
                 container.innerHTML = `
                     <div style="text-align: center; padding: 50px 20px; color: #666;">
