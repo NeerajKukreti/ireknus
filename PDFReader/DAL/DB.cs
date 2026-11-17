@@ -211,31 +211,55 @@ namespace PDFReader
             }
         }
 
+        public static void InsertFoundKeywords(IDbConnection db, List<FetchedKeywords> list, int TotalPages, bool IsPDF_Skipped, int ReportId)
+        {
+            var dt = new DataTable();
+            dt.Columns.Add("ReportID");
+            dt.Columns.Add("PDFPageNumber");
+            dt.Columns.Add("foundKeywords");
+            dt.Columns.Add("pagetext");
+
+            if (list != null)
+            {
+                foreach (var item in list)
+                {
+                    dt.Rows.Add(item.ReportID, item.PDFPageNumber, item.FoundKeywords, item.PageText);
+                }
+            }
+
+            db.Execute("sp_InsertFOundKeywords",
+                new
+                {
+                    @keywords = dt.AsTableValuedParameter("SearchedKeywordsType"),
+                    @TotalPages = TotalPages,
+                    @IsSkipped = IsPDF_Skipped,
+                    @ReportId = ReportId
+                }, commandType: CommandType.StoredProcedure);
+        }
+
+        public static void InsertFoundKeywords(IEnumerable<PDFSearchResult> results)
+        {
+            if (results == null) return;
+
+            using (IDbConnection db = new SqlConnection(Connection.MyConnection()))
+            {
+                db.Open();
+                foreach (var result in results)
+                {
+                    if (result != null)
+                    {
+                        InsertFoundKeywords(db, result.FetchedKeywords, result.TotalPages, result.IsSkipped, result.ReportID);
+                    }
+                }
+            }
+        }
+
         public static async Task InsertFoundKeywords(List<FetchedKeywords> list, int TotalPages, bool IsPDF_Skipped, int ReportId)
         {
             using (IDbConnection db = new SqlConnection(Connection.MyConnection()))
             {
                 db.Open();
-
-                var dt = new DataTable();
-                dt.Columns.Add("ReportID");
-                dt.Columns.Add("PDFPageNumber");
-                dt.Columns.Add("foundKeywords");
-                dt.Columns.Add("pagetext");
-
-                foreach (var item in list)
-                {
-                    dt.Rows.Add(item.ReportID, item.PDFPageNumber, item.FoundKeywords, item.PageText);
-                }
-
-                await db.QueryAsync("sp_InsertFOundKeywords",
-                    new
-                    {
-                        @keywords = dt.AsTableValuedParameter("SearchedKeywordsType"),
-                        @TotalPages = TotalPages,
-                        @IsSkipped = IsPDF_Skipped,
-                        @ReportId = ReportId
-                    }, commandType: CommandType.StoredProcedure);
+                InsertFoundKeywords(db, list, TotalPages, IsPDF_Skipped, ReportId);
             }
         }
 

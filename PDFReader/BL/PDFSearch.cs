@@ -31,7 +31,7 @@ namespace PDFReader
             return data;
         }
 
-        public static async Task<List<FetchedKeywords>> Search(int ReportID, string PDFUrl, List<string> searchList)
+        public static async Task<PDFSearchResult> Search(int ReportID, string PDFUrl, List<string> searchList)
         {
             List<FetchedKeywords> fetchedKeywords = new List<FetchedKeywords>();
             int page = 0;
@@ -52,57 +52,67 @@ namespace PDFReader
                 if (pdfReader == null)
                 {
                     PDFUrl = PDFUrl.Replace("AttachLive", "AttachHis");
-                    pdfReader = new PdfReader(PDFUrl);
+                    try
+                    {
+                        pdfReader = new PdfReader(PDFUrl);
+                    }
+                    catch { }
                 }
 
-                Dictionary<int, string> strlist = new Dictionary<int, string>();
-                TotalPage = pdfReader?.NumberOfPages;
-
-                for (page = 1; page <= pdfReader.NumberOfPages; page++)
+                if (pdfReader != null)
                 {
-                    ITextExtractionStrategy strategy = new SimpleTextExtractionStrategy();
-                    ITextExtractionStrategy strategy1 = new LocationTextExtractionStrategy();
-                    string currentPageText = PdfTextExtractor.GetTextFromPage(pdfReader, page, strategy);
-                    currentPageText = currentPageText + " " + PdfTextExtractor.GetTextFromPage(pdfReader, page, strategy1);
-                    currentPageText =
-                        Regex.Replace(currentPageText.Replace(" \n", " ").Replace("\n", " "), @"\s+", " ");
+                    Dictionary<int, string> strlist = new Dictionary<int, string>();
+                    TotalPage = pdfReader.NumberOfPages;
 
-                    if (string.IsNullOrEmpty(currentPageText)) { emptyPageCtn++; continue; }
-
-                    List<string> keywords = new List<string>();
-
-                    searchList.ForEach(keyword =>
+                    for (page = 1; page <= pdfReader.NumberOfPages; page++)
                     {
-                        var pattern = @"\b" + keyword.ToLower() + @"\b";
+                        ITextExtractionStrategy strategy = new SimpleTextExtractionStrategy();
+                        ITextExtractionStrategy strategy1 = new LocationTextExtractionStrategy();
+                        string currentPageText = PdfTextExtractor.GetTextFromPage(pdfReader, page, strategy);
+                        currentPageText = currentPageText + " " + PdfTextExtractor.GetTextFromPage(pdfReader, page, strategy1);
+                        currentPageText =
+                            Regex.Replace(currentPageText.Replace(" \n", " ").Replace("\n", " "), @"\s+", " ");
 
-                        Regex rgx = new Regex(pattern);
-                        Match match = rgx.Match(currentPageText.ToLower());
+                        if (string.IsNullOrEmpty(currentPageText)) { emptyPageCtn++; continue; }
 
-                        if (match.Success)
+                        List<string> keywords = new List<string>();
+
+                        searchList.ForEach(keyword =>
                         {
-                            keywords.Add(keyword);
-                        }
-                    });
+                            var pattern = @"\b" + keyword.ToLower() + @"\b";
 
-                    keywords.ForEach(keyword =>
-                    {
-                        fetchedKeywords.Add(new FetchedKeywords
-                        {
-                            ReportID = ReportID,
-                            FoundKeywords = keyword,
-                            PDFPageNumber = page
+                            Regex rgx = new Regex(pattern);
+                            Match match = rgx.Match(currentPageText.ToLower());
+
+                            if (match.Success)
+                            {
+                                keywords.Add(keyword);
+                            }
                         });
-                    });
+
+                        keywords.ForEach(keyword =>
+                        {
+                            fetchedKeywords.Add(new FetchedKeywords
+                            {
+                                ReportID = ReportID,
+                                FoundKeywords = keyword,
+                                PDFPageNumber = page
+                            });
+                        });
+                    }
+
+                    pdfReader.Close();
                 }
-
-                pdfReader.Close();
-
             }
             catch { }
 
-            await DB.InsertFoundKeywords(fetchedKeywords, (TotalPage ?? 0), emptyPageCtn == TotalPage, ReportID);
-
-            return fetchedKeywords;
+            return new PDFSearchResult
+            {
+                ReportID = ReportID,
+                TotalPages = TotalPage ?? 0,
+                IsSkipped = (emptyPageCtn == TotalPage && (TotalPage ?? 0) > 0),
+                FetchedKeywords = fetchedKeywords
+            };
         }
 
         public static async Task<List<FetchedPhrase>> GetPhrases(string reportId, string PDFUrl, string keyword)

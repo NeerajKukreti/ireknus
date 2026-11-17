@@ -13,7 +13,9 @@ using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Data.SqlClient;
 using System.Web.Mvc;
 using System.Web.UI;
 
@@ -127,14 +129,14 @@ namespace PDFReader.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult ExecuteAlertJob(int rptId = 0, DateTime? dt = null)
+        public async Task<ActionResult> ExecuteAlertJob(int rptId = 0, DateTime? dt = null)
         {
             var alerts = DB.GetSettings()
                 .Where(x => x.ACTIVE && (rptId == 0 || x.ALERT_ID == rptId)).ToList();
 
             StringBuilder str = new StringBuilder();
 
-            alerts.ForEach(alert =>
+            foreach (var alert in alerts)
             {
                 var reports = DB.insertCompaniesData(alert.ALERT_NAME, dt);
                 str.Append($"Alert: {alert.ALERT_NAME}<br/>");
@@ -144,13 +146,14 @@ namespace PDFReader.Controllers
                 {
                     var annReports = DB.GetReportsByAnnId(alert.ALERT_NAME, string.Join(",", reports.Select(x => x.annid))).ToList();
                     var keywords = DB.GetKeywordsBySetName(alert.KEYWORD_SET);
+                    var keywordList = keywords.Select(x => x.KEYWORD).ToList();
 
-                    Parallel.ForEach(annReports, report =>
-                    {
-                        PDFSearch.Search(report.ID, report.URL, keywords.Select(x => x.KEYWORD).ToList());
-                    });
+                    // 1. Search in memory
+                    var searchTasks = annReports.Select(report => PDFSearch.Search(report.ID, report.URL, keywordList));
+                    var searchResults = await Task.WhenAll(searchTasks);
 
-                    //var finalReport = DB.GetSearchedReportNyAnnId(alert.ALERT_NAME, string.Join(",", reports.Select(x => x.annid)));
+                    // 2. Persist findings to DB
+                    DB.InsertFoundKeywords(searchResults);
                 }
 
                 var finalReport = DB
@@ -167,7 +170,7 @@ namespace PDFReader.Controllers
                         str.Append($"Mail supposed to be sent<br/><br/><br/>");
                     }
                 }
-            });
+            }
 
             return Content(str.ToString(), "text/html");
         }
@@ -349,7 +352,7 @@ namespace PDFReader.Controllers
             return View("_AlertReportList", ob);
         }
 
-        public void AlertInsert(string alertName, DateTime alertDate)
+        public async Task AlertInsert(string alertName, DateTime alertDate)
         {
             var alerts = new List<AlertModel>();
 
@@ -365,17 +368,30 @@ namespace PDFReader.Controllers
             string xx = "";
             try
             {
-                alerts.ForEach(alert =>
+                foreach (var alert in alerts)
                 {
                     var reports = DB.insertCompaniesData(alert.ALERT_NAME, alertDate);
-                    var annReports = DB.GetReportsByAnnId(alert.ALERT_NAME, string.Join(",", reports.Select(x => x.annid))).ToList();
-                    var keywords = DB.GetKeywordsBySetName(alert.KEYWORD_SET);
-
-                    foreach (var report in annReports)
+                    if (reports == null || !reports.Any())
                     {
-                        PDFSearch.Search(report.ID, report.URL, keywords.Select(x => x.KEYWORD).ToList());
+                        continue;
                     }
-                });
+
+                    var annReports = DB.GetReportsByAnnId(alert.ALERT_NAME, string.Join(",", reports.Select(x => x.annid))).ToList();
+                    if (annReports == null || !annReports.Any())
+                    {
+                        continue;
+                    }
+
+                    var keywords = DB.GetKeywordsBySetName(alert.KEYWORD_SET);
+                    var keywordList = keywords.Select(x => x.KEYWORD).ToList();
+
+                    // 1. Search in memory
+                    var searchTasks = annReports.Select(report => PDFSearch.Search(report.ID, report.URL, keywordList));
+                    var searchResults = await Task.WhenAll(searchTasks);
+
+                    // 2. Persist findings to DB
+                    DB.InsertFoundKeywords(searchResults.Where(x => x.FetchedKeywords != null && x.FetchedKeywords.Any()));
+                }
             }
             catch (Exception ee)
             {
@@ -384,9 +400,9 @@ namespace PDFReader.Controllers
             }
 
         }
-        public ActionResult GetAlertReportList(string alertName, DateTime alertDate)
+        public async Task<ActionResult> GetAlertReportList(string alertName, DateTime alertDate)
         {
-            AlertInsert(alertName, alertDate);
+            await AlertInsert(alertName, alertDate);
             var jsonResult = Json(data: DB.GetSearchedReport(alertName, alertDate, alertDate), JsonRequestBehavior.AllowGet);
             jsonResult.MaxJsonLength = int.MaxValue;
 

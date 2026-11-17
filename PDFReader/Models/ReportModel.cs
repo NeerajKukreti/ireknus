@@ -16,6 +16,14 @@ namespace PDFReader.Model
         public int annid { get; set; }
     }
 
+    public class PDFSearchResult
+    {
+        public int ReportID { get; set; }
+        public int TotalPages { get; set; }
+        public bool IsSkipped { get; set; }
+        public List<FetchedKeywords> FetchedKeywords { get; set; } = new List<FetchedKeywords>();
+    }
+
     public class FetchedKeywords
     {
         public int ID { get; set; }
